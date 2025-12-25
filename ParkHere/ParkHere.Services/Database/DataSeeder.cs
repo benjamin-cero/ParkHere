@@ -53,8 +53,7 @@ namespace ParkHere.Services.Database
             var admin2Hash = PasswordGenerator.GenerateHash(defaultPassword, admin2Salt);
 
             // Common password for generated users
-            var commonUserSalt = PasswordGenerator.GenerateDeterministicSalt("common");
-            var commonUserHash = PasswordGenerator.GenerateHash(defaultPassword, commonUserSalt);
+            // Salt and hash will be generated per user based on username
 
             var users = new List<User>
             {
@@ -119,15 +118,19 @@ namespace ParkHere.Services.Database
             int startId = 4;
             for (int i = 0; i < randomNames.Length; i++)
             {
+                var username = $"user{startId + i}";
+                var salt = PasswordGenerator.GenerateDeterministicSalt(username);
+                var hash = PasswordGenerator.GenerateHash(defaultPassword, salt);
+
                 users.Add(new User
                 {
                     Id = startId + i,
                     FirstName = randomNames[i].Item1,
                     LastName = randomNames[i].Item2,
                     Email = $"{randomNames[i].Item1.ToLower()}.{randomNames[i].Item2.ToLower()}@example.com",
-                    Username = $"user{startId + i}",
-                    PasswordHash = commonUserHash,
-                    PasswordSalt = commonUserSalt,
+                    Username = username,
+                    PasswordHash = hash,
+                    PasswordSalt = salt,
                     IsActive = true,
                     CreatedAt = fixedDate,
                     PhoneNumber = DefaultPhoneNumber,
@@ -184,24 +187,93 @@ namespace ParkHere.Services.Database
                 new ParkingSpotType { Id = 4, Type = "Electric", PriceMultiplier = 1.20m, IsActive = true }
             );
 
-            modelBuilder.Entity<Vehicle>().HasData(
-                new Vehicle { Id = 1, LicensePlate = "ABC-123", UserId = 1, IsActive = true },
-                new Vehicle { Id = 2, LicensePlate = "DEF-456", UserId = 2, IsActive = true },
-                new Vehicle { Id = 3, LicensePlate = "GHI-789", UserId = 3, IsActive = true },
-                new Vehicle { Id = 4, LicensePlate = "JKL-012", UserId = 4, IsActive = true }
-            );
+            var vehicles = new List<Vehicle>();
+            int vehicleIdCounter = 1;
+
+            foreach (var user in users)
+            {
+                // Default 1 vehicle per user
+                int vehiclesCount = 1;
+                
+                // Benjamin (Id 2) gets 2 vehicles
+                if (user.Id == 2)
+                {
+                    vehiclesCount = 2;
+                }
+
+                for (int i = 1; i <= vehiclesCount; i++)
+                {
+                    bool isActive = true;
+                    // Special case for Benjamin (Id 2): 2nd vehicle is inactive
+                    if (user.Id == 2 && i == 2)
+                    {
+                        isActive = false;
+                    }
+
+                    string licensePlate = $"VHC-{user.Id:D3}-{i}";
+
+                    vehicles.Add(new Vehicle
+                    {
+                        Id = vehicleIdCounter++,
+                        LicensePlate = licensePlate,
+                        UserId = user.Id,
+                        IsActive = isActive
+                    });
+                }
+            }
+
+            modelBuilder.Entity<Vehicle>().HasData(vehicles);
 
 
-            modelBuilder.Entity<ParkingSpot>().HasData(
-                new ParkingSpot { Id = 1, SpotCode = "A1-  L1",        ParkingWingId  = 1,  ParkingSpotTypeId  = 1,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 2, SpotCode = "A1-  R1",        ParkingWingId  = 2,  ParkingSpotTypeId  = 1,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 3, SpotCode = "A2-  L1",        ParkingWingId  = 3,  ParkingSpotTypeId  = 2,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 4, SpotCode = "A2-  R1",        ParkingWingId  = 4,  ParkingSpotTypeId  = 2,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 5, SpotCode = "A3-  L1",        ParkingWingId  = 5,  ParkingSpotTypeId  = 3,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 6, SpotCode = "A3-  R1",        ParkingWingId  = 6,  ParkingSpotTypeId  = 3,      IsOccupied  =   false,   IsActive =   true },
-                new ParkingSpot { Id = 7, SpotCode = "A4-  L1",        ParkingWingId  = 7,  ParkingSpotTypeId  = 1,      IsOccupied  =   false,   IsActive =   false }, 
-                new ParkingSpot { Id = 8, SpotCode = "A4-  R1",        ParkingWingId  = 8,  ParkingSpotTypeId  = 1,      IsOccupied  =   false,   IsActive =   false } 
-            );
+            var parkingSpots = new List<ParkingSpot>();
+            int spotIdCounter = 1;
+            int spotsPerWing = 15;
+
+            // Wings 1-8 are defined above.
+            // Wing 1 (Left), 2 (Right) -> Sector 1 (A1)
+            // Wing 3 (Left), 4 (Right) -> Sector 2 (A2)
+            // Wing 5 (Left), 6 (Right) -> Sector 3 (A3)
+            // Wing 7 (Left), 8 (Right) -> Sector 4 (A4) - Inactive
+
+            for (int wingId = 1; wingId <= 8; wingId++)
+            {
+                // Determine Sector and Wing Name for code generation
+                // Wings 1,3,5,7 are Left. Wings 2,4,6,8 are Right.
+                bool isLeft = (wingId % 2 != 0);
+                string wingInitial = isLeft ? "L" : "R";
+                
+                // Sectors: 1->1, 2->1; 3->2, 4->2; etc.
+                int sectorId = (wingId + 1) / 2;
+                string sectorName = $"A{sectorId}"; // Or similar logic if names were dynamic
+
+                // Sector 4 is inactive
+                bool isSectorActive = (sectorId != 4);
+                
+                for (int i = 1; i <= spotsPerWing; i++)
+                {
+                    // Spot Code e.g. "A1-  L1", "A1-  L15"
+                    string spotCode = $"{sectorName}-  {wingInitial}{i}";
+
+                    // Distribute types somewhat randomly or cyclically
+                    // 1=Regular, 2=VIP, 3=Handicapped, 4=Electric
+                    int typeId = 1; 
+                    if (sectorId == 2) typeId = 2; // VIP floor? Or mix
+                    else if (i % 10 == 0) typeId = 3; // Every 10th handicapped
+                    else if (i % 7 == 0) typeId = 4; // Every 7th electric
+                    
+                    parkingSpots.Add(new ParkingSpot
+                    {
+                        Id = spotIdCounter++,
+                        SpotCode = spotCode,
+                        ParkingWingId = wingId,
+                        ParkingSpotTypeId = typeId,
+                        IsOccupied = false,
+                        IsActive = isSectorActive
+                    });
+                }
+            }
+
+            modelBuilder.Entity<ParkingSpot>().HasData(parkingSpots);
 
 
             // Seed Genders

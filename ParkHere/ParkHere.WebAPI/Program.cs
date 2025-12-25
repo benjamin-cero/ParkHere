@@ -18,6 +18,7 @@ builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IGenderService, GenderService>();
 builder.Services.AddTransient<ICityService, CityService>();
 builder.Services.AddTransient<IParkingSpotTypeService, ParkingSpotTypeService>();
+builder.Services.AddTransient<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddTransient<IParkingSectorService, ParkingSectorService>();
 builder.Services.AddTransient<IParkingWingService, ParkingWingService>();
 builder.Services.AddTransient<IVehicleService, VehicleService>();
