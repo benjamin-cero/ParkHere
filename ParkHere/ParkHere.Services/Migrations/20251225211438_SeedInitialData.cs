@@ -333,8 +333,8 @@ namespace ParkHere.Services.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "IsActive", "Name" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Full system access and administrative privileges", true, "Administrator" },
-                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Standard user with limited system access", true, "User" }
+                    { 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Full system access and administrative privileges", true, "Administrator" },
+                    { 2, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Standard user with limited system access", true, "User" }
                 });
 
             migrationBuilder.InsertData(
@@ -357,18 +357,18 @@ namespace ParkHere.Services.Migrations
                 columns: new[] { "Id", "CityId", "CreatedAt", "Email", "FirstName", "GenderId", "IsActive", "LastLoginAt", "LastName", "PasswordHash", "PasswordSalt", "PhoneNumber", "Picture", "Username" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "adil.joldic@parkhere.com", "Adil", 1, true, null, "Joldic", "SKCEf8PFXFpwXefUyKkpl6MMBen54WiyctXTCdWrHd0=", "aGk9AqtPuyMxuMw5kVMi5A==", "+387 61 123 456", null, "desktop" },
-                    { 2, 5, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "parkhere.receive@gmail.com", "Benjamin", 1, true, null, "Cero", "+/pM4+5rgrwaezXoDcdKMtyc2Q7IM+rGT5qT8AOUBRE=", "BPiZbadjt6lpsQKO4wB1aQ==", "+387 61 123 456", null, "user" },
-                    { 3, 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "elmir.babovic@parkhere.com", "Elmir", 1, true, null, "Babovic", "vlAx8k6vnwwlvR7VmvHyN82cIDhXROKGCAoEKA7BwFI=", "HBQrLQGqNOmja95IBkWlfw==", "+387 61 123 456", null, "admin2" },
-                    { 4, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "haris.horozovic@example.com", "Haris", 1, true, null, "Horozovic", "mtFJH04D349xXkUMfA4tp+BOjxlZcjm6uv7HP00C3yc=", "UmnvmA3keBm6PRQ0D0ZlJg==", "+387 61 123 456", null, "user4" },
-                    { 5, 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "faris.festic@example.com", "Faris", 2, true, null, "Festic", "dlD2S1dpzmbVudRYt/XjL99kbQxtHMSKkGGdAMNY9Hg=", "Wjm+rTGPMGk5rLHQFmR74g==", "+387 61 123 456", null, "user5" },
-                    { 6, 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "adna.adnic@example.com", "Adna", 1, true, null, "Adnic", "dcJhdhYypJ7d0fEaMehy5nP2f3lxypSzm9psBLmfsO8=", "7LSKHMlPlRJS7EYv6ezFXA==", "+387 61 123 456", null, "user6" },
-                    { 7, 4, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "edin.edinic@example.com", "Edin", 2, true, null, "Edinic", "DRKrAdQZxSIqX5yevQK5mgryL9t0dFyZLKRXrX2/9g0=", "MmgVHlLZe0ys+X9bRqXHbA==", "+387 61 123 456", null, "user7" },
-                    { 8, 5, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "maja.majic@example.com", "Maja", 1, true, null, "Majic", "JDpi7VMo8vu+/VjoBvwmiDnLXtqNCdnXuvzz6E7wo2g=", "9gr6SYmn2xMxSiq5iBNyYw==", "+387 61 123 456", null, "user8" },
-                    { 9, 6, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "sara.saric@example.com", "Sara", 2, true, null, "Saric", "Kc0E1mK6NnBfOKag43jNd4+UVx65Q4ml4JRF5fpt2TY=", "D7jTxd+vgaOHvwukOatA5g==", "+387 61 123 456", null, "user9" },
-                    { 10, 7, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ivan.ivic@example.com", "Ivan", 1, true, null, "Ivic", "NXjAoMRrSyEXvRIoeAAP7fgcfj0UNqhSW4GCyis2otU=", "W78ang3gYiJaG7ffjYs3GQ==", "+387 61 123 456", null, "user10" },
-                    { 11, 8, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "luka.lukic@example.com", "Luka", 2, true, null, "Lukic", "hUoGV+UffxvXNFKrJuGf2G6D3peZxypzpFHPM1vrl1c=", "gRFeMeIqWAGxl3UOwS16UQ==", "+387 61 123 456", null, "user11" },
-                    { 12, 9, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ana.anic@example.com", "Ana", 1, true, null, "Anic", "cdc68KpPVpZFVq38/q1XXQCe7pqKgtw5hjSmJf+BKQg=", "vTUoP+j8/XfXwFqL8q24XA==", "+387 61 123 456", null, "user12" }
+                    { 1, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "adil.joldic@parkhere.com", "Adil", 1, true, null, "Joldic", "SKCEf8PFXFpwXefUyKkpl6MMBen54WiyctXTCdWrHd0=", "aGk9AqtPuyMxuMw5kVMi5A==", "+387 61 123 456", null, "desktop" },
+                    { 2, 5, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "parkhere.receive@gmail.com", "Benjamin", 1, true, null, "Cero", "+/pM4+5rgrwaezXoDcdKMtyc2Q7IM+rGT5qT8AOUBRE=", "BPiZbadjt6lpsQKO4wB1aQ==", "+387 61 123 456", null, "user" },
+                    { 3, 3, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "elmir.babovic@parkhere.com", "Elmir", 1, true, null, "Babovic", "vlAx8k6vnwwlvR7VmvHyN82cIDhXROKGCAoEKA7BwFI=", "HBQrLQGqNOmja95IBkWlfw==", "+387 61 123 456", null, "admin2" },
+                    { 4, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "haris.horozovic@example.com", "Haris", 1, true, null, "Horozovic", "mtFJH04D349xXkUMfA4tp+BOjxlZcjm6uv7HP00C3yc=", "UmnvmA3keBm6PRQ0D0ZlJg==", "+387 61 123 456", null, "user4" },
+                    { 5, 2, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "faris.festic@example.com", "Faris", 2, true, null, "Festic", "dlD2S1dpzmbVudRYt/XjL99kbQxtHMSKkGGdAMNY9Hg=", "Wjm+rTGPMGk5rLHQFmR74g==", "+387 61 123 456", null, "user5" },
+                    { 6, 3, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "adna.adnic@example.com", "Adna", 1, true, null, "Adnic", "dcJhdhYypJ7d0fEaMehy5nP2f3lxypSzm9psBLmfsO8=", "7LSKHMlPlRJS7EYv6ezFXA==", "+387 61 123 456", null, "user6" },
+                    { 7, 4, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "edin.edinic@example.com", "Edin", 2, true, null, "Edinic", "DRKrAdQZxSIqX5yevQK5mgryL9t0dFyZLKRXrX2/9g0=", "MmgVHlLZe0ys+X9bRqXHbA==", "+387 61 123 456", null, "user7" },
+                    { 8, 5, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "maja.majic@example.com", "Maja", 1, true, null, "Majic", "JDpi7VMo8vu+/VjoBvwmiDnLXtqNCdnXuvzz6E7wo2g=", "9gr6SYmn2xMxSiq5iBNyYw==", "+387 61 123 456", null, "user8" },
+                    { 9, 6, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "sara.saric@example.com", "Sara", 2, true, null, "Saric", "Kc0E1mK6NnBfOKag43jNd4+UVx65Q4ml4JRF5fpt2TY=", "D7jTxd+vgaOHvwukOatA5g==", "+387 61 123 456", null, "user9" },
+                    { 10, 7, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ivan.ivic@example.com", "Ivan", 1, true, null, "Ivic", "NXjAoMRrSyEXvRIoeAAP7fgcfj0UNqhSW4GCyis2otU=", "W78ang3gYiJaG7ffjYs3GQ==", "+387 61 123 456", null, "user10" },
+                    { 11, 8, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "luka.lukic@example.com", "Luka", 2, true, null, "Lukic", "hUoGV+UffxvXNFKrJuGf2G6D3peZxypzpFHPM1vrl1c=", "gRFeMeIqWAGxl3UOwS16UQ==", "+387 61 123 456", null, "user11" },
+                    { 12, 9, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ana.anic@example.com", "Ana", 1, true, null, "Anic", "cdc68KpPVpZFVq38/q1XXQCe7pqKgtw5hjSmJf+BKQg=", "vTUoP+j8/XfXwFqL8q24XA==", "+387 61 123 456", null, "user12" }
                 });
 
             migrationBuilder.InsertData(
@@ -503,18 +503,18 @@ namespace ParkHere.Services.Migrations
                 columns: new[] { "Id", "DateAssigned", "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, 1 },
-                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 2 },
-                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, 3 },
-                    { 4, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 4 },
-                    { 5, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 5 },
-                    { 6, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 6 },
-                    { 7, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 7 },
-                    { 8, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 8 },
-                    { 9, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 9 },
-                    { 10, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 10 },
-                    { 11, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 11 },
-                    { 12, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 12 }
+                    { 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, 1 },
+                    { 2, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 2 },
+                    { 3, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, 3 },
+                    { 4, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 4 },
+                    { 5, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 5 },
+                    { 6, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 6 },
+                    { 7, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 7 },
+                    { 8, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 8 },
+                    { 9, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 9 },
+                    { 10, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 10 },
+                    { 11, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 11 },
+                    { 12, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, 12 }
                 });
 
             migrationBuilder.InsertData(
@@ -535,6 +535,44 @@ namespace ParkHere.Services.Migrations
                     { 11, true, "VHC-010-1", 10 },
                     { 12, true, "VHC-011-1", 11 },
                     { 13, true, "VHC-012-1", 12 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ParkingReservations",
+                columns: new[] { "Id", "CreatedAt", "EndTime", "IsPaid", "ParkingSpotId", "Price", "StartTime", "UserId", "VehicleId" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 12, 0, 0, 0, DateTimeKind.Utc), true, 1, 10.00m, new DateTime(2024, 12, 27, 10, 0, 0, 0, DateTimeKind.Utc), 1, 1 },
+                    { 2, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 0, 0, 0, DateTimeKind.Utc), true, 2, 10.00m, new DateTime(2024, 12, 27, 11, 0, 0, 0, DateTimeKind.Utc), 2, 2 },
+                    { 3, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), true, 3, 10.00m, new DateTime(2024, 12, 27, 12, 0, 0, 0, DateTimeKind.Utc), 3, 4 },
+                    { 4, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 0, 0, 0, DateTimeKind.Utc), true, 4, 10.00m, new DateTime(2024, 12, 27, 13, 0, 0, 0, DateTimeKind.Utc), 4, 5 },
+                    { 5, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), true, 5, 10.00m, new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), 5, 6 },
+                    { 6, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 0, 0, 0, DateTimeKind.Utc), true, 6, 10.00m, new DateTime(2024, 12, 27, 15, 0, 0, 0, DateTimeKind.Utc), 6, 7 },
+                    { 7, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 0, 0, 0, DateTimeKind.Utc), true, 7, 12.00m, new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), 7, 8 },
+                    { 8, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 0, 0, 0, DateTimeKind.Utc), true, 8, 10.00m, new DateTime(2024, 12, 27, 17, 0, 0, 0, DateTimeKind.Utc), 8, 9 },
+                    { 9, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 0, 0, 0, DateTimeKind.Utc), true, 9, 10.00m, new DateTime(2024, 12, 27, 18, 0, 0, 0, DateTimeKind.Utc), 9, 10 },
+                    { 10, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 0, 0, 0, DateTimeKind.Utc), true, 10, 7.50m, new DateTime(2024, 12, 27, 19, 0, 0, 0, DateTimeKind.Utc), 10, 11 },
+                    { 11, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 22, 0, 0, 0, DateTimeKind.Utc), true, 11, 10.00m, new DateTime(2024, 12, 27, 20, 0, 0, 0, DateTimeKind.Utc), 11, 12 },
+                    { 12, new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 23, 0, 0, 0, DateTimeKind.Utc), true, 12, 10.00m, new DateTime(2024, 12, 27, 21, 0, 0, 0, DateTimeKind.Utc), 12, 13 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ParkingSessions",
+                columns: new[] { "Id", "ActualEndTime", "ActualStartTime", "CreatedAt", "ExtraCharge", "ExtraMinutes", "ParkingReservationId" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 12, 27, 11, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), 0m, 0, 1 },
+                    { 2, new DateTime(2024, 12, 27, 12, 53, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), 0m, 0, 2 },
+                    { 3, new DateTime(2024, 12, 27, 14, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), 3.75m, 45, 3 },
+                    { 4, new DateTime(2024, 12, 27, 14, 52, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), 0m, 0, 4 },
+                    { 5, new DateTime(2024, 12, 27, 15, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), 0m, 0, 5 },
+                    { 6, new DateTime(2024, 12, 27, 18, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), 8.75m, 105, 6 },
+                    { 7, new DateTime(2024, 12, 27, 17, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), 0m, 0, 7 },
+                    { 8, new DateTime(2024, 12, 27, 18, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), 0m, 0, 8 },
+                    { 9, new DateTime(2024, 12, 27, 20, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), 4.92m, 59, 9 },
+                    { 10, new DateTime(2024, 12, 27, 20, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), 0m, 0, 10 },
+                    { 11, new DateTime(2024, 12, 27, 21, 56, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), 0m, 0, 11 },
+                    { 12, new DateTime(2024, 12, 28, 0, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), 9.92m, 119, 12 }
                 });
 
             migrationBuilder.CreateIndex(

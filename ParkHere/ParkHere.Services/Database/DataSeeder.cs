@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.Runtime.ConstrainedExecution;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ParkHere.Services.Database
 {
@@ -15,7 +16,7 @@ namespace ParkHere.Services.Database
         public static void SeedData(this ModelBuilder modelBuilder)
         {
             // Use a fixed date for all timestamps
-            var fixedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var fixedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             // Seed Roles
             modelBuilder.Entity<Role>().HasData(
@@ -180,12 +181,15 @@ namespace ParkHere.Services.Database
                 new ParkingWing { Id = 8, Name = "Right", ParkingSectorId = 4, IsActive = false }
             );
 
-            modelBuilder.Entity<ParkingSpotType>().HasData(
+            var parkingSpotTypes = new[]
+            {
                 new ParkingSpotType { Id = 1, Type = "Regular", PriceMultiplier = 1.00m, IsActive = true },
                 new ParkingSpotType { Id = 2, Type = "VIP", PriceMultiplier = 1.50m, IsActive = true },
                 new ParkingSpotType { Id = 3, Type = "Handicapped", PriceMultiplier = 0.75m, IsActive = true },
                 new ParkingSpotType { Id = 4, Type = "Electric", PriceMultiplier = 1.20m, IsActive = true }
-            );
+            };
+
+            modelBuilder.Entity<ParkingSpotType>().HasData(parkingSpotTypes);
 
             var vehicles = new List<Vehicle>();
             int vehicleIdCounter = 1;
@@ -276,6 +280,7 @@ namespace ParkHere.Services.Database
             modelBuilder.Entity<ParkingSpot>().HasData(parkingSpots);
 
 
+
             // Seed Genders
             modelBuilder.Entity<Gender>().HasData(
                 new Gender { Id = 1, Name = "Male" },
@@ -296,6 +301,118 @@ namespace ParkHere.Services.Database
                 new City { Id = 10, Name = "Zvornik" }
             );
 
+            // Seed ParkingReservations
+            // Strategy: One reservation per user
+            // Price calculation base on spot type multiplier
+            
+            var reservations = new List<ParkingReservation>();
+            int reservationIdCounter = 1;
+            decimal baseHourlyRate = 5.0m;
+
+            for (int i = 0; i < users.Count; i++)
+            {
+                var user = users[i];
+                // Find user's first vehicle
+                var vehicle = vehicles.FirstOrDefault(v => v.UserId == user.Id && v.IsActive);
+                
+                // If user has no active vehicle, skip (shouldn't happen with current seed logic)
+                if (vehicle == null) continue;
+
+                // Assign a unique spot to each user sequentially
+                // Check bounds just in case
+                if (i >= parkingSpots.Count) break; 
+                var spot = parkingSpots[i];
+
+                // Calculate Price dynamically using the seeded ParkingSpotTypes
+                var spotType = parkingSpotTypes.FirstOrDefault(pst => pst.Id == spot.ParkingSpotTypeId);
+                decimal multiplier = spotType?.PriceMultiplier ?? 1.0m;
+
+                // Create a reasonable time slot in the PAST
+                // e.g., 5 days BEFORE fixedDate, staggered by hour
+                DateTime start = fixedDate.AddDays(-5).AddHours(10 + i); 
+                DateTime end = start.AddHours(2); // 2 hours duration
+
+                decimal price = baseHourlyRate * 2 * multiplier; // 2 hours
+
+                reservations.Add(new ParkingReservation
+                {
+                    Id = reservationIdCounter++,
+                    UserId = user.Id,
+                    VehicleId = vehicle.Id,
+                    ParkingSpotId = spot.Id,
+                    StartTime = start,
+                    EndTime = end,
+                    Price = Math.Round(price, 2),
+                    IsPaid = true, // Seeed reservations are paid
+                    CreatedAt = fixedDate.AddDays(-10) // Created even earlier
+                });
+            }
+
+            modelBuilder.Entity<ParkingReservation>().HasData(reservations);
+
+
+            // Seed ParkingSessions
+            // Create sessions for complete reservations
+            var sessions = new List<ParkingSession>();
+            int sessionIdCounter = 1;
+
+            foreach (var reservation in reservations)
+            {
+                // Determine if this user overstayed
+                // e.g., every 3rd user overstays
+                bool overstay = (reservation.Id % 3 == 0);
+
+                DateTime actualStart = reservation.StartTime.AddMinutes(new Random(reservation.Id).Next(-5, 10)); // Arrived -5 to +10 mins
+                DateTime actualEnd = reservation.EndTime;
+
+                int extraMinutes = 0;
+                decimal extraCharge = 0;
+
+                if (overstay)
+                {
+                    // Overstay by 15-120 minutes
+                    int overstayMinutes = new Random(reservation.Id).Next(15, 120);
+                    actualEnd = actualEnd.AddMinutes(overstayMinutes);
+                    
+                    extraMinutes = (int)(actualEnd - reservation.EndTime).TotalMinutes;
+                    
+                    // Calculate extra charge
+                    // Use same multiplier as reservation
+                    // Assumption: Penalty rate is same as hourly rate
+                    // Price per minute = (baseHourlyRate * multiplier) / 60
+                    
+                    // We need the multiplier again. 
+                    // Optimization: We could store it, but acceptable to lookup or re-calculate for seed
+                    // Look up spot type from spot id... which is in reservation...
+                    // But reservation.ParkingSpot is not populated in this list context, only IDs.
+                    // So we find the spot from the spot list.
+                    
+                    var spot = parkingSpots.FirstOrDefault(s => s.Id == reservation.ParkingSpotId);
+                    var spotType = parkingSpotTypes.FirstOrDefault(pst => pst.Id == spot?.ParkingSpotTypeId);
+                    decimal multiplier = spotType?.PriceMultiplier ?? 1.0m;
+
+                    decimal pricePerMinute = (baseHourlyRate * multiplier) / 60.0m;
+                    extraCharge = pricePerMinute * extraMinutes;
+                }
+                else
+                {
+                   // Left 0-10 mins early or on time
+                   actualEnd = actualEnd.AddMinutes(-new Random(reservation.Id).Next(0, 10));
+                }
+
+                sessions.Add(new ParkingSession
+                {
+                    Id = sessionIdCounter++,
+                    ParkingReservationId = reservation.Id,
+                    ActualStartTime = actualStart,
+                    ActualEndTime = actualEnd,
+                    ExtraMinutes = extraMinutes,
+                    ExtraCharge = Math.Round(extraCharge, 2),
+                    CreatedAt = actualStart // created when session started
+                });
+            }
+
+            modelBuilder.Entity<ParkingSession>().HasData(sessions);
         }
     }
 }

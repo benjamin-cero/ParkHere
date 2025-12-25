@@ -167,6 +167,152 @@ namespace ParkHere.Services.Migrations
                     b.HasIndex("VehicleId");
 
                     b.ToTable("ParkingReservations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 12, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 1,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 10, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 1,
+                            VehicleId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 13, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 2,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 11, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 2,
+                            VehicleId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 3,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 12, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 3,
+                            VehicleId = 4
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 15, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 4,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 13, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 4,
+                            VehicleId = 5
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 5,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 5,
+                            VehicleId = 6
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 17, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 6,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 15, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 6,
+                            VehicleId = 7
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 18, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 7,
+                            Price = 12.00m,
+                            StartTime = new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 7,
+                            VehicleId = 8
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 19, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 8,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 17, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 8,
+                            VehicleId = 9
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 20, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 9,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 18, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 9,
+                            VehicleId = 10
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 21, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 10,
+                            Price = 7.50m,
+                            StartTime = new DateTime(2024, 12, 27, 19, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 10,
+                            VehicleId = 11
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 22, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 11,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 20, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 11,
+                            VehicleId = 12
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2024, 12, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2024, 12, 27, 23, 0, 0, 0, DateTimeKind.Utc),
+                            IsPaid = true,
+                            ParkingSpotId = 12,
+                            Price = 10.00m,
+                            StartTime = new DateTime(2024, 12, 27, 21, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 12,
+                            VehicleId = 13
+                        });
                 });
 
             modelBuilder.Entity("ParkHere.Services.Database.ParkingSector", b =>
@@ -253,6 +399,128 @@ namespace ParkHere.Services.Migrations
                     b.HasIndex("ParkingReservationId");
 
                     b.ToTable("ParkingSessions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ActualEndTime = new DateTime(2024, 12, 27, 11, 58, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ActualEndTime = new DateTime(2024, 12, 27, 12, 53, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ActualEndTime = new DateTime(2024, 12, 27, 14, 45, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 3.75m,
+                            ExtraMinutes = 45,
+                            ParkingReservationId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ActualEndTime = new DateTime(2024, 12, 27, 14, 52, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ActualEndTime = new DateTime(2024, 12, 27, 15, 57, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ActualEndTime = new DateTime(2024, 12, 27, 18, 45, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 8.75m,
+                            ExtraMinutes = 105,
+                            ParkingReservationId = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ActualEndTime = new DateTime(2024, 12, 27, 17, 57, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ActualEndTime = new DateTime(2024, 12, 27, 18, 51, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ActualEndTime = new DateTime(2024, 12, 27, 20, 59, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 4.92m,
+                            ExtraMinutes = 59,
+                            ParkingReservationId = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ActualEndTime = new DateTime(2024, 12, 27, 20, 51, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 10
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ActualEndTime = new DateTime(2024, 12, 27, 21, 56, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 0m,
+                            ExtraMinutes = 0,
+                            ParkingReservationId = 11
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ActualEndTime = new DateTime(2024, 12, 28, 0, 59, 0, 0, DateTimeKind.Utc),
+                            ActualStartTime = new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc),
+                            ExtraCharge = 9.92m,
+                            ExtraMinutes = 119,
+                            ParkingReservationId = 12
+                        });
                 });
 
             modelBuilder.Entity("ParkHere.Services.Database.ParkingSpot", b =>
@@ -1543,7 +1811,7 @@ namespace ParkHere.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Full system access and administrative privileges",
                             IsActive = true,
                             Name = "Administrator"
@@ -1551,7 +1819,7 @@ namespace ParkHere.Services.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Standard user with limited system access",
                             IsActive = true,
                             Name = "User"
@@ -1635,7 +1903,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 1,
                             CityId = 1,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "adil.joldic@parkhere.com",
                             FirstName = "Adil",
                             GenderId = 1,
@@ -1650,7 +1918,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 2,
                             CityId = 5,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "parkhere.receive@gmail.com",
                             FirstName = "Benjamin",
                             GenderId = 1,
@@ -1665,7 +1933,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 3,
                             CityId = 3,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "elmir.babovic@parkhere.com",
                             FirstName = "Elmir",
                             GenderId = 1,
@@ -1680,7 +1948,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 4,
                             CityId = 1,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "haris.horozovic@example.com",
                             FirstName = "Haris",
                             GenderId = 1,
@@ -1695,7 +1963,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 5,
                             CityId = 2,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "faris.festic@example.com",
                             FirstName = "Faris",
                             GenderId = 2,
@@ -1710,7 +1978,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 6,
                             CityId = 3,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "adna.adnic@example.com",
                             FirstName = "Adna",
                             GenderId = 1,
@@ -1725,7 +1993,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 7,
                             CityId = 4,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "edin.edinic@example.com",
                             FirstName = "Edin",
                             GenderId = 2,
@@ -1740,7 +2008,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 8,
                             CityId = 5,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "maja.majic@example.com",
                             FirstName = "Maja",
                             GenderId = 1,
@@ -1755,7 +2023,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 9,
                             CityId = 6,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "sara.saric@example.com",
                             FirstName = "Sara",
                             GenderId = 2,
@@ -1770,7 +2038,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 10,
                             CityId = 7,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ivan.ivic@example.com",
                             FirstName = "Ivan",
                             GenderId = 1,
@@ -1785,7 +2053,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 11,
                             CityId = 8,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "luka.lukic@example.com",
                             FirstName = "Luka",
                             GenderId = 2,
@@ -1800,7 +2068,7 @@ namespace ParkHere.Services.Migrations
                         {
                             Id = 12,
                             CityId = 9,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ana.anic@example.com",
                             FirstName = "Ana",
                             GenderId = 1,
@@ -1843,84 +2111,84 @@ namespace ParkHere.Services.Migrations
                         new
                         {
                             Id = 1,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 1,
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 2
                         },
                         new
                         {
                             Id = 3,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 1,
                             UserId = 3
                         },
                         new
                         {
                             Id = 4,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 4
                         },
                         new
                         {
                             Id = 5,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 5
                         },
                         new
                         {
                             Id = 6,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 6
                         },
                         new
                         {
                             Id = 7,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 7
                         },
                         new
                         {
                             Id = 8,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 8
                         },
                         new
                         {
                             Id = 9,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 9
                         },
                         new
                         {
                             Id = 10,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 10
                         },
                         new
                         {
                             Id = 11,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 11
                         },
                         new
                         {
                             Id = 12,
-                            DateAssigned = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateAssigned = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             RoleId = 2,
                             UserId = 12
                         });
