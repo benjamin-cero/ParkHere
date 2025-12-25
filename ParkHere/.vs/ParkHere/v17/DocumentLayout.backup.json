@@ -36,7 +36,7 @@
               "RelativeDocumentMoniker": "ParkHere.WebAPI\\Controllers\\ParkingSessionController.cs",
               "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.WebAPI\\Controllers\\ParkingSessionController.cs",
               "RelativeToolTip": "ParkHere.WebAPI\\Controllers\\ParkingSessionController.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAowBUAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAA7wBUAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-25T22:47:20.526Z",
               "EditorCaption": ""
@@ -51,8 +51,7 @@
               "RelativeToolTip": "ParkHere.Services\\Database\\ParkingSession.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-25T22:22:20.427Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-25T22:22:20.427Z"
             },
             {
               "$type": "Document",
@@ -64,8 +63,7 @@
               "RelativeToolTip": "ParkHere.Services\\Services\\ParkingReservationService.cs",
               "ViewState": "AgIAAJQAAAAAAAAAAAAowA4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-25T21:36:49.707Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-25T21:36:49.707Z"
             },
             {
               "$type": "Document",
@@ -77,8 +75,7 @@
               "RelativeToolTip": "ParkHere.Services\\Database\\DataSeeder.cs",
               "ViewState": "AgIAAIMBAAAAAAAAAAAowJkBAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-25T20:12:52.56Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-25T20:12:52.56Z"
             }
           ]
         }
