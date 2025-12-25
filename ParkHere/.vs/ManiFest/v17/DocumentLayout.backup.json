@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\jovan\\Desktop\\ParkHere\\ManiFest\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A3E03789-04A6-4074-8A58-10AF3112EA49}|ManiFest.Model\\ManiFest.Model.csproj|c:\\users\\jovan\\desktop\\parkhere\\manifest\\manifest.model\\requests\\parkingreservationinsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A3E03789-04A6-4074-8A58-10AF3112EA49}|ManiFest.Model\\ManiFest.Model.csproj|solutionrelative:manifest.model\\requests\\parkingreservationinsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A3E03789-04A6-4074-8A58-10AF3112EA49}|ManiFest.Model\\ManiFest.Model.csproj|c:\\users\\jovan\\desktop\\parkhere\\manifest\\manifest.model\\requests\\parkingreservationupdaterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A3E03789-04A6-4074-8A58-10AF3112EA49}|ManiFest.Model\\ManiFest.Model.csproj|solutionrelative:manifest.model\\requests\\parkingreservationupdaterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ParkingReservationInsertRequest.cs",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ManiFest\\ManiFest.Model\\Requests\\ParkingReservationInsertRequest.cs",
+              "RelativeDocumentMoniker": "ManiFest.Model\\Requests\\ParkingReservationInsertRequest.cs",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ManiFest\\ManiFest.Model\\Requests\\ParkingReservationInsertRequest.cs",
+              "RelativeToolTip": "ManiFest.Model\\Requests\\ParkingReservationInsertRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-24T01:12:23.106Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ParkingReservationUpdateRequest.cs",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ManiFest\\ManiFest.Model\\Requests\\ParkingReservationUpdateRequest.cs",
+              "RelativeDocumentMoniker": "ManiFest.Model\\Requests\\ParkingReservationUpdateRequest.cs",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ManiFest\\ManiFest.Model\\Requests\\ParkingReservationUpdateRequest.cs",
+              "RelativeToolTip": "ManiFest.Model\\Requests\\ParkingReservationUpdateRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-24T01:12:21.685Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

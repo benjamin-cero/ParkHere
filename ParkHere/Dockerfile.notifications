@@ -1,0 +1,26 @@
+﻿
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+
+WORKDIR /src
+EXPOSE 80
+EXPOSE 443
+
+
+COPY ["ParkHere.Subscriber/ParkHere.Subscriber.csproj", "ParkHere.Subscriber/"]
+RUN dotnet restore "ParkHere.Subscriber/ParkHere.Subscriber.csproj"
+
+
+COPY . .
+WORKDIR "/src/ParkHere.Subscriber"
+RUN dotnet build "ParkHere.Subscriber.csproj" -c Release -o /app/build
+
+
+FROM build AS publish
+RUN dotnet publish "ParkHere.Subscriber.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+
+ENTRYPOINT ["dotnet", "ParkHere.Subscriber.dll"]

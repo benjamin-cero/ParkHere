@@ -1,0 +1,1878 @@
+[
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.CityController",
+    "Method": "Get",
+    "RelativePath": "City",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.CityResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.CityResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.CitySearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "City",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.CityUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.CityResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.CityController",
+    "Method": "GetById",
+    "RelativePath": "City/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.CityResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.CityResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.CitySearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "City/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.CityUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.CityResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.CityResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.CitySearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.CityUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "City/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.GenderController",
+    "Method": "Get",
+    "RelativePath": "Gender",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.GenderResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.GenderResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.GenderSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "Gender",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.GenderUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.GenderResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.GenderController",
+    "Method": "GetById",
+    "RelativePath": "Gender/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.GenderResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.GenderResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.GenderSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Gender/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.GenderUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.GenderResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.GenderResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.GenderSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.GenderUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Gender/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingReservationSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingReservation",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingReservationInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingReservationResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingReservationSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingReservation",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VehicleId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ParkingSpotId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsPaid",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingReservationSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingReservation/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingReservationUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingReservationResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingReservationSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingReservationUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingReservation/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingReservationResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingReservationSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingReservation/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingReservationResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingSector",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSectorUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSectorResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingSector",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FloorNumber",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingSector/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSectorUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSectorResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingSector/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingSector/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSectorResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSessionSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingSession",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSessionInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSessionResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSessionSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingSession",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ParkingReservationId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "StartDateFrom",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "StartDateTo",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSessionSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingSession/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSessionUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSessionResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSessionSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSessionUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingSession/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSessionResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSessionSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingSession/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSessionResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingSpot",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSpotInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingSpot",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SpotCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ParkingWingId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ParkingSpotTypeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsOccupied",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingSpot/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSpotUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingSpot/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingSpot/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingSpotType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotTypeResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingSpotType",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingSpotType/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotTypeResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingSpotType/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingSpotType/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotTypeResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingWingSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "ParkingWing",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingWingInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingWingResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingWingSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "ParkingWing",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ParkingSectorId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingWingSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "ParkingWing/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.ParkingWingUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingWingResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingWingSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingWingUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "ParkingWing/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.ParkingWingResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingWingSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "ParkingWing/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingWingResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.RoleController",
+    "Method": "Get",
+    "RelativePath": "Role",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.RoleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.RoleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.RoleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "Role",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.RoleUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.RoleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.RoleController",
+    "Method": "GetById",
+    "RelativePath": "Role/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.RoleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.RoleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.RoleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Role/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.RoleUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.RoleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.RoleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.RoleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.RoleUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Role/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "Get",
+    "RelativePath": "Users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Username",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "GenderId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "CityId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "RoleId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.UserResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "Create",
+    "RelativePath": "Users",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.UserUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.UserResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "GetById",
+    "RelativePath": "Users/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.UserResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "Update",
+    "RelativePath": "Users/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.UserUpsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.UserResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "Delete",
+    "RelativePath": "Users/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.UsersController",
+    "Method": "Authenticate",
+    "RelativePath": "Users/authenticate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Services.Services.UserLoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.UserResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.VehicleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Create",
+    "RelativePath": "Vehicle",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.VehicleInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.VehicleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.VehicleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Get",
+    "RelativePath": "Vehicle",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "LicensePlate",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "FTS",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IncludeTotalCount",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "RetrieveAll",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.PagedResult\u00601[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.VehicleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Update",
+    "RelativePath": "Vehicle/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.VehicleUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.VehicleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.VehicleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.VehicleUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "Delete",
+    "RelativePath": "Vehicle/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Boolean",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.BaseController\u00602[[ParkHere.Model.Responses.VehicleResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.VehicleSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+    "Method": "GetById",
+    "RelativePath": "Vehicle/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.VehicleResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
