@@ -307,7 +307,7 @@ namespace ParkHere.Services.Database
             
             var reservations = new List<ParkingReservation>();
             int reservationIdCounter = 1;
-            decimal baseHourlyRate = 5.0m;
+            decimal baseHourlyRate = 3.0m; // Updated to match service logic
 
             for (int i = 0; i < users.Count; i++)
             {
@@ -355,6 +355,7 @@ namespace ParkHere.Services.Database
             // Create sessions for complete reservations
             var sessions = new List<ParkingSession>();
             int sessionIdCounter = 1;
+            const decimal baseHourlyRateForSessions = 3.0m; // Updated to match service logic
 
             foreach (var reservation in reservations)
             {
@@ -365,8 +366,8 @@ namespace ParkHere.Services.Database
                 DateTime actualStart = reservation.StartTime.AddMinutes(new Random(reservation.Id).Next(-5, 10)); // Arrived -5 to +10 mins
                 DateTime actualEnd = reservation.EndTime;
 
-                int extraMinutes = 0;
-                decimal extraCharge = 0;
+                int? extraMinutes = null;
+                decimal? extraCharge = null;
 
                 if (overstay)
                 {
@@ -391,8 +392,8 @@ namespace ParkHere.Services.Database
                     var spotType = parkingSpotTypes.FirstOrDefault(pst => pst.Id == spot?.ParkingSpotTypeId);
                     decimal multiplier = spotType?.PriceMultiplier ?? 1.0m;
 
-                    decimal pricePerMinute = (baseHourlyRate * multiplier) / 60.0m;
-                    extraCharge = pricePerMinute * extraMinutes;
+                    decimal pricePerMinute = (baseHourlyRateForSessions * multiplier) / 60.0m;
+                    extraCharge = Math.Round(pricePerMinute * extraMinutes.Value, 2);
                 }
                 else
                 {
@@ -407,7 +408,7 @@ namespace ParkHere.Services.Database
                     ActualStartTime = actualStart,
                     ActualEndTime = actualEnd,
                     ExtraMinutes = extraMinutes,
-                    ExtraCharge = Math.Round(extraCharge, 2),
+                    ExtraCharge = extraCharge,
                     CreatedAt = actualStart // created when session started
                 });
             }

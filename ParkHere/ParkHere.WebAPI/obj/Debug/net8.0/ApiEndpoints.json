@@ -835,6 +835,54 @@
     ]
   },
   {
+    "ContainingType": "ParkHere.WebAPI.Controllers.ParkingSessionController",
+    "Method": "MarkReservationAsPaid",
+    "RelativePath": "ParkingSession/mark-paid/{reservationId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reservationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.ParkingSessionController",
+    "Method": "SetActualEndTime",
+    "RelativePath": "ParkingSession/set-end-time",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.SetEndTimeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ParkHere.WebAPI.Controllers.ParkingSessionController",
+    "Method": "SetActualStartTime",
+    "RelativePath": "ParkingSession/set-start-time",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ParkHere.Model.Requests.SetStartTimeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotInsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotUpdateRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Create",
     "RelativePath": "ParkingSpot",

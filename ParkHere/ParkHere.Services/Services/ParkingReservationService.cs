@@ -48,12 +48,48 @@ namespace ParkHere.Services.Services
 
         public override async Task<ParkingReservationResponse> CreateAsync(ParkingReservationInsertRequest request)
         {
+            // Fetch the parking spot to get the type multiplier
+            var parkingSpot = await _context.ParkingSpots
+                .Include(ps => ps.ParkingSpotType)
+                .FirstOrDefaultAsync(ps => ps.Id == request.ParkingSpotId);
+
+            if (parkingSpot == null)
+                throw new InvalidOperationException("Parking spot not found.");
+
+            // Calculate duration in hours
+            var duration = (request.EndTime - request.StartTime).TotalHours;
+            if (duration <= 0)
+                throw new InvalidOperationException("End time must be after start time.");
+
+            // Calculate price: 3 BAM per hour * multiplier
+            const decimal baseHourlyRate = 3.0m;
+            decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
+            decimal price = (decimal)duration * baseHourlyRate * multiplier;
+
             var entity = new ParkingReservation();
             MapInsertToEntity(entity, request);
+            
+            // Set the calculated price
+            entity.Price = Math.Round(price, 2);
+            
             _context.ParkingReservations.Add(entity);
 
             await BeforeInsert(entity, request);
 
+            await _context.SaveChangesAsync();
+            
+            // Create the parking session automatically
+            var session = new ParkingSession
+            {
+                ParkingReservationId = entity.Id,
+                ActualStartTime = null,
+                ActualEndTime = null,
+                ExtraMinutes = null,
+                ExtraCharge = null,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            _context.ParkingSessions.Add(session);
             await _context.SaveChangesAsync();
             
             // Send notification after successful creation

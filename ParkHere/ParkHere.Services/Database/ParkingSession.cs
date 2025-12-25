@@ -13,13 +13,12 @@ namespace ParkHere.Services.Database
         [Required]
         public int ParkingReservationId { get; set; }
 
-        [Required]
-        public DateTime ActualStartTime { get; set; }
+        public DateTime? ActualStartTime { get; set; }
 
         public DateTime? ActualEndTime { get; set; }
 
-        public int ExtraMinutes { get; set; } = 0;
-        public decimal ExtraCharge { get; set; } = 0;
+        public int? ExtraMinutes { get; set; }
+        public decimal? ExtraCharge { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
