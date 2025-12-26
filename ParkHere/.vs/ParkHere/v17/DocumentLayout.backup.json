@@ -3,6 +3,26 @@
   "WorkspaceRootPath": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{7A7126D5-0494-00B8-95FA-B3FC4D7C5F53}|ParkHere.Subscriber\\ParkHere.Subscriber.csproj|c:\\users\\jovan\\desktop\\parkhere\\parkhere\\parkhere.subscriber\\services\\emailsenderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A7126D5-0494-00B8-95FA-B3FC4D7C5F53}|ParkHere.Subscriber\\ParkHere.Subscriber.csproj|solutionrelative:parkhere.subscriber\\services\\emailsenderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile.notifications||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|solutionrelative:Dockerfile.notifications||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A7126D5-0494-00B8-95FA-B3FC4D7C5F53}|ParkHere.Subscriber\\ParkHere.Subscriber.csproj|c:\\users\\jovan\\desktop\\parkhere\\parkhere\\parkhere.subscriber\\services\\backgroundworkerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A7126D5-0494-00B8-95FA-B3FC4D7C5F53}|ParkHere.Subscriber\\ParkHere.Subscriber.csproj|solutionrelative:parkhere.subscriber\\services\\backgroundworkerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|Solution{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}|solutionrelative:Dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B2967387-E0CB-30D2-FAB1-C20C18E80DAC}|ParkHere.WebAPI\\ParkHere.WebAPI.csproj|c:\\users\\jovan\\desktop\\parkhere\\parkhere\\parkhere.webapi\\controllers\\parkingsessioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B2967387-E0CB-30D2-FAB1-C20C18E80DAC}|ParkHere.WebAPI\\ParkHere.WebAPI.csproj|solutionrelative:parkhere.webapi\\controllers\\parkingsessioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -26,11 +46,76 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BackgroundWorkerService.cs",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Subscriber\\Services\\BackgroundWorkerService.cs",
+              "RelativeDocumentMoniker": "ParkHere.Subscriber\\Services\\BackgroundWorkerService.cs",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Subscriber\\Services\\BackgroundWorkerService.cs",
+              "RelativeToolTip": "ParkHere.Subscriber\\Services\\BackgroundWorkerService.cs",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAkwGoAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-25T23:09:55.952Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "EmailSenderService.cs",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Subscriber\\Services\\EmailSenderService.cs",
+              "RelativeDocumentMoniker": "ParkHere.Subscriber\\Services\\EmailSenderService.cs",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Subscriber\\Services\\EmailSenderService.cs",
+              "RelativeToolTip": "ParkHere.Subscriber\\Services\\EmailSenderService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-25T23:09:49.445Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAADEAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2025-12-25T23:09:04.607Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Dockerfile.notifications",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile.notifications",
+              "RelativeDocumentMoniker": "Dockerfile.notifications",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile.notifications",
+              "RelativeToolTip": "Dockerfile.notifications",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-25T23:08:44.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile",
+              "RelativeDocumentMoniker": "Dockerfile",
+              "ToolTip": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\Dockerfile",
+              "RelativeToolTip": "Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-25T23:08:38.601Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "ParkingSessionController.cs",
               "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.WebAPI\\Controllers\\ParkingSessionController.cs",
               "RelativeDocumentMoniker": "ParkHere.WebAPI\\Controllers\\ParkingSessionController.cs",
@@ -43,7 +128,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "ParkingSession.cs",
               "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Services\\Database\\ParkingSession.cs",
               "RelativeDocumentMoniker": "ParkHere.Services\\Database\\ParkingSession.cs",
@@ -55,7 +140,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 8,
               "Title": "ParkingReservationService.cs",
               "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Services\\Services\\ParkingReservationService.cs",
               "RelativeDocumentMoniker": "ParkHere.Services\\Services\\ParkingReservationService.cs",
@@ -67,7 +152,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 7,
               "Title": "DataSeeder.cs",
               "DocumentMoniker": "C:\\Users\\jovan\\Desktop\\ParkHere\\ParkHere\\ParkHere.Services\\Database\\DataSeeder.cs",
               "RelativeDocumentMoniker": "ParkHere.Services\\Database\\DataSeeder.cs",

@@ -179,7 +179,25 @@ namespace ParkHere.Subscriber.Services
                                     </td>
                                 </tr>
                             </table>
+
+
+
+                            <!-- Late Exit Warning -->
+                            <div style=""background-color: #fff1f2; border: 2px solid #fecaca; padding: 22px 26px; border-radius:8px;        margin-bottom:30px;"">
+                                <p style=""margin: 0 0 10px 0; color: #b91c1c; font-size: 15px; font-weight: 800; text-transform:       uppercase;        letter-       spacing:      0.5px;"">
+                                    ⏰ Late Exit Policy
+                                </p>
                             
+                                <p style=""margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.6; font-weight: 500;"">
+                                    If you do not exit the parking spot by the scheduled end time,
+                                    <strong>the parking fee will be automatically doubled</strong>.
+                                    Please ensure timely departure to avoid additional charges.
+                                </p>
+                            </div>
+
+
+                            
+
                             <!-- Price Box -->
                             <div style=""background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 30px;"">
                                 <p style=""margin: 0 0 10px 0; color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;"">TOTAL AMOUNT</p>
