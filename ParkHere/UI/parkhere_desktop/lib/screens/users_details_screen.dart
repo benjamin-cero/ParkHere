@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:parkhere_desktop/layouts/master_screen.dart';
 import 'package:parkhere_desktop/model/user.dart';
-import 'package:parkhere_desktop/utils/base_picture_cover.dart';
+import 'package:parkhere_desktop/screens/users_edit_screen.dart';
+import 'dart:convert';
 
 class UsersDetailsScreen extends StatelessWidget {
   final User user;
@@ -14,293 +15,301 @@ class UsersDetailsScreen extends StatelessWidget {
       title: 'User Details',
       showBackButton: true,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: _buildUserDetails(context),
-      ),
-    );
-  }
-
-  Widget _buildUserDetails(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 900),
-        child: Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomCenter,
               children: [
-                // Header with back button and title
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                      tooltip: 'Go back',
+                // 1. Hero Header
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(
-                      Icons.person_outline,
-                      size: 32,
-                      color: Color(0xFF6A1B9A),
-                    ),
-                    const SizedBox(width: 16),
-                    const Text(
-                      'User Information',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF6A1B9A),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child:  Icon(
+                          Icons.circle,
+                          size: 200,
+                          color: Colors.white.withOpacity(0.05),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Profile picture and basic info
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Profile picture
-                    BasePictureCover(
-                      base64: user.picture,
-                      size: 120,
-                      fallbackIcon: Icons.person,
-                      borderColor: Color(0xFF1E3A8A),
-                      iconColor: Color(0xFF1E3A8A),
-                      backgroundColor: const Color(0xFFE3F2FD),
-                      showShadow: true,
-                    ),
-                    const SizedBox(width: 24),
-
-                    // Basic user info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${user.firstName} ${user.lastName}',
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '@${user.username}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Status and Role together
-                          Row(
-                            children: [
-                              // Status indicator
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: user.isActive
-                                      ? Colors.green[100]
-                                      : Colors.red[100],
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: user.isActive
-                                        ? Colors.green
-                                        : Colors.red,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      user.isActive
-                                          ? Icons.check_circle
-                                          : Icons.cancel,
-                                      color: user.isActive
-                                          ? Colors.green
-                                          : Colors.red,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      user.isActive ? 'Active' : 'Inactive',
-                                      style: TextStyle(
-                                        color: user.isActive
-                                            ? Colors.green[700]
-                                            : Colors.red[700],
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-
-                              // Role badge
-                              if (user.roles.isNotEmpty)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[100],
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.blue,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.shield_outlined,
-                                        color: Colors.blue,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        user.roles
-                                            .map((r) => r.name)
-                                            .join(', '),
-                                        style: TextStyle(
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
+                       Positioned(
+                        top: 60,
+                        left: 40,
+                        child:  Icon(
+                          Icons.circle_outlined,
+                          size: 100,
+                          color: Colors.white.withOpacity(0.05),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-
-                const SizedBox(height: 32),
-                const Divider(),
-                const SizedBox(height: 24),
-
-                // Detailed information grid
-                _buildInfoGrid(),
-
-                const SizedBox(height: 24),
+                
+                // 2. Overlapping Profile Card
+                Positioned(
+                  bottom: -60,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 6),
+                      boxShadow: [
+                         BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 65,
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: (user.picture != null && user.picture!.isNotEmpty)
+                          ? MemoryImage(base64Decode(user.picture!))
+                          : null,
+                      child: (user.picture == null || user.picture!.isEmpty)
+                          ? Text(
+                              user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : '?',
+                              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: 70), // Spacer for Profile Picture
+
+            // 3. User Name & Role
+            Text(
+              "${user.firstName} ${user.lastName}",
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFBFDBFE)),
+              ),
+              child: Text(
+                "@${user.username}",
+                style: const TextStyle(
+                  color: Color(0xFF1E3A8A),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // 4. Content Area
+            Container(
+              constraints: const BoxConstraints(maxWidth: 800),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                   // Quick Stats Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildQuickStat(
+                        icon: Icons.check_circle_outline,
+                        label: user.isActive ? "Active" : "Inactive",
+                        color: user.isActive ? Colors.green : Colors.red,
+                        value: "Status",
+                      ),
+                      _buildQuickStat(
+                        icon: Icons.admin_panel_settings_outlined,
+                        label: user.roles.isNotEmpty ? user.roles.first.name : "User",
+                        value: "Role",
+                        color: Colors.blue,
+                      ),
+                      _buildQuickStat(
+                         icon: Icons.location_city_outlined,
+                        label: user.cityName.isNotEmpty ? user.cityName : "N/A",
+                        value: "City",
+                        color: Colors.orange,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Information Sections
+                  _buildSectionHeader("Contact Information"),
+                  const SizedBox(height: 16),
+                  _buildInfoTile(
+                    icon: Icons.email_outlined,
+                    label: "Email Address",
+                    value: user.email,
+                  ),
+                  _buildInfoTile(
+                    icon: Icons.phone_outlined,
+                    label: "Phone Number",
+                    value: user.phoneNumber ?? "Not provided",
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  _buildSectionHeader("Personal Details"),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoTile(
+                          icon: Icons.person_outline,
+                          label: "Gender",
+                          value: user.genderName.isNotEmpty ? user.genderName : "Not set",
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildInfoTile(
+                          icon: Icons.cake_outlined,
+                          label: "Member Since",
+                          value: "Jan 1, 2024", // Placeholder date 
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 50),
+
+                  // Edit Action Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UsersEditScreen(user: user),
+                              settings: const RouteSettings(name: 'UsersEditScreen'),
+                            ),
+                          );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E3A8A),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 4,
+                        shadowColor: const Color(0xFF1E3A8A).withOpacity(0.4),
+                      ),
+                      icon: const Icon(Icons.edit_rounded),
+                      label: const Text("Edit User Profile", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoGrid() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildQuickStat({required IconData icon, required String label, required String value, required Color color}) {
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(value, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Row(
       children: [
-        const Text(
-          'Contact & Personal Information',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E3A8A)
+        Container(
+          width: 4,
+          height: 24,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E3A8A),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(height: 16),
-
-        Row(
-          children: [
-            Expanded(
-              child: _buildInfoItem(
-                icon: Icons.email_outlined,
-                label: 'Email',
-                value: user.email,
-                iconColor: Colors.blue,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildInfoItem(
-                icon: Icons.phone_outlined,
-                label: 'Phone',
-                value: user.phoneNumber ?? 'Not provided',
-                iconColor: Colors.green,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildInfoItem(
-                icon: Icons.location_city_outlined,
-                label: 'City',
-                value: user.cityName,
-                iconColor: Colors.orange,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildInfoItem(
-                icon: Icons.person_outline,
-                label: 'Gender',
-                value: user.genderName,
-                iconColor: Colors.purple,
-              ),
-            ),
-          ],
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F2937),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color iconColor,
-  }) {
+  Widget _buildInfoTile({required IconData icon, required String label, required String value}) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-              ),
-            ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: const Color(0xFF4B5563), size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                 Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w500)),
+                 const SizedBox(height: 2),
+                 Text(value, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.w600)),
+              ],
+            ),
           ),
         ],
       ),
