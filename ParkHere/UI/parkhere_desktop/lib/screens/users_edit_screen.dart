@@ -40,8 +40,6 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
   Gender? _selectedGender;
   File? _image;
 
-  final double leftColumnWidth = 300;
-
   @override
   void initState() {
     super.initState();
@@ -209,6 +207,7 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
         }
         return null;
       },
+      isExpanded: true,
     );
   }
 
@@ -260,432 +259,385 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
         }
         return null;
       },
+      isExpanded: true,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Only show loading if initial data isn't ready
+    if (isLoading) {
+       return const MasterScreen(
+        title: "Edit User",
+        showBackButton: true,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+  
     return MasterScreen(
       title: "Edit User",
       showBackButton: true,
-      child: _buildForm(),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ElevatedButton(
-          onPressed: _isSaving
-              ? null
-              : () {
-                  Navigator.of(context).pop();
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey.shade300,
-            foregroundColor: Colors.black87,
-          ),
-          child: const Text('Cancel'),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: _isSaving
-              ? null
-              : () async {
-                  formKey.currentState?.saveAndValidate();
-                  if (formKey.currentState?.validate() ?? false) {
-                    if (_selectedCity == null || _selectedGender == null) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Validation Error'),
-                          content: const Text(
-                            'Please select both city and gender',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                      return;
-                    }
-
-                    setState(() => _isSaving = true);
-                    var request = Map.from(formKey.currentState?.value ?? {});
-                    request['cityId'] = _selectedCity!.id;
-                    request['genderId'] = _selectedGender!.id;
-                    request['picture'] = _initialValue['picture'];
-
-                    try {
-                      await userProvider.update(widget.user.id, request);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('User updated successfully'),
-                          backgroundColor: Colors.green,
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const UsersListScreen(),
-                          settings: const RouteSettings(
-                            name: 'UsersListScreen',
+      child: SingleChildScrollView(
+        child: FormBuilder(
+          key: formKey,
+          initialValue: _initialValue,
+          child: Column(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.bottomCenter,
+                children: [
+                  // 1. Hero Header (Same as Details)
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                      ),
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 20,
+                          right: 20,
+                          child: Icon(
+                            Icons.circle,
+                            size: 200,
+                            color: Colors.white.withOpacity(0.05),
                           ),
                         ),
-                      );
-                    } catch (e) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Error'),
-                          content: Text(
-                            e.toString().replaceFirst('Exception: ', ''),
+                        Positioned(
+                          top: 60,
+                          left: 40,
+                          child: Icon(
+                            Icons.circle_outlined,
+                            size: 100,
+                            color: Colors.white.withOpacity(0.05),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
                         ),
-                      );
-                    } finally {
-                      if (mounted) setState(() => _isSaving = false);
-                    }
-                  }
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-          ),
-          child: _isSaving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+
+                      ],
+                    ),
                   ),
-                )
-              : const Text('Save'),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildForm() {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+                  // 2. Overlapping Editable Profile Picture
+                  Positioned(
+                    bottom: -60,
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 65,
+                            backgroundColor: Colors.grey[200],
+                            backgroundImage:
+                                _initialValue['picture'] != null && (_initialValue['picture'] as String).isNotEmpty
+                                    ? MemoryImage(base64Decode(_initialValue['picture']))
+                                    : null,
+                            child: (_initialValue['picture'] == null || (_initialValue['picture'] as String).isEmpty)
+                                ? const Icon(Icons.person, size: 64, color: Colors.grey)
+                                : null,
+                          ),
+                        ),
+                        
+                        // Edit/Camera Badge
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: _pickImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF1E3A8A),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                            ),
+                          ),
+                        ),
+                         // Remove Image Badge (only if image exists)
+                        if (_initialValue['picture'] != null && (_initialValue['picture'] as String).isNotEmpty)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _image = null;
+                                  _initialValue['picture'] = null;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close, color: Colors.white, size: 16),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 70), // Spacer for Profile Picture
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: FormBuilder(
-                key: formKey,
-                initialValue: _initialValue,
+              // 3. Title
+              const Text(
+                "Edit Profile",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+               const SizedBox(height: 8),
+              Text(
+                "Update personal details & settings",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // 4. Form Content Area
+              Container(
+                constraints: const BoxConstraints(maxWidth: 800),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Header with back button
+                    // Identity Section
+                    _buildSectionHeader("Identity Information"),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
-                        IconButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.arrow_back),
-                          tooltip: 'Go back',
+                        Expanded(
+                          child: FormBuilderTextField(
+                            name: "firstName",
+                            decoration: customTextFieldDecoration("First Name", prefixIcon: Icons.person_outline),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.match(RegExp(r'^[\p{L} ]+$', unicode: true), errorText: 'Invalid characters'),
+                            ]),
+                          ),
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.person,
-                          size: 32,
-                          color: Color(0xFF6A1B9A),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          "Edit User",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF6A1B9A),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            name: "lastName",
+                            decoration: customTextFieldDecoration("Last Name", prefixIcon: Icons.person_outline),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.match(RegExp(r'^[\p{L} ]+$', unicode: true), errorText: 'Invalid characters'),
+                            ]),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                    FormBuilderTextField(
+                      name: "username",
+                      decoration: customTextFieldDecoration("Username", prefixIcon: Icons.alternate_email),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                        FormBuilderValidators.minLength(3),
+                      ]),
+                    ),
 
-                    // Measure left column height dynamically by using IntrinsicHeight on the whole row
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Left column: picture + buttons
-                          SizedBox(
-                            width: leftColumnWidth,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  "Profile Picture",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  width: 200,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child:
-                                      _initialValue['picture'] != null &&
-                                          (_initialValue['picture'] as String)
-                                              .isNotEmpty
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          child: Image.memory(
-                                            base64Decode(
-                                              _initialValue['picture'],
-                                            ),
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return _buildImagePlaceholder();
-                                                },
-                                          ),
-                                        )
-                                      : _buildImagePlaceholder(),
-                                ),
-                                const SizedBox(height: 16),
+                    const SizedBox(height: 40),
 
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: _pickImage,
-                                        icon: const Icon(Icons.photo_library),
-                                        label: const Text("Select Image"),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(
-                                            0xFF1E3A8A,
-                                          ),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          setState(() {
-                                            _image = null;
-                                            _initialValue['picture'] = null;
-                                          });
-                                        },
-                                        icon: const Icon(Icons.clear),
-                                        label: const Text("Clear Image"),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromARGB(
-                                            255,
-                                            162,
-                                            159,
-                                            159,
-                                          ),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                    // Contact Section
+                    _buildSectionHeader("Contact & Location"),
+                    const SizedBox(height: 20),
+                     Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
+                            name: "email",
+                            decoration: customTextFieldDecoration("Email", prefixIcon: Icons.email_outlined),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.email(),
+                            ]),
                           ),
-
-                          const SizedBox(width: 24),
-
-                          // Middle column aligned to bottom
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FormBuilderTextField(
-                                    name: "firstName",
-                                    decoration: customTextFieldDecoration(
-                                      "First Name",
-                                      prefixIcon: Icons.person_outline,
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(),
-                                      FormBuilderValidators.match(
-                                        RegExp(r'^[\p{L} ]+$', unicode: true),
-                                        errorText:
-                                            'Only letters (including international), and spaces allowed',
-                                      ),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  FormBuilderTextField(
-                                    name: "lastName",
-                                    decoration: customTextFieldDecoration(
-                                      "Last Name",
-                                      prefixIcon: Icons.person_outline,
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(),
-                                      FormBuilderValidators.match(
-                                        RegExp(r'^[\p{L} ]+$', unicode: true),
-                                        errorText:
-                                            'Only letters (including international), and spaces allowed',
-                                      ),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  FormBuilderTextField(
-                                    name: "username",
-                                    decoration: customTextFieldDecoration(
-                                      "Username",
-                                      prefixIcon: Icons.alternate_email,
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(),
-                                      FormBuilderValidators.minLength(3),
-                                      FormBuilderValidators.maxLength(50),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  FormBuilderTextField(
-                                    name: "email",
-                                    decoration: customTextFieldDecoration(
-                                      "Email",
-                                      prefixIcon: Icons.email,
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.required(),
-                                      FormBuilderValidators.email(),
-                                    ]),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            name: "phoneNumber",
+                            decoration: customTextFieldDecoration("Phone (Optional)", prefixIcon: Icons.phone_outlined),
                           ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildCityDropdown()),
+                        const SizedBox(width: 20),
+                        Expanded(child: _buildGenderDropdown()),
+                      ],
+                    ),
 
-                          const SizedBox(width: 24),
+                    const SizedBox(height: 40),
 
-                          // Right column aligned to bottom
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FormBuilderTextField(
-                                    name: "phoneNumber",
-                                    decoration: customTextFieldDecoration(
-                                      "Phone Number (Optional)",
-                                      prefixIcon: Icons.phone,
-                                    ),
-                                    validator: FormBuilderValidators.compose([
-                                      FormBuilderValidators.match(
-                                        RegExp(r'^[\d\s\-\+\(\)]+$'),
-                                        errorText:
-                                            'Please enter a valid phone number',
-                                      ),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildCityDropdown(),
-                                  const SizedBox(height: 16),
-                                  _buildGenderDropdown(),
-                                  const SizedBox(height: 16),
-                                  FormBuilderSwitch(
-                                    name: 'isActive',
-                                    title: const Text('Active Account'),
-                                    initialValue:
-                                        _initialValue['isActive'] as bool? ??
-                                        true,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                    // Settings Section
+                    _buildSectionHeader("Account Status"),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                         boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 5,
+                            offset: const Offset(0, 2),
                           ),
                         ],
+                      ),
+                      child: FormBuilderSwitch(
+                        name: 'isActive',
+                        title: const Text('Active Account', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        subtitle: Text("Allow this user to log in to the system", style: TextStyle(color: Colors.grey[500])),
+                        initialValue: _initialValue['isActive'] as bool? ?? true,
+                        decoration: const InputDecoration(border: InputBorder.none),
+                        activeColor: const Color(0xFF1E3A8A),
                       ),
                     ),
 
                     const SizedBox(height: 50),
 
-                    _buildSaveButton(),
+                    // Action Buttons
+                    Row(
+                      children: [
+                         Expanded(
+                          child: SizedBox(
+                            height: 55,
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Colors.grey.shade300),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                foregroundColor: Colors.grey[700],
+                              ),
+                              child: const Text("Cancel", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          flex: 2,
+                          child: SizedBox(
+                            height: 55,
+                            child: ElevatedButton(
+                              onPressed: _isSaving ? null : _handleSave,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 4,
+                                shadowColor: const Color(0xFF1E3A8A).withOpacity(0.4),
+                              ),
+                              child: _isSaving
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text("Save Changes", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildImagePlaceholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildSectionHeader(String title) {
+    return Row(
       children: [
-        Icon(Icons.person, size: 64, color: Colors.grey[400]),
-        const SizedBox(height: 8),
-        const Text(
-          "No profile picture",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+        Container(
+          width: 4,
+          height: 24,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E3A8A),
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
-        const SizedBox(height: 4),
-        const Text(
-          textAlign: TextAlign.center,
-          "Click 'Select Image' to add a profile picture",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F2937),
+          ),
         ),
       ],
     );
+  }
+
+   Future<void> _handleSave() async {
+    formKey.currentState?.saveAndValidate();
+    if (formKey.currentState?.validate() ?? false) {
+      if (_selectedCity == null || _selectedGender == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select city and gender')));
+        return;
+      }
+
+      setState(() => _isSaving = true);
+      var request = Map.from(formKey.currentState?.value ?? {});
+      request['cityId'] = _selectedCity!.id;
+      request['genderId'] = _selectedGender!.id;
+      request['picture'] = _initialValue['picture'];
+
+      try {
+        await userProvider.update(widget.user.id, request);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User updated successfully'), backgroundColor: Colors.green),
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const UsersListScreen(),
+              settings: const RouteSettings(name: 'UsersListScreen'),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        }
+      } finally {
+        if (mounted) setState(() => _isSaving = false);
+      }
+    }
   }
 }
