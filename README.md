@@ -1,2 +1,2 @@
 # ParkHere
-Aplikacija za smart parking
+Smart Parking App
