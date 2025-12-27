@@ -1,0 +1,379 @@
+# Cursor Rules for manifest_desktop frontend
+
+These rules define a single actionable command to introduce a backend entity into the Flutter frontend by:
+- creating a Dart model in `lib/model/` (no `.g.dart` file will be added),
+- creating a provider in `lib/providers/` following the backend `Controllers`/`Services` structure,
+- registering the provider inside `lib/main.dart` `MultiProvider`,
+- optionally scaffolding list and details screens in `lib/screens/` (only if explicitly requested).
+
+Hard rules
+- Do NOT run any terminal commands. The user will run code generation/build/test themselves.
+- Do NOT generate any `.g.dart` files. Leave the `part '*.g.dart'` reference in the model; the user will run `dart run build_runner build` later to generate them, which may temporarily cause analyzer errors until they do.
+
+The backend conventions mirrored here are:
+- API endpoints follow controller names from `ManiFest.WebAPI/Controllers`, with route `[controller]` and basic CRUD on `BaseController`/`BaseCRUDController`.
+- Providers call those endpoints using `BaseProvider<T>`.
+
+Command: Add a frontend entity
+
+Say (examples):
+- "Add frontend entity Country"
+- "Add frontend entity City --controller City"
+- "Add frontend entity Festival --with-screens"
+
+Parameters
+- name: Required. Entity name in PascalCase (e.g., Country, City, Festival). Used as the model class and provider base.
+- controller: Optional. If omitted, defaults to the same as name. Maps to the backend controller route (without "Controller" suffix), e.g., `CountryController` -> `Country`.
+- with-screens: Optional flag. When present, also scaffold simple `List` and `Details` screens.
+
+Behavior
+1) Create model file
+   - Path: `lib/model/{{snake_name}}.dart`
+   - Content uses `json_annotation` and `part '{{snake_name}}.g.dart';` but DOES NOT generate the `.g.dart` file.
+   - Fields: If you provide fields, those will be used; otherwise, include a minimal `id` and `name` to start, which you can expand later. If the backend Response DTO is accessible, prefer matching its fields.
+
+2) Create provider file
+   - Path: `lib/providers/{{snake_name}}_provider.dart`
+   - Extends `BaseProvider<{{PascalName}}>` and sets endpoint to `{{controller}}`.
+
+3) Register provider in `lib/main.dart`
+   - Add import for the new provider at the top.
+   - Add a `ChangeNotifierProvider<{{PascalName}}Provider>(create: (context) => {{PascalName}}Provider(),),` entry inside the existing `MultiProvider.providers` list.
+
+4) Optionally create screens (only when `--with-screens` is specified)
+   - `lib/screens/{{snake_name}}_list_screen.dart`: a paged list using `BaseTable`/`BasePagination` patterns like `CityListScreen`.
+   - `lib/screens/{{snake_name}}_details_screen.dart`: a form using `FormBuilder` patterns like `CityDetailsScreen`.
+   - Also update `lib/layouts/master_screen.dart` to:
+     - import `package:manifest_desktop/screens/{{snake_name}}_list_screen.dart` near other screen imports
+     - add a drawer tile using `_modernDrawerTile`:
+       `_modernDrawerTile(context, icon: Icons.category_outlined /* adjust icon */, activeIcon: Icons.category /* adjust icon */, label: '{{PascalName}}', screen: {{PascalName}}ListScreen()),`
+     - optionally extend the label-selection logic in `_modernDrawerTile` to mark the tile as selected when current route contains `{{PascalName}}` (follow how Cities/Countries are done)
+
+
+Templates
+
+// Model: lib/model/{{snake_name}}.dart
+```dart
+import 'package:json_annotation/json_annotation.dart';
+
+part '{{snake_name}}.g.dart';
+
+@JsonSerializable()
+class {{PascalName}} {
+  final int id;
+  final String name;
+  // Add additional fields to match your backend Response DTO
+
+  const {{PascalName}}({
+    this.id = 0,
+    this.name = '',
+  });
+
+  factory {{PascalName}}.fromJson(Map<String, dynamic> json) => _${{PascalName}}FromJson(json);
+  Map<String, dynamic> toJson() => _${{PascalName}}ToJson(this);
+}
+```
+
+// Provider: lib/providers/{{snake_name}}_provider.dart
+```dart
+import 'package:manifest_desktop/model/{{snake_name}}.dart';
+import 'package:manifest_desktop/providers/base_provider.dart';
+
+class {{PascalName}}Provider extends BaseProvider<{{PascalName}}> {
+  {{PascalName}}Provider() : super('{{controller}}');
+
+  @override
+  {{PascalName}} fromJson(dynamic json) {
+    return {{PascalName}}.fromJson(json as Map<String, dynamic>);
+  }
+}
+```
+
+// main.dart additions (edit existing file)
+// 1) Add import near other provider imports:
+// import 'package:manifest_desktop/providers/{{snake_name}}_provider.dart';
+// 2) Inside MultiProvider.providers list, add:
+// ChangeNotifierProvider<{{PascalName}}Provider>(create: (context) => {{PascalName}}Provider()),
+
+
+// Optional Screen: lib/screens/{{snake_name}}_list_screen.dart
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:manifest_desktop/layouts/master_screen.dart';
+import 'package:manifest_desktop/utils/base_table.dart';
+import 'package:manifest_desktop/utils/base_pagination.dart';
+import 'package:manifest_desktop/utils/base_textfield.dart';
+import 'package:manifest_desktop/model/{{snake_name}}.dart';
+import 'package:manifest_desktop/model/search_result.dart';
+import 'package:manifest_desktop/providers/{{snake_name}}_provider.dart';
+// import 'package:manifest_desktop/screens/{{snake_name}}_details_screen.dart'; // Uncomment if using details screen
+
+class {{PascalName}}ListScreen extends StatefulWidget {
+  const {{PascalName}}ListScreen({super.key});
+
+  @override
+  State<{{PascalName}}ListScreen> createState() => _{{PascalName}}ListScreenState();
+}
+
+class _{{PascalName}}ListScreenState extends State<{{PascalName}}ListScreen> {
+  late {{PascalName}}Provider provider;
+  SearchResult<{{PascalName}}>? data;
+  int _currentPage = 0;
+  int _pageSize = 10;
+  final List<int> _pageSizeOptions = [5, 10, 20, 50];
+  final TextEditingController nameController = TextEditingController();
+
+  Future<void> _performSearch({int? page, int? pageSize}) async {
+    final int pageToFetch = page ?? _currentPage;
+    final int pageSizeToUse = pageSize ?? _pageSize;
+    final filter = {
+      'name': nameController.text,
+      'page': pageToFetch,
+      'pageSize': pageSizeToUse,
+      'includeTotalCount': true,
+    };
+    final result = await provider.get(filter: filter);
+    setState(() {
+      data = result;
+      _currentPage = pageToFetch;
+      _pageSize = pageSizeToUse;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      provider = context.read<{{PascalName}}Provider>();
+      await _performSearch(page: 0);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MasterScreen(
+      title: '{{PascalName}}',
+      child: Column(
+        children: [
+          _buildSearch(),
+          Expanded(child: _buildResultView()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearch() {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: nameController,
+              decoration: customTextFieldDecoration('Name', prefixIcon: Icons.search),
+              onSubmitted: (_) => _performSearch(page: 0),
+            ),
+          ),
+          const SizedBox(width: 10),
+          ElevatedButton(onPressed: () => _performSearch(page: 0), child: const Text('Search')),
+          // const SizedBox(width: 10),
+          // ElevatedButton(
+          //   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const {{PascalName}}DetailsScreen())),
+          //   child: const Text('Add'),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultView() {
+    final isEmpty = data?.items == null || data!.items!.isEmpty;
+    final totalCount = data?.totalCount ?? 0;
+    final totalPages = (totalCount / _pageSize).ceil();
+    final isFirstPage = _currentPage == 0;
+    final isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          BaseTable(
+            icon: Icons.list_alt,
+            title: '{{PascalName}}',
+            width: 600,
+            height: 450,
+            columns: const [
+              DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+            ],
+            rows: isEmpty
+                ? []
+                : data!.items!
+                    .map((e) => DataRow(
+                          // onSelectChanged: (_) => Navigator.push(context, MaterialPageRoute(builder: (_) => {{PascalName}}DetailsScreen(item: e))),
+                          cells: [
+                            DataCell(Text(e.name)),
+                          ],
+                        ))
+                    .toList(),
+            emptyIcon: Icons.info_outline,
+            emptyText: 'No {{snake_name}} found.',
+            emptySubtext: 'Try adjusting your search.',
+          ),
+          const SizedBox(height: 30),
+          BasePagination(
+            currentPage: _currentPage,
+            totalPages: totalPages,
+            onPrevious: isFirstPage ? null : () => _performSearch(page: _currentPage - 1),
+            onNext: isLastPage ? null : () => _performSearch(page: _currentPage + 1),
+            showPageSizeSelector: true,
+            pageSize: _pageSize,
+            pageSizeOptions: _pageSizeOptions,
+            onPageSizeChanged: (newSize) {
+              if (newSize != null && newSize != _pageSize) {
+                _performSearch(page: 0, pageSize: newSize);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+// Optional Screen: lib/screens/{{snake_name}}_details_screen.dart
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:provider/provider.dart';
+import 'package:manifest_desktop/layouts/master_screen.dart';
+import 'package:manifest_desktop/utils/base_textfield.dart';
+import 'package:manifest_desktop/providers/{{snake_name}}_provider.dart';
+import 'package:manifest_desktop/model/{{snake_name}}.dart';
+
+class {{PascalName}}DetailsScreen extends StatefulWidget {
+  final {{PascalName}}? item;
+  const {{PascalName}}DetailsScreen({super.key, this.item});
+
+  @override
+  State<{{PascalName}}DetailsScreen> createState() => _{{PascalName}}DetailsScreenState();
+}
+
+class _{{PascalName}}DetailsScreenState extends State<{{PascalName}}DetailsScreen> {
+  final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
+  late {{PascalName}}Provider provider;
+  Map<String, dynamic> initialValue = {};
+
+  @override
+  void initState() {
+    super.initState();
+    provider = Provider.of<{{PascalName}}Provider>(context, listen: false);
+    initialValue = {
+      'name': widget.item?.name ?? '',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MasterScreen(
+      title: widget.item == null ? 'Add {{PascalName}}' : 'Edit {{PascalName}}',
+      showBackButton: true,
+      child: _buildForm(),
+    );
+  }
+
+  Widget _buildForm() {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: Card(
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: FormBuilder(
+              key: formKey,
+              initialValue: initialValue,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.arrow_back)),
+                      const SizedBox(width: 8),
+                      Icon(Icons.list_alt, size: 32, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 16),
+                      Text(
+                        widget.item == null ? 'Add {{PascalName}}' : 'Edit {{PascalName}}',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  FormBuilderTextField(
+                    name: 'name',
+                    decoration: customTextFieldDecoration('Name', prefixIcon: Icons.text_fields),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                    ]),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.cancel),
+                          label: const Text('Cancel'),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            formKey.currentState?.saveAndValidate();
+                            if (!(formKey.currentState?.validate() ?? false)) return;
+                            final request = Map<String, dynamic>.from(formKey.currentState?.value ?? {});
+                            try {
+                              if (widget.item == null) {
+                                await provider.insert(request);
+                              } else {
+                                await provider.update(widget.item!.id, request);
+                              }
+                              Navigator.of(context).pop();
+                            } catch (e) {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(title: const Text('Error'), content: Text(e.toString().replaceFirst('Exception: ', '')), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))]),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.save),
+                          label: const Text('Save'),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+
+Implementation notes for the assistant
+- Always mirror controller names from `ManiFest.WebAPI/Controllers` for the provider endpoint.
+- Do not generate any `.g.dart` files; only create the `.dart` model file referencing the part file. Do not run codegen commands.
+- Keep imports and `ChangeNotifierProvider` registration consistent with existing usage in `lib/main.dart`.
+- If the user supplies explicit fields, render them in the model with appropriate Dart types and add them to constructor and `@JsonSerializable` model.
+- If the user requests screens via `--with-screens`, create the two screens using the patterns in `city_list_screen.dart` and `city_details_screen.dart`. Otherwise do not add any screens.
+ - When `--with-screens` is specified, also add a navigation tile for the list screen to `lib/layouts/master_screen.dart` as described above.
+
+
