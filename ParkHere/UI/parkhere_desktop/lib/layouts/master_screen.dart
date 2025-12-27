@@ -30,7 +30,8 @@ class MasterScreen extends StatefulWidget {
 
 
   // Persist sidebar state globally across screen rebuilds
-  static bool isSidebarExpanded = true; 
+  static bool isSidebarExpanded = false; 
+  static double sidebarScrollOffset = 0;
 
   @override
   State<MasterScreen> createState() => _MasterScreenState();
@@ -41,10 +42,16 @@ class _MasterScreenState extends State<MasterScreen>
   late AnimationController _sidebarController;
   late Animation<double> _widthAnimation;
   late Animation<double> _textOpacityAnimation;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController(initialScrollOffset: MasterScreen.sidebarScrollOffset);
+    _scrollController.addListener(() {
+      MasterScreen.sidebarScrollOffset = _scrollController.offset;
+    });
+
     _sidebarController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -70,6 +77,7 @@ class _MasterScreenState extends State<MasterScreen>
   @override
   void dispose() {
     _sidebarController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -340,6 +348,7 @@ class _MasterScreenState extends State<MasterScreen>
               // Navigation Items
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   // Hide scrollbar when collapsed
                   physics: _widthAnimation.value < 150 
                       ? const NeverScrollableScrollPhysics() 
@@ -470,8 +479,8 @@ class _MasterScreenState extends State<MasterScreen>
                     child: ClipOval(
                       child: Image.asset(
                         "assets/images/3.png",
-                        height: 60,
-                        width: 60,
+                        height: 90,
+                        width: 90,
                         fit: BoxFit.cover,
                       ),
                     ),
