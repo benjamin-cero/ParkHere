@@ -4,6 +4,7 @@ import 'package:parkhere_desktop/model/city.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/city_provider.dart';
 import 'package:parkhere_desktop/screens/city_details_screen.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
 import 'package:provider/provider.dart';
 
@@ -284,64 +285,33 @@ class _CityListScreenState extends State<CityListScreen> {
       );
     }
 
-    return ListView.builder(
-      itemCount: cities!.items!.length,
-      itemBuilder: (context, index) {
-        final city = cities!.items![index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[100]!),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            leading: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF), // Light blue bg
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.location_city_rounded,
-                color: Color(0xFF1E3A8A),
-                size: 24,
-              ),
+    return BaseCardsGrid(
+      items: cities!.items!.map((city) {
+        return BaseGridCardItem(
+          title: city.name,
+          subtitle: city.countryName.isNotEmpty ? city.countryName : "No Country",
+          imageUrl: null, // No image for city yet
+          data: {
+             Icons.numbers: "ID: ${city.id}",
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.info_outline,
+              onPressed: () {
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CityDetailsScreen(city: city),
+                    settings: const RouteSettings(name: 'CityDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: true,
             ),
-            title: Text(
-              city.name,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            trailing: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.grey,
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CityDetailsScreen(city: city),
-                  settings: const RouteSettings(name: 'CityDetailsScreen'),
-                ),
-              );
-            },
-            hoverColor: Colors.grey[50],
-          ),
+          ],
         );
-      },
+      }).toList(),
     );
   }
 }
