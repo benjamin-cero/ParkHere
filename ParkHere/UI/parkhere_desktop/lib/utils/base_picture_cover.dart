@@ -19,9 +19,9 @@ class BasePictureCover extends StatelessWidget {
     required this.base64,
     this.size = 140,
     this.fallbackIcon = Icons.account_circle,
-    this.borderColor = const Color(0xFF6A1B9A),
-    this.iconColor = const Color(0xFF6A1B9A),
-    this.backgroundColor = const Color(0xFFFFF3E0),
+    this.borderColor = const Color(0xFF1E3A8A), // Blue
+    this.iconColor = const Color(0xFF1E3A8A),   // Blue
+    this.backgroundColor = const Color(0xFFE0F2FE), // Light Blue
     this.borderWidth = 2.0,
     this.showShadow = true,
     this.shape = BoxShape.circle,

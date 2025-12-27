@@ -248,233 +248,339 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          // Left Side - Visual Branding (60%)
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF1E3A8A), // Dark Blue
-                    Color(0xFF2563EB), // Primary Blue
-                  ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 900) {
+            return _buildDesktopLayout();
+          } else {
+            return _buildMobileLayout();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout() {
+    return Row(
+      children: [
+        // Left Side - Visual Branding (60%)
+        Expanded(
+          flex: 3,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF1E3A8A), // Dark Blue
+                  Color(0xFF2563EB), // Primary Blue
+                ],
+              ),
+            ),
+            child: Stack(
+              children: [
+                // Decorative Circles
+                Positioned(
+                  top: -100,
+                  right: -100,
+                  child: Container(
+                    width: 400,
+                    height: 400,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.05),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: -50,
+                  left: -50,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.05),
+                    ),
+                  ),
+                ),
+                // Centered Content
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(30),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset(
+                            "assets/images/3.png",
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        "ParkHere",
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Smart Parking Management System",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Right Side - Login Form (40%)
+        Expanded(
+          flex: 2,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(40),
+            child: Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: _buildLoginForm(),
+                  ),
                 ),
               ),
-              child: Stack(
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Stack(
+      children: [
+        // Background
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1E3A8A), // Dark Blue
+                Color(0xFF2563EB), // Primary Blue
+              ],
+            ),
+          ),
+        ),
+        // Decorative Circles (Optional for mobile, maybe simplified)
+        Positioned(
+          top: -50,
+          right: -50,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.05),
+            ),
+          ),
+        ),
+        
+        // Content
+        Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Decorative Circles
-                  Positioned(
-                    top: -100,
-                    right: -100,
-                    child: Container(
-                      width: 400,
-                      height: 400,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.05),
+                   Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50), // Smaller radius for mobile
+                          child: Image.asset(
+                            "assets/images/3.png",
+                            width: 80, // Smaller logo for mobile
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
+                  const SizedBox(height: 24),
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                  ),
-                  Positioned(
-                    bottom: -50,
-                    left: -50,
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.05),
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: _buildLoginForm(),
                       ),
-                    ),
-                  ),
-                  // Centered Content
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(30),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                              width: 2,
-                            ),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: Image.asset(
-                              "assets/images/3.png",
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          
-                        ),
-                        const SizedBox(height: 32),
-                        const Text(
-                          "ParkHere",
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Smart Parking Management System",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
 
-          // Right Side - Login Form (40%)
-          Expanded(
-            flex: 2,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(40),
-              child: Center(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            "Welcome Back",
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E3A8A),
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Please sign in to your dashboard",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 48),
-                          
-                          // Username
-                          TextField(
-                            controller: usernameController,
-                            decoration: customTextFieldDecoration(
-                              "Username",
-                              prefixIcon: Icons.person_outline,
-                              hintText: "Enter your username",
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          
-                          // Password
-                          TextField(
-                            controller: passwordController,
-                            obscureText: !_isPasswordVisible,
-                            decoration: customTextFieldDecoration(
-                              "Password",
-                              prefixIcon: Icons.lock_outline,
-                              hintText: "Enter your password",
-                              suffixIcon: _isPasswordVisible
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                            ).copyWith(
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _isPasswordVisible
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: Colors.grey[600],
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {}, // Implement forgot password
-                              style: TextButton.styleFrom(
-                                foregroundColor: const Color(0xFF2563EB),
-                              ),
-                              child: const Text("Forgot Password?"),
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          
-                          // Login Button
-                          SizedBox(
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1E3A8A),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Sign In",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
-                    ),
+  Widget _buildLoginForm() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          "Welcome Back",
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1E3A8A),
+            letterSpacing: -0.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Please sign in to your dashboard",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[600],
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 48),
+
+        // Username
+        TextField(
+          controller: usernameController,
+          decoration: customTextFieldDecoration(
+            "Username",
+            prefixIcon: Icons.person_outline,
+            hintText: "Enter your username",
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Password
+        TextField(
+          controller: passwordController,
+          obscureText: !_isPasswordVisible,
+          decoration:
+              customTextFieldDecoration(
+                "Password",
+                prefixIcon: Icons.lock_outline,
+                hintText: "Enter your password",
+                suffixIcon:
+                    _isPasswordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+              ).copyWith(
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: Colors.grey[600],
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
               ),
+        ),
+
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {}, // Implement forgot password
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF2563EB),
             ),
+            child: const Text("Forgot Password?"),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 32),
+
+        // Login Button
+        SizedBox(
+          height: 56,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : _handleLogin,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E3A8A),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child:
+                _isLoading
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                    : const Text(
+                      "Sign In",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }

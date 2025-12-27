@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:parkhere_desktop/main.dart';
 import 'package:flutter/services.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
-import 'package:parkhere_desktop/screens/country_list_screen.dart';
 import 'package:parkhere_desktop/screens/category_list_screen.dart';
 import 'package:parkhere_desktop/screens/organizer_list_screen.dart';
 import 'package:parkhere_desktop/screens/subcategory_list_screen.dart';
@@ -28,6 +27,11 @@ class MasterScreen extends StatefulWidget {
   final String title;
   final bool showBackButton;
 
+
+
+  // Persist sidebar state globally across screen rebuilds
+  static bool isSidebarExpanded = true; 
+
   @override
   State<MasterScreen> createState() => _MasterScreenState();
 }
@@ -44,7 +48,7 @@ class _MasterScreenState extends State<MasterScreen>
     _sidebarController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-      value: 1.0, // Start expanded
+      value: MasterScreen.isSidebarExpanded ? 1.0 : 0.0, // Start based on persisted state
     );
 
     _widthAnimation = Tween<double>(begin: 80, end: 260).animate(
@@ -72,8 +76,10 @@ class _MasterScreenState extends State<MasterScreen>
   void _toggleSidebar() {
     if (_sidebarController.status == AnimationStatus.completed) {
       _sidebarController.reverse();
+      MasterScreen.isSidebarExpanded = false;
     } else {
       _sidebarController.forward();
+      MasterScreen.isSidebarExpanded = true;
     }
   }
 
@@ -424,15 +430,6 @@ class _MasterScreenState extends State<MasterScreen>
                       const SizedBox(height: 4),
                       _buildNavTile(
                         context,
-                        icon: Icons.flag_outlined,
-                        activeIcon: Icons.flag,
-                        label: 'Countries',
-                        screen: CountryListScreen(),
-                        routeName: 'CountryListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
                         icon: Icons.location_city_outlined,
                         activeIcon: Icons.location_city_rounded,
                         label: 'Cities',
@@ -465,15 +462,18 @@ class _MasterScreenState extends State<MasterScreen>
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
+                      shape: BoxShape.circle,
                     ),
-                    child: Image.asset(
-                      "assets/images/logo_large.png",
-                      height: 40,
-                      width: 40,
+                    child: ClipOval(
+                      child: Image.asset(
+                        "assets/images/3.png",
+                        height: 60,
+                        width: 60,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -550,8 +550,10 @@ class _MasterScreenState extends State<MasterScreen>
         onTap: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => screen,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => screen,
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
               settings: RouteSettings(name: routeName),
             ),
           );
@@ -616,9 +618,6 @@ class _MasterScreenState extends State<MasterScreen>
     } else if (label == 'Cities') {
       return currentRoute == 'CityListScreen' ||
           currentRoute == 'CityDetailsScreen';
-    } else if (label == 'Countries') {
-      return currentRoute == 'CountryListScreen' ||
-          currentRoute == 'CountryDetailsScreen';
     } else if (label == 'Subcategories') {
       return currentRoute == 'SubcategoryListScreen' ||
           currentRoute == 'SubcategoryDetailsScreen';
@@ -694,72 +693,82 @@ class _MasterScreenState extends State<MasterScreen>
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF1E3A8A),
+            const Color(0xFF2563EB),
+          ],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: const Color(0xFF1E3A8A).withOpacity(0.3),
             blurRadius: 10,
-            offset: const Offset(0, 2),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                if (widget.showBackButton)
-                  Container(
-                    margin: const EdgeInsets.only(right: 16),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                      onPressed: () => Navigator.of(context).pop(),
-                      color: const Color(0xFF374151),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          children: [
+            if (widget.showBackButton)
+              Container(
+                margin: const EdgeInsets.only(right: 16),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () => Navigator.of(context).pop(),
+                  color: Colors.white,
+                ),
+              ),
+            // Page Title
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                // Page Title
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.title,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      Text(
-                        'ParkHere Admin',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ],
+                  Text(
+                    'ParkHere Admin',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                ),
-                const SizedBox(width: 16),
-                // User Avatar
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => _showProfileOverlay(context),
-                    child: _buildUserAvatar(radius: 20),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(width: 16),
+            // User Avatar
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => _showProfileOverlay(context),
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+                  ),
+                  child: _buildUserAvatar(radius: 20),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

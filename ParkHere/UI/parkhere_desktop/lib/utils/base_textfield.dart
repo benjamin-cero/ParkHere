@@ -14,40 +14,26 @@ InputDecoration customTextFieldDecoration(
     labelText: label,
     hintText: hintText,
     filled: true,
-    fillColor: const Color(0xFFF1F5F9),
+    fillColor: Colors.white,
+    hoverColor: Colors.transparent, // Prevents custom hover color from blending with background
     contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
 
     border: OutlineInputBorder(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(12),
-        bottomRight: Radius.circular(12),
-      ),
+      borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(color: Colors.grey[300]!, width: 1.5),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(12),
-        bottomRight: Radius.circular(12),
-      ),
+      borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: Color(0xFFCBD5E1),
+        color: Color(0xFFE2E8F0),
         width: 1.5,
       ),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(12),
-        bottomRight: Radius.circular(12),
-      ),
+      borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
         color: Color(0xFF3B82F6),
-        width: 2.5,
+        width: 2.0,
       ),
     ),
     errorBorder: OutlineInputBorder(

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:parkhere_desktop/layouts/master_screen.dart';
 import 'package:parkhere_desktop/model/city.dart';
-import 'package:parkhere_desktop/model/country.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/city_provider.dart';
-import 'package:parkhere_desktop/providers/country_provider.dart';
 import 'package:parkhere_desktop/screens/city_details_screen.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 
 class CityListScreen extends StatefulWidget {
@@ -20,192 +16,138 @@ class CityListScreen extends StatefulWidget {
 
 class _CityListScreenState extends State<CityListScreen> {
   late CityProvider cityProvider;
-  late CountryProvider countryProvider;
-
-  TextEditingController nameController = TextEditingController();
-  Country? _selectedCountry;
-  bool _isLoadingCountries = true;
-  List<Country> _countries = [];
+  final TextEditingController nameController = TextEditingController();
 
   SearchResult<City>? cities;
   int _currentPage = 0;
-  int _pageSize = 5;
-  final List<int> _pageSizeOptions = [5, 7, 10, 20, 50];
-
-  // Search for cities with ENTER key, not only when button is clicked
-  Future<void> _performSearch({int? page, int? pageSize}) async {
-    final int pageToFetch = page ?? _currentPage;
-    final int pageSizeToUse = pageSize ?? _pageSize;
-    var filter = {
-      "name": nameController.text,
-      "countryId": _selectedCountry?.id,
-      "page": pageToFetch,
-      "pageSize": pageSizeToUse,
-      "includeTotalCount": true, // Ensure backend returns total count
-    };
-    debugPrint(filter.toString());
-    var cities = await cityProvider.get(filter: filter);
-    debugPrint(cities.items?.firstOrNull?.name);
-    setState(() {
-      this.cities = cities;
-      _currentPage = pageToFetch;
-      _pageSize = pageSizeToUse;
-    });
-  }
+  int _pageSize = 10;
+  bool _isLoading = false;
+  final List<int> _pageSizeOptions = [5, 10, 20, 50];
 
   @override
   void initState() {
     super.initState();
-    // Delay to ensure context is available for Provider
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       cityProvider = context.read<CityProvider>();
-      countryProvider = context.read<CountryProvider>();
-      await _loadCountries();
       await _performSearch(page: 0);
     });
   }
 
-  Future<void> _loadCountries() async {
-    try {
-      setState(() {
-        _isLoadingCountries = true;
-      });
+  Future<void> _performSearch({int? page, int? pageSize}) async {
+    setState(() {
+      _isLoading = true;
+    });
 
-      final result = await countryProvider.get();
-      if (result.items != null && result.items!.isNotEmpty) {
+    try {
+      final int pageToFetch = page ?? _currentPage;
+      final int pageSizeToUse = pageSize ?? _pageSize;
+      
+      var filter = {
+        "name": nameController.text,
+        "page": pageToFetch,
+        "pageSize": pageSizeToUse,
+        "includeTotalCount": true,
+      };
+      
+      var result = await cityProvider.get(filter: filter);
+      
+      if (mounted) {
         setState(() {
-          _countries = result.items!;
-          _isLoadingCountries = false;
-        });
-      } else {
-        setState(() {
-          _countries = [];
-          _isLoadingCountries = false;
+          cities = result;
+          _currentPage = pageToFetch;
+          _pageSize = pageSizeToUse;
+          _isLoading = false;
         });
       }
     } catch (e) {
-      setState(() {
-        _countries = [];
-        _isLoadingCountries = false;
-      });
-    }
-  }
-
-  Widget _buildCountryDropdown() {
-    if (_isLoadingCountries) {
-      return Container(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            SizedBox(width: 16),
-            Text(
-              "Loading countries...",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_countries.isEmpty) {
-      return Container(
-        padding: EdgeInsets.all(16),
-        child: Text(
-          "No countries available",
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    }
-
-    return DropdownButtonFormField<Country>(
-      value: _selectedCountry,
-      decoration: customTextFieldDecoration(
-        "All Countries",
-        prefixIcon: Icons.flag,
-      ),
-      items: [
-        // Add "All Countries" option
-        DropdownMenuItem<Country>(value: null, child: Text("All Countries")),
-        // Add country options
-        ..._countries.map((country) {
-          return DropdownMenuItem<Country>(
-            value: country,
-            child: Text(country.name),
-          );
-        }).toList(),
-      ],
-      onChanged: (Country? value) {
+      if (mounted) {
         setState(() {
-          _selectedCountry = value;
+          _isLoading = false;
         });
-        // Automatically search when country selection changes
-        _performSearch(page: 0);
-      },
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error loading cities: ${e.toString()}")),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
       title: "Cities",
-      child: Center(
-        child: Column(
-          children: [
-            _buildSearch(),
-            Expanded(child: _buildResultView()),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 24),
+          Expanded(child: _buildResultView()),
+        ],
       ),
     );
   }
 
-  Widget _buildSearch() {
-    return Padding(
-      padding: EdgeInsets.all(10),
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
-            child: TextField(
-              decoration: customTextFieldDecoration(
-                "Name",
-                prefixIcon: Icons.search,
-              ),
-              controller: nameController,
-              onSubmitted: (value) => _performSearch(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Manage Cities",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "View and manage the list of available cities",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(width: 10),
-          // Country dropdown filter
-          SizedBox(width: 350, child: _buildCountryDropdown()),
-          SizedBox(width: 10),
-          ElevatedButton(onPressed: _performSearch, child: Text("Search")),
-          SizedBox(width: 10),
-          ElevatedButton(
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CityDetailsScreen(),
+                  builder: (context) => const CityDetailsScreen(),
                   settings: const RouteSettings(name: 'CityDetailsScreen'),
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E3A8A), // Blue
-              foregroundColor: Colors.white, // white text & icon
+              backgroundColor: const Color(0xFF1E3A8A),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
             ),
-            child: const Row(
-              children: [Icon(Icons.add), Text('Add City')],
+            icon: const Icon(Icons.add_rounded),
+            label: const Text(
+              "Add New City",
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -214,90 +156,193 @@ class _CityListScreenState extends State<CityListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        cities == null || cities!.items == null || cities!.items!.isEmpty;
-    final int totalCount = cities?.totalCount ?? 0;
-    final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BaseTable(
-            icon: Icons.location_city_outlined,
-            title: "Cities",
-            width: 600,
-            height: 423,
-            columns: [
-              DataColumn(
-                label: Text(
-                  "Name",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    return Column(
+      children: [
+        // Search & Filters Bar
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: nameController,
+                    onSubmitted: (_) => _performSearch(page: 0),
+                    decoration: InputDecoration(
+                      hintText: "Search cities by name...",
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              DataColumn(
-                label: Text(
-                  "Country",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              const SizedBox(width: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => _performSearch(page: 0),
+                  icon: const Icon(Icons.refresh_rounded),
+                  color: const Color(0xFF1E3A8A),
+                  tooltip: "Refresh List",
                 ),
               ),
             ],
-            rows: isEmpty
-                ? []
-                : cities!.items!
-                      .map(
-                        (e) => DataRow(
-                          onSelectChanged: (value) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CityDetailsScreen(city: e),
-                                settings: const RouteSettings(
-                                  name: 'CityDetailsScreen',
-                                ),
-                              ),
-                            );
-                          },
-                          cells: [
-                            DataCell(
-                              Text(e.name, style: TextStyle(fontSize: 15)),
-                            ),
-                            DataCell(
-                              Text(
-                                e.countryName,
-                                style: TextStyle(fontSize: 15),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-            emptyIcon: Icons.location_city,
-            emptyText: "No cities found.",
-            emptySubtext: "Try adjusting your search or add a new city.",
           ),
-          SizedBox(height: 30),
-          BasePagination(
-            currentPage: _currentPage,
-            totalPages: totalPages,
-            onPrevious: isFirstPage
-                ? null
-                : () => _performSearch(page: _currentPage - 1),
-            onNext: isLastPage
-                ? null
-                : () => _performSearch(page: _currentPage + 1),
-            showPageSizeSelector: true,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (newSize) {
-              if (newSize != null && newSize != _pageSize) {
-                _performSearch(page: 0, pageSize: newSize);
-              }
+        ),
+
+        // List Content
+        Expanded(
+          child: _isLoading 
+              ? const Center(child: CircularProgressIndicator())
+              : _buildCityList(),
+        ),
+
+        // Pagination
+        if (cities != null && (cities?.totalCount ?? 0) > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: BasePagination(
+              currentPage: _currentPage,
+              totalPages: ((cities?.totalCount ?? 0) / _pageSize).ceil(),
+              onPrevious: _currentPage > 0 
+                  ? () => _performSearch(page: _currentPage - 1) 
+                  : null,
+              onNext: _currentPage < ((cities?.totalCount ?? 0) / _pageSize).ceil() - 1 
+                  ? () => _performSearch(page: _currentPage + 1) 
+                  : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCityList() {
+    if (cities == null || cities!.items == null || cities!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.location_city_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              "No cities found",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Try adjusting your search criteria",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: cities!.items!.length,
+      itemBuilder: (context, index) {
+        final city = cities!.items![index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[100]!),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            leading: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF), // Light blue bg
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.location_city_rounded,
+                color: Color(0xFF1E3A8A),
+                size: 24,
+              ),
+            ),
+            title: Text(
+              city.name,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Colors.grey,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CityDetailsScreen(city: city),
+                  settings: const RouteSettings(name: 'CityDetailsScreen'),
+                ),
+              );
             },
+            hoverColor: Colors.grey[50],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
+
