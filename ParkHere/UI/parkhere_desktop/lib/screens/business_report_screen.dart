@@ -52,7 +52,7 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
             if (provider.isLoading) {
               return const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6A1B9A)),
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1E3A8A)),
                 ),
               );
             }
@@ -86,7 +86,7 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
                     ElevatedButton(
                       onPressed: () => provider.getBusinessReport(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6A1B9A),
+                        backgroundColor: const Color(0xFF1E3A8A),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -156,12 +156,12 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6A1B9A).withOpacity(0.1),
+                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.pie_chart,
-                  color: Color(0xFF6A1B9A),
+                  color: Color(0xFF1E3A8A),
                   size: 24,
                 ),
               ),
@@ -198,9 +198,9 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
     List<FestivalRevenueResponse> festivals,
   ) {
     final colors = [
-      const Color(0xFF6A1B9A),
-      const Color(0xFF8E24AA),
-      const Color(0xFFAB47BC),
+      const Color(0xFF1E3A8A),
+      const Color(0xFF3B82F6),
+      const Color(0xFF60A5FA),
     ];
 
     return festivals.asMap().entries.map((entry) {
@@ -224,9 +224,9 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
 
   Widget _buildPieChartLegend(List<FestivalRevenueResponse> festivals) {
     final colors = [
-      const Color(0xFF6A1B9A),
-      const Color(0xFF8E24AA),
-      const Color(0xFFAB47BC),
+      const Color(0xFF1E3A8A),
+      const Color(0xFF3B82F6),
+      const Color(0xFF60A5FA),
     ];
 
     return Column(
@@ -261,7 +261,7 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6A1B9A),
+                  color: Color(0xFF1E3A8A),
                 ),
               ),
             ],
@@ -417,12 +417,12 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6A1B9A).withOpacity(0.1),
+                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.person,
-                  color: Color(0xFF6A1B9A),
+                  color: Color(0xFF1E3A8A),
                   size: 24,
                 ),
               ),
@@ -442,14 +442,14 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: const Color(0xFF6A1B9A).withOpacity(0.1),
+                backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
                 child: Text(
                   _getUserInitials(
                     report.userWithMostTickets!.firstName,
                     report.userWithMostTickets!.lastName,
                   ),
                   style: const TextStyle(
-                    color: Color(0xFF6A1B9A),
+                    color: Color(0xFF1E3A8A),
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -507,12 +507,12 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6A1B9A).withOpacity(0.1),
+                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.star,
-                  color: Color(0xFF6A1B9A),
+                  color: Color(0xFF1E3A8A),
                   size: 24,
                 ),
               ),
@@ -615,9 +615,9 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
       final index = entry.key;
       final festival = entry.value;
       final colors = [
-        const Color(0xFF6A1B9A),
-        const Color(0xFF8E24AA),
-        const Color(0xFFAB47BC),
+        const Color(0xFF1E3A8A),
+        const Color(0xFF3B82F6),
+        const Color(0xFF60A5FA),
       ];
 
       return BarChartGroupData(
@@ -639,9 +639,9 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
 
   Widget _buildBarChartLegend(List<FestivalRatingResponse> festivals) {
     final colors = [
-      const Color(0xFF6A1B9A),
-      const Color(0xFF8E24AA),
-      const Color(0xFFAB47BC),
+      const Color(0xFF1E3A8A),
+      const Color(0xFF3B82F6),
+      const Color(0xFF60A5FA),
     ];
 
     return Column(
@@ -676,7 +676,7 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6A1B9A),
+                  color: Color(0xFF1E3A8A),
                 ),
               ),
             ],

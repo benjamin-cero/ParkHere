@@ -489,7 +489,7 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
                                         label: const Text("Select Image"),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(
-                                            0xFF6A1B9A,
+                                            0xFF1E3A8A,
                                           ),
                                           foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(

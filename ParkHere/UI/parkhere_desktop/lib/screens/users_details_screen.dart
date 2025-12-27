@@ -68,8 +68,8 @@ class UsersDetailsScreen extends StatelessWidget {
                       base64: user.picture,
                       size: 120,
                       fallbackIcon: Icons.person,
-                      borderColor: Color(0xFF6A1B9A),
-                      iconColor: Color(0xFF6A1B9A),
+                      borderColor: Color(0xFF1E3A8A),
+                      iconColor: Color(0xFF1E3A8A),
                       backgroundColor: const Color(0xFFE3F2FD),
                       showShadow: true,
                     ),
@@ -215,7 +215,7 @@ class UsersDetailsScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF6A1B9A)
+            color: Color(0xFF1E3A8A)
           ),
         ),
         const SizedBox(height: 16),

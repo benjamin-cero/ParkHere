@@ -98,7 +98,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6A1B9A), // Purple
+              backgroundColor: const Color(0xFF1E3A8A), // Blue
               foregroundColor: Colors.white, // white text & icon
             ),
             child: const Row(

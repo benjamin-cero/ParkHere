@@ -15,6 +15,7 @@ import 'package:parkhere_desktop/providers/ticket_provider.dart';
 import 'package:parkhere_desktop/providers/subcategory_provider.dart';
 import 'package:parkhere_desktop/providers/business_report_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
+import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -406,8 +407,8 @@ class _LoginPageState extends State<LoginPage>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const BusinessReportScreen(),
-                settings: const RouteSettings(name: 'BusinessReportScreen'),
+                builder: (context) => const CityListScreen(),
+                settings: const RouteSettings(name: 'CityListScreen'),
               ),
             );
           }
