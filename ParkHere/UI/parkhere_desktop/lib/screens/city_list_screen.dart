@@ -277,7 +277,7 @@ class _CityListScreenState extends State<CityListScreen> {
       items: cities!.items!.map((city) {
         return BaseGridCardItem(
           title: city.name,
-          subtitle: city.countryName,
+          subtitle: "City",
           imageUrl: null, // No image for city yet
           data: const {},
           actions: [

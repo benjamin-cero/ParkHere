@@ -3,16 +3,10 @@ import 'dart:ui';
 import 'dart:convert';
 import 'package:parkhere_desktop/main.dart';
 import 'package:flutter/services.dart';
+
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
-import 'package:parkhere_desktop/screens/category_list_screen.dart';
-import 'package:parkhere_desktop/screens/organizer_list_screen.dart';
-import 'package:parkhere_desktop/screens/subcategory_list_screen.dart';
-import 'package:parkhere_desktop/screens/ticket_type_list_screen.dart';
 import 'package:parkhere_desktop/screens/users_list_screen.dart';
-import 'package:parkhere_desktop/screens/festival_list_screen.dart';
-import 'package:parkhere_desktop/screens/festival_upsert_screen.dart';
 import 'package:parkhere_desktop/screens/review_list_screen.dart';
-import 'package:parkhere_desktop/screens/ticket_list_screen.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/profile_screen.dart';
 import 'package:parkhere_desktop/providers/user_provider.dart';
@@ -386,33 +380,6 @@ class _MasterScreenState extends State<MasterScreen>
                       const SizedBox(height: 4),
                       _buildNavTile(
                         context,
-                        icon: Icons.festival,
-                        activeIcon: Icons.festival,
-                        label: 'Festivals',
-                        screen: FestivalListScreen(),
-                        routeName: 'FestivalListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.confirmation_number_outlined,
-                        activeIcon: Icons.confirmation_number,
-                        label: 'Tickets',
-                        screen: TicketListScreen(),
-                        routeName: 'TicketListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.confirmation_number_outlined,
-                        activeIcon: Icons.confirmation_number,
-                        label: 'Ticket Types',
-                        screen: TicketTypeListScreen(),
-                        routeName: 'TicketTypeListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
                         icon: Icons.rate_review_outlined,
                         activeIcon: Icons.rate_review,
                         label: 'Reviews',
@@ -427,33 +394,6 @@ class _MasterScreenState extends State<MasterScreen>
                         label: 'Users',
                         screen: UsersListScreen(),
                         routeName: 'UsersListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.business,
-                        activeIcon: Icons.apartment,
-                        label: 'Organizers',
-                        screen: OrganizerListScreen(),
-                        routeName: 'OrganizerListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.category_outlined,
-                        activeIcon: Icons.category,
-                        label: 'Categories',
-                        screen: CategoryListScreen(),
-                        routeName: 'CategoryListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.view_list_outlined,
-                        activeIcon: Icons.view_list,
-                        label: 'Subcategories',
-                        screen: SubcategoryListScreen(),
-                        routeName: 'SubcategoryListScreen',
                       ),
                       const SizedBox(height: 4),
                       _buildNavTile(
@@ -640,35 +580,16 @@ class _MasterScreenState extends State<MasterScreen>
   bool _isRouteSelected(String label, String? currentRoute) {
     if (label == 'Business Report') {
       return currentRoute == 'BusinessReportScreen';
-    } else if (label == 'Categories') {
-      return currentRoute == 'CategoryListScreen' ||
-          currentRoute == 'CategoryDetailsScreen';
     } else if (label == 'Cities') {
       return currentRoute == 'CityListScreen' ||
           currentRoute == 'CityDetailsScreen';
-    } else if (label == 'Subcategories') {
-      return currentRoute == 'SubcategoryListScreen' ||
-          currentRoute == 'SubcategoryDetailsScreen';
-    } else if (label == 'Organizers') {
-      return currentRoute == 'OrganizerListScreen' ||
-          currentRoute == 'OrganizerDetailsScreen';
-    } else if (label == 'Ticket Types') {
-      return currentRoute == 'TicketTypeListScreen' ||
-          currentRoute == 'TicketTypeDetailsScreen';
     } else if (label == 'Users') {
       return currentRoute == 'UsersListScreen' ||
           currentRoute == 'UsersDetailsScreen' ||
           currentRoute == 'UsersEditScreen';
-    } else if (label == 'Festivals') {
-      return currentRoute == 'FestivalListScreen' ||
-          currentRoute == 'FestivalDetailsScreen' ||
-          currentRoute == 'FestivalUpsertScreen';
     } else if (label == 'Reviews') {
       return currentRoute == 'ReviewListScreen' ||
           currentRoute == 'ReviewDetailsScreen';
-    } else if (label == 'Tickets') {
-      return currentRoute == 'TicketListScreen' ||
-          currentRoute == 'TicketDetailsScreen';
     }
     return false;
   }

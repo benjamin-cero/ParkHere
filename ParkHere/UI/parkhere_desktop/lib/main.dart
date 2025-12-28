@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:parkhere_desktop/providers/auth_provider.dart';
 import 'package:parkhere_desktop/providers/city_provider.dart';
-import 'package:parkhere_desktop/providers/country_provider.dart';
-import 'package:parkhere_desktop/providers/category_provider.dart';
-import 'package:parkhere_desktop/providers/subcategory_provider.dart';
+
 import 'package:parkhere_desktop/providers/user_provider.dart';
-import 'package:parkhere_desktop/providers/organizer_provider.dart';
-import 'package:parkhere_desktop/providers/ticket_type_provider.dart';
 import 'package:parkhere_desktop/providers/gender_provider.dart';
-import 'package:parkhere_desktop/providers/festival_provider.dart';
 import 'package:parkhere_desktop/providers/asset_provider.dart';
 import 'package:parkhere_desktop/providers/review_provider.dart';
-import 'package:parkhere_desktop/providers/ticket_provider.dart';
-import 'package:parkhere_desktop/providers/subcategory_provider.dart';
 import 'package:parkhere_desktop/providers/business_report_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
@@ -28,41 +21,18 @@ void main() async {
         ChangeNotifierProvider<CityProvider>(
           create: (context) => CityProvider(),
         ),
-        ChangeNotifierProvider<CountryProvider>(
-          create: (context) => CountryProvider(),
-        ),
-        ChangeNotifierProvider<CategoryProvider>(
-          create: (context) => CategoryProvider(),
-        ),
-        ChangeNotifierProvider<SubcategoryProvider>(
-          create: (context) => SubcategoryProvider(),
-        ),
+
         ChangeNotifierProvider<UserProvider>(
           create: (context) => UserProvider(),
         ),
-        ChangeNotifierProvider<OrganizerProvider>(
-          create: (context) => OrganizerProvider(),
-        ),
-        ChangeNotifierProvider<TicketTypeProvider>(
-          create: (context) => TicketTypeProvider(),
-        ),
         ChangeNotifierProvider<GenderProvider>(
           create: (context) => GenderProvider(),
-        ),
-        ChangeNotifierProvider<FestivalProvider>(
-          create: (context) => FestivalProvider(),
         ),
         ChangeNotifierProvider<AssetProvider>(
           create: (context) => AssetProvider(),
         ),
         ChangeNotifierProvider<ReviewProvider>(
           create: (context) => ReviewProvider(),
-        ),
-        ChangeNotifierProvider<TicketProvider>(
-          create: (context) => TicketProvider(),
-        ),
-        ChangeNotifierProvider<SubcategoryProvider>(
-          create: (context) => SubcategoryProvider(),
         ),
         ChangeNotifierProvider<BusinessReportProvider>(
           create: (context) => BusinessReportProvider(),

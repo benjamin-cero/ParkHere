@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:parkhere_desktop/layouts/master_screen.dart';
 import 'package:parkhere_desktop/model/review.dart';
-import 'package:parkhere_desktop/model/festival.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/review_provider.dart';
-import 'package:parkhere_desktop/providers/festival_provider.dart';
 import 'package:parkhere_desktop/screens/review_details_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 
 class ReviewListScreen extends StatefulWidget {
@@ -20,12 +17,9 @@ class ReviewListScreen extends StatefulWidget {
 
 class _ReviewListScreenState extends State<ReviewListScreen> {
   late ReviewProvider reviewProvider;
-  late FestivalProvider festivalProvider;
-  List<Festival> festivals = [];
   final ScrollController _scrollController = ScrollController();
 
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController festivalTitleController = TextEditingController();
   int? selectedRating;
 
   SearchResult<Review>? reviews;
@@ -39,7 +33,6 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
 
     final filter = {
       'userFullName': usernameController.text,
-      'festivalTitle': festivalTitleController.text,
       'minRating': selectedRating,
       'maxRating': selectedRating,
       'page': pageToFetch,
@@ -61,8 +54,6 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       reviewProvider = context.read<ReviewProvider>();
-      festivalProvider = context.read<FestivalProvider>();
-      await _loadFestivals();
       await _performSearch(page: 0);
     });
   }
@@ -71,27 +62,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
   void dispose() {
     _scrollController.dispose();
     usernameController.dispose();
-    festivalTitleController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadFestivals() async {
-    try {
-      final result = await festivalProvider.get(
-        filter: {
-          'page': 0,
-          'pageSize': 1000, // Get all festivals
-          'includeTotalCount': false,
-        },
-      );
-      if (result.items != null) {
-        setState(() {
-          festivals = result.items!;
-        });
-      }
-    } catch (e) {
-      // Handle error silently for now
-    }
   }
 
   @override
@@ -140,27 +111,6 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
                 hintText: "Search by name...",
                 hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
                 prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: festivalTitleController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _performSearch(page: 0),
-              decoration: InputDecoration(
-                hintText: "Festival...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.festival, color: Colors.white.withOpacity(0.7), size: 18),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.1),
                 border: OutlineInputBorder(
@@ -229,7 +179,6 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
             onPressed: () {
               usernameController.clear();
-              festivalTitleController.clear();
               setState(() => selectedRating = null);
               _performSearch(page: 0);
             },
@@ -266,7 +215,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
       items: reviews!.items!.map((e) {
         return BaseGridCardItem(
           title: e.userFullName,
-          subtitle: e.festivalTitle,
+          subtitle: "@${e.username}",
           data: {
             Icons.star_outline: "${e.rating} Stars",
             Icons.comment_outlined: e.comment ?? "No comment",
