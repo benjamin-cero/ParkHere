@@ -90,52 +90,117 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
 
   Future<void> _toggleSectorStatus() async {
     if (_selectedSector == null) return;
+    
+    final newStatus = !_selectedSector!.isActive;
+    final action = newStatus ? "aktivirati" : "deaktivirati";
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Potvrda"),
+        content: Text("Da li želite $action sprat ${_selectedSector!.name}? Svi wingovi i spotovi će biti ${newStatus ? 'aktivirani' : 'deaktivirani'}."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Ne"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+            ),
+            child: const Text("Da"),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed != true) return;
+    
     try {
-      // Create a modified copy
       final modifiedSector = ParkingSector(
         id: _selectedSector!.id,
         floorNumber: _selectedSector!.floorNumber,
         name: _selectedSector!.name,
-        isActive: !_selectedSector!.isActive,
+        isActive: newStatus,
       );
 
-      // Send full object update
-      try {
-        final updated = await _sectorProvider.update(
-            _selectedSector!.id, modifiedSector.toJson());
-        
-        // Update local state
-        setState(() {
-          _selectedSector = updated;
-          int index = _sectors.indexWhere((s) => s.id == updated.id);
-          if (index != -1) _sectors[index] = updated;
-        });
-        
-        // Refresh details to ensure cascading active states are reflected if backend handles them
-        if (_selectedSector != null) _loadSectorDetails(_selectedSector!.id);
-
-      } catch (apiError) {
-        // Fallback for simple toggles if API returns void or different structure
-        // Force refresh
-        await _loadData();
-      }
-
+      final updated = await _sectorProvider.update(
+          _selectedSector!.id, modifiedSector.toJson());
+      
+      // Update local state
+      setState(() {
+        _selectedSector = updated;
+        int index = _sectors.indexWhere((s) => s.id == updated.id);
+        if (index != -1) _sectors[index] = updated;
+      });
+      
+      // Refresh details to show cascading changes
+      await _loadSectorDetails(_selectedSector!.id);
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sprat je uspješno ${newStatus ? 'aktiviran' : 'deaktiviran'}!"),
+          backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error updating sector: $e")));
+          .showSnackBar(SnackBar(content: Text("Greška: $e")));
     }
   }
   Future<void> _toggleWingStatus(ParkingWing wing) async {
+    final newStatus = !wing.isActive;
+    final action = newStatus ? "aktivirati" : "deaktivirati";
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Potvrda"),
+        content: Text("Da li želite $action wing ${wing.name}? Svi spotovi u ovom wingu će biti ${newStatus ? 'aktivirani' : 'deaktivirani'}."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Ne"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+            ),
+            child: const Text("Da"),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed != true) return;
+    
     try {
       final updated = await _wingProvider.update(wing.id,
-          {'isActive': !wing.isActive, 'name': wing.name, 'parkingSectorId': wing.parkingSectorId});
+          {'isActive': newStatus, 'name': wing.name, 'parkingSectorId': wing.parkingSectorId});
+      
       setState(() {
         int index = _wings.indexWhere((w) => w.id == updated.id);
         if (index != -1) _wings[index] = updated;
       });
+      
+      // Refresh to show cascading changes
+      await _loadSectorDetails(_selectedSector!.id);
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Wing je uspješno ${newStatus ? 'aktiviran' : 'deaktiviran'}!"),
+          backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error updating wing: $e")));
+          .showSnackBar(SnackBar(content: Text("Greška: $e")));
     }
   }
 
@@ -276,11 +341,10 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
           const Spacer(),
           // Stats or Actions
           if (_selectedSector != null)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
                 onTap: _toggleSectorStatus,
-                borderRadius: BorderRadius.circular(50),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
@@ -327,9 +391,10 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
       children: [
         // Wing Header
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(wing.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey[800])),
+             const SizedBox(width: 8),
              Switch(
                 value: wing.isActive,
                 onChanged: (v) => _toggleWingStatus(wing),
@@ -351,10 +416,10 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
             child: GridView.builder(
               itemCount: spots.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.4,
+                crossAxisCount: 4,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.1,
               ),
               itemBuilder: (ctx, index) => _ModernSpotCard(
                 spot: spots[index],
@@ -439,6 +504,35 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () async {
+                    // Check if status is changing
+                    final statusChanging = isActive != spot.isActive;
+                    
+                    if (statusChanging) {
+                      final action = isActive ? "aktivirati" : "deaktivirati";
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text("Potvrda"),
+                          content: Text("Da li želite $action spot ${spot.spotCode}?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text("Ne"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isActive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              ),
+                              child: const Text("Da"),
+                            ),
+                          ],
+                        ),
+                      );
+                      
+                      if (confirmed != true) return;
+                    }
+                    
                     try {
                        await _spotProvider.update(spot.id, {
                         'parkingSpotTypeId': selectedType.id,
@@ -448,8 +542,19 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                       });
                       Navigator.pop(context);
                       _loadSectorDetails(_selectedSector!.id);
+                      
+                      // Show success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Spot je uspješno ažuriran!"),
+                          backgroundColor: const Color(0xFF10B981),
+                        ),
+                      );
                     } catch (e) {
                       print("Error updating: $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Greška: $e")),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -556,9 +661,9 @@ class _ModernSpotCardState extends State<_ModernSpotCard> {
             children: [
                // Status Indicator Dot
                Positioned(
-                 top: 12, right: 12,
+                 top: 8, right: 8,
                  child: Container(
-                   width: 8, height: 8,
+                   width: 6, height: 6,
                    decoration: BoxDecoration(
                      shape: BoxShape.circle,
                      color: widget.spot.isOccupied ? Colors.red : (widget.spot.isActive ? Colors.green : Colors.grey)
@@ -569,17 +674,18 @@ class _ModernSpotCardState extends State<_ModernSpotCard> {
                Center(
                  child: Column(
                    mainAxisAlignment: MainAxisAlignment.center,
+                   mainAxisSize: MainAxisSize.min,
                    children: [
                      Icon(
                        widget.spot.isOccupied ? Icons.directions_car_rounded : icon,
                        color: iconColor,
-                       size: 28,
+                       size: 20,
                      ),
-                     const SizedBox(height: 8),
+                     const SizedBox(height: 4),
                      Text(
                        widget.spot.spotCode.split('-').last,
                        style: TextStyle(
-                         fontSize: 12, 
+                         fontSize: 10, 
                          fontWeight: FontWeight.bold, 
                          color: Colors.blueGrey[700],
                          decoration: !widget.spot.isActive ? TextDecoration.lineThrough : null

@@ -52,7 +52,19 @@ namespace ParkHere.Services.Services
             }
         }
 
+        protected override async Task AfterUpdate(ParkingWing entity, ParkingWingUpdateRequest request)
+        {
+            // Cascade IsActive status to all spots in this wing
+            var spots = await _context.ParkingSpots
+                .Where(s => s.ParkingWingId == entity.Id)
+                .ToListAsync();
 
-
+            foreach (var spot in spots)
+            {
+                spot.IsActive = entity.IsActive;
+            }
+        }
     }
-} 
+}
+
+ 

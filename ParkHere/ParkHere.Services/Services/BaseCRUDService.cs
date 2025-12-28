@@ -53,12 +53,20 @@ namespace ParkHere.Services.Services
             await BeforeUpdate(entity, request);
 
             MapUpdateToEntity(entity, request);
+            
+            await AfterUpdate(entity, request);
 
             await _context.SaveChangesAsync();
+            
             return MapToResponse(entity);
         }
 
         protected virtual async Task BeforeUpdate(TEntity entity, TUpdate request)
+        {
+
+        }
+
+        protected virtual async Task AfterUpdate(TEntity entity, TUpdate request)
         {
 
         }
