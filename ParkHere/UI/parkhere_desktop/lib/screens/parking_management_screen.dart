@@ -339,6 +339,20 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
             ),
           ),
           const Spacer(),
+          // Spot Type Legend
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildLegendItem(Icons.local_parking_rounded, Colors.grey[400]!, "Standard"),
+              const SizedBox(width: 16),
+              _buildLegendItem(Icons.star_rounded, const Color(0xFFD97706), "VIP"),
+              const SizedBox(width: 16),
+              _buildLegendItem(Icons.bolt_rounded, const Color(0xFF059669), "Electric"),
+              const SizedBox(width: 16),
+              _buildLegendItem(Icons.accessible_forward_rounded, const Color(0xFF2563EB), "Handicapped"),
+            ],
+          ),
+          const Spacer(),
           // Stats or Actions
           if (_selectedSector != null)
             MouseRegion(
@@ -375,6 +389,32 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(IconData icon, Color color, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
         ],
       ),
     );
