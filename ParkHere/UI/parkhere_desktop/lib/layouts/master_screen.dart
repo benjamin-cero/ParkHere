@@ -8,6 +8,7 @@ import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/screens/users_list_screen.dart';
 import 'package:parkhere_desktop/screens/review_list_screen.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
+import 'package:parkhere_desktop/screens/parking_management_screen.dart';
 import 'package:parkhere_desktop/screens/profile_screen.dart';
 import 'package:parkhere_desktop/providers/user_provider.dart';
 
@@ -394,6 +395,15 @@ class _MasterScreenState extends State<MasterScreen>
                         label: 'Users',
                         screen: UsersListScreen(),
                         routeName: 'UsersListScreen',
+                      ),
+                      const SizedBox(height: 4),
+                      _buildNavTile(
+                        context,
+                        icon: Icons.local_parking_outlined,
+                        activeIcon: Icons.local_parking,
+                        label: 'Parking',
+                        screen: const ParkingManagementScreen(),
+                        routeName: 'ParkingManagementScreen',
                       ),
                       const SizedBox(height: 4),
                       _buildNavTile(

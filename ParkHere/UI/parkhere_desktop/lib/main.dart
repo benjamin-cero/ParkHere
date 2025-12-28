@@ -7,6 +7,10 @@ import 'package:parkhere_desktop/providers/gender_provider.dart';
 import 'package:parkhere_desktop/providers/asset_provider.dart';
 import 'package:parkhere_desktop/providers/review_provider.dart';
 import 'package:parkhere_desktop/providers/business_report_provider.dart';
+import 'package:parkhere_desktop/providers/parking_sector_provider.dart';
+import 'package:parkhere_desktop/providers/parking_wing_provider.dart';
+import 'package:parkhere_desktop/providers/parking_spot_provider.dart';
+import 'package:parkhere_desktop/providers/parking_spot_type_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
@@ -33,6 +37,18 @@ void main() async {
         ),
         ChangeNotifierProvider<ReviewProvider>(
           create: (context) => ReviewProvider(),
+        ),
+        ChangeNotifierProvider<ParkingSectorProvider>(
+          create: (context) => ParkingSectorProvider(),
+        ),
+        ChangeNotifierProvider<ParkingWingProvider>(
+          create: (context) => ParkingWingProvider(),
+        ),
+        ChangeNotifierProvider<ParkingSpotProvider>(
+          create: (context) => ParkingSpotProvider(),
+        ),
+        ChangeNotifierProvider<ParkingSpotTypeProvider>(
+          create: (context) => ParkingSpotTypeProvider(),
         ),
         ChangeNotifierProvider<BusinessReportProvider>(
           create: (context) => BusinessReportProvider(),
