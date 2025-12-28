@@ -29,5 +29,7 @@ namespace ParkHere.Services.Database
 
         [ForeignKey(nameof(ParkingSpotId))]
         public ParkingSpot ParkingSpot { get; set; } = null!;
+
+        public ParkingSession? ParkingSession { get; set; }
     }
 }

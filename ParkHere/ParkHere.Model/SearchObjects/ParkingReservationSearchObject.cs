@@ -12,5 +12,7 @@ namespace ParkHere.Model.SearchObjects
         public int? VehicleId { get; set; }
         public int? ParkingSpotId { get; set; }
         public bool? IsPaid { get; set; }
+        public string? LicensePlate { get; set; }
+        public string? FullName { get; set; }
     }
-} 
+}

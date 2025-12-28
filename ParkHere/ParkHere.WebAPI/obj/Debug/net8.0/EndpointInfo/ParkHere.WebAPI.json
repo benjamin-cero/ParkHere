@@ -601,6 +601,20 @@
             }
           },
           {
+            "name": "LicensePlate",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "FullName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "FTS",
             "in": "query",
             "schema": {
@@ -3249,6 +3263,18 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/VehicleResponse"
+          },
+          "parkingSpot": {
+            "$ref": "#/components/schemas/ParkingSpotResponse"
+          },
+          "parkingSession": {
+            "$ref": "#/components/schemas/ParkingSessionResponse"
           }
         },
         "additionalProperties": false
@@ -3389,7 +3415,8 @@
           },
           "actualStartTime": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "actualEndTime": {
             "type": "string",
@@ -3398,15 +3425,20 @@
           },
           "extraMinutes": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "extraCharge": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "parkingReservation": {
+            "$ref": "#/components/schemas/ParkingReservationResponse"
           }
         },
         "additionalProperties": false
@@ -3496,6 +3528,12 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "parkingWing": {
+            "$ref": "#/components/schemas/ParkingWingResponse"
+          },
+          "parkingSpotType": {
+            "$ref": "#/components/schemas/ParkingSpotTypeResponse"
           }
         },
         "additionalProperties": false

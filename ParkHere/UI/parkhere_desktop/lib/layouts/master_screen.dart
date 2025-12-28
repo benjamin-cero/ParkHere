@@ -9,6 +9,7 @@ import 'package:parkhere_desktop/screens/users_list_screen.dart';
 import 'package:parkhere_desktop/screens/review_list_screen.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/parking_management_screen.dart';
+import 'package:parkhere_desktop/screens/reservation_management_screen.dart';
 import 'package:parkhere_desktop/screens/profile_screen.dart';
 import 'package:parkhere_desktop/providers/user_provider.dart';
 
@@ -408,6 +409,15 @@ class _MasterScreenState extends State<MasterScreen>
                       const SizedBox(height: 4),
                       _buildNavTile(
                         context,
+                        icon: Icons.bookmark_added_outlined,
+                        activeIcon: Icons.bookmark_added,
+                        label: 'Reservations',
+                        screen: const ReservationManagementScreen(),
+                        routeName: 'ReservationManagementScreen',
+                      ),
+                      const SizedBox(height: 4),
+                      _buildNavTile(
+                        context,
                         icon: Icons.location_city_outlined,
                         activeIcon: Icons.location_city_rounded,
                         label: 'Cities',
@@ -600,6 +610,8 @@ class _MasterScreenState extends State<MasterScreen>
     } else if (label == 'Reviews') {
       return currentRoute == 'ReviewListScreen' ||
           currentRoute == 'ReviewDetailsScreen';
+    } else if (label == 'Reservations') {
+      return currentRoute == 'ReservationManagementScreen';
     }
     return false;
   }

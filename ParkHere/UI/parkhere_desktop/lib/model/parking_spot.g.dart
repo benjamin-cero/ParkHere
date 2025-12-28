@@ -13,6 +13,14 @@ ParkingSpot _$ParkingSpotFromJson(Map<String, dynamic> json) => ParkingSpot(
   parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? 0,
   isOccupied: json['isOccupied'] as bool? ?? false,
   isActive: json['isActive'] as bool? ?? true,
+  parkingWing: json['parkingWing'] == null
+      ? null
+      : ParkingWing.fromJson(json['parkingWing'] as Map<String, dynamic>),
+  parkingSpotType: json['parkingSpotType'] == null
+      ? null
+      : ParkingSpotType.fromJson(
+          json['parkingSpotType'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$ParkingSpotToJson(ParkingSpot instance) =>
@@ -23,4 +31,6 @@ Map<String, dynamic> _$ParkingSpotToJson(ParkingSpot instance) =>
       'parkingSpotTypeId': instance.parkingSpotTypeId,
       'isOccupied': instance.isOccupied,
       'isActive': instance.isActive,
+      'parkingWing': instance.parkingWing,
+      'parkingSpotType': instance.parkingSpotType,
     };

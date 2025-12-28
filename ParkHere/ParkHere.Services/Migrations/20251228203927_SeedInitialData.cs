@@ -267,7 +267,8 @@ namespace ParkHere.Services.Migrations
                     ActualEndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExtraMinutes = table.Column<int>(type: "int", nullable: true),
                     ExtraCharge = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ParkingReservationId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -278,6 +279,11 @@ namespace ParkHere.Services.Migrations
                         principalTable: "ParkingReservations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ParkingSessions_ParkingReservations_ParkingReservationId1",
+                        column: x => x.ParkingReservationId1,
+                        principalTable: "ParkingReservations",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -558,21 +564,21 @@ namespace ParkHere.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "ParkingSessions",
-                columns: new[] { "Id", "ActualEndTime", "ActualStartTime", "CreatedAt", "ExtraCharge", "ExtraMinutes", "ParkingReservationId" },
+                columns: new[] { "Id", "ActualEndTime", "ActualStartTime", "CreatedAt", "ExtraCharge", "ExtraMinutes", "ParkingReservationId", "ParkingReservationId1" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 12, 27, 11, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), null, null, 1 },
-                    { 2, new DateTime(2024, 12, 27, 12, 53, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), null, null, 2 },
-                    { 3, new DateTime(2024, 12, 27, 14, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), 2.25m, 45, 3 },
-                    { 4, new DateTime(2024, 12, 27, 14, 52, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), null, null, 4 },
-                    { 5, new DateTime(2024, 12, 27, 15, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), null, null, 5 },
-                    { 6, new DateTime(2024, 12, 27, 18, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), 5.25m, 105, 6 },
-                    { 7, new DateTime(2024, 12, 27, 17, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), null, null, 7 },
-                    { 8, new DateTime(2024, 12, 27, 18, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), null, null, 8 },
-                    { 9, new DateTime(2024, 12, 27, 20, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), 2.95m, 59, 9 },
-                    { 10, new DateTime(2024, 12, 27, 20, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), null, null, 10 },
-                    { 11, new DateTime(2024, 12, 27, 21, 56, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), null, null, 11 },
-                    { 12, new DateTime(2024, 12, 28, 0, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), 5.95m, 119, 12 }
+                    { 1, new DateTime(2024, 12, 27, 11, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 9, 58, 0, 0, DateTimeKind.Utc), null, null, 1, null },
+                    { 2, new DateTime(2024, 12, 27, 12, 53, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 6, 0, 0, DateTimeKind.Utc), null, null, 2, null },
+                    { 3, new DateTime(2024, 12, 27, 14, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 11, 59, 0, 0, DateTimeKind.Utc), 2.25m, 45, 3, null },
+                    { 4, new DateTime(2024, 12, 27, 14, 52, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 13, 7, 0, 0, DateTimeKind.Utc), null, null, 4, null },
+                    { 5, new DateTime(2024, 12, 27, 15, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 14, 0, 0, 0, DateTimeKind.Utc), null, null, 5, null },
+                    { 6, new DateTime(2024, 12, 27, 18, 45, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 15, 7, 0, 0, DateTimeKind.Utc), 5.25m, 105, 6, null },
+                    { 7, new DateTime(2024, 12, 27, 17, 57, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 16, 0, 0, 0, DateTimeKind.Utc), null, null, 7, null },
+                    { 8, new DateTime(2024, 12, 27, 18, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 17, 8, 0, 0, DateTimeKind.Utc), null, null, 8, null },
+                    { 9, new DateTime(2024, 12, 27, 20, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 18, 1, 0, 0, DateTimeKind.Utc), 2.95m, 59, 9, null },
+                    { 10, new DateTime(2024, 12, 27, 20, 51, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 19, 9, 0, 0, DateTimeKind.Utc), null, null, 10, null },
+                    { 11, new DateTime(2024, 12, 27, 21, 56, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 20, 2, 0, 0, DateTimeKind.Utc), null, null, 11, null },
+                    { 12, new DateTime(2024, 12, 28, 0, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), 5.95m, 119, 12, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -606,6 +612,13 @@ namespace ParkHere.Services.Migrations
                 name: "IX_ParkingSessions_ParkingReservationId",
                 table: "ParkingSessions",
                 column: "ParkingReservationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkingSessions_ParkingReservationId1",
+                table: "ParkingSessions",
+                column: "ParkingReservationId1",
+                unique: true,
+                filter: "[ParkingReservationId1] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ParkingSpots_ParkingSpotTypeId",

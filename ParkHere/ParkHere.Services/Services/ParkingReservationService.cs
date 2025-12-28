@@ -21,6 +21,15 @@ namespace ParkHere.Services.Services
 
         protected override IQueryable<ParkingReservation> ApplyFilter(IQueryable<ParkingReservation> query, ParkingReservationSearchObject search)
         {
+            query = query.Include(x => x.User)
+                         .Include(x => x.Vehicle)
+                         .Include(x => x.ParkingSession)
+                         .Include(x => x.ParkingSpot)
+                            .ThenInclude(ps => ps.ParkingWing)
+                                .ThenInclude(pw => pw.ParkingSector)
+                         .Include(x => x.ParkingSpot)
+                            .ThenInclude(ps => ps.ParkingSpotType);
+
             if (search.UserId.HasValue)
                 query = query.Where(x => x.UserId == search.UserId);
 
@@ -32,6 +41,18 @@ namespace ParkHere.Services.Services
 
             if (search.IsPaid.HasValue)
                 query = query.Where(x => x.IsPaid == search.IsPaid);
+
+            if (!string.IsNullOrEmpty(search.LicensePlate))
+            {
+                query = query.Where(x => x.Vehicle.LicensePlate.Contains(search.LicensePlate));
+            }
+
+            if (!string.IsNullOrEmpty(search.FullName))
+            {
+                var searchLower = search.FullName.ToLower();
+                query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).ToLower().Contains(searchLower));
+            }
+
             return query;
         }
 

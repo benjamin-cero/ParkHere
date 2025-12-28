@@ -18,5 +18,10 @@ namespace ParkHere.Model.Responses
         public decimal Price { get; set; }
         public bool IsPaid { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public UserResponse User { get; set; } = null!;
+        public VehicleResponse Vehicle { get; set; } = null!;
+        public ParkingSpotResponse ParkingSpot { get; set; } = null!;
+        public ParkingSessionResponse? ParkingSession { get; set; }
     }
-} 
+}

@@ -374,6 +374,16 @@
         "IsRequired": false
       },
       {
+        "Name": "LicensePlate",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FullName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "FTS",
         "Type": "System.String",
         "IsRequired": false

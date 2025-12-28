@@ -11,6 +11,8 @@ import 'package:parkhere_desktop/providers/parking_sector_provider.dart';
 import 'package:parkhere_desktop/providers/parking_wing_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_type_provider.dart';
+import 'package:parkhere_desktop/providers/parking_reservation_provider.dart';
+import 'package:parkhere_desktop/providers/parking_session_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
@@ -52,6 +54,12 @@ void main() async {
         ),
         ChangeNotifierProvider<BusinessReportProvider>(
           create: (context) => BusinessReportProvider(),
+        ),
+        ChangeNotifierProvider<ParkingReservationProvider>(
+          create: (context) => ParkingReservationProvider(),
+        ),
+        ChangeNotifierProvider<ParkingSessionProvider>(
+          create: (context) => ParkingSessionProvider(),
         ),
       ],
       child: const MyApp(),

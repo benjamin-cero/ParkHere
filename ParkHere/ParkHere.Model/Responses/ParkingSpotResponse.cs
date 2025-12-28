@@ -13,5 +13,8 @@ namespace ParkHere.Model.Responses
         public int ParkingSpotTypeId { get; set; }
         public bool IsOccupied { get; set; }
         public bool IsActive { get; set; }
+
+        public ParkingWingResponse? ParkingWing { get; set; }
+        public ParkingSpotTypeResponse? ParkingSpotType { get; set; }
     }
 } 
