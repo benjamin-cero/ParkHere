@@ -500,34 +500,35 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
 
                     const SizedBox(height: 40),
 
-                    // Settings Section
-                    _buildSectionHeader("Account Status"),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 5,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                    // Settings Section (Hidden if editing self)
+                    if (widget.user.id != UserProvider.currentUser?.id) ...[
+                      _buildSectionHeader("Account Status"),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey.shade200),
+                           boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: FormBuilderSwitch(
+                          name: 'isActive',
+                          title: const Text('Active Account', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          subtitle: Text("Allow this user to log in to the system", style: TextStyle(color: Colors.grey[500])),
+                          initialValue: _initialValue['isActive'] as bool? ?? true,
+                          decoration: const InputDecoration(border: InputBorder.none),
+                          activeColor: const Color(0xFF1E3A8A),
+                        ),
                       ),
-                      child: FormBuilderSwitch(
-                        name: 'isActive',
-                        title: const Text('Active Account', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        subtitle: Text("Allow this user to log in to the system", style: TextStyle(color: Colors.grey[500])),
-                        initialValue: _initialValue['isActive'] as bool? ?? true,
-                        decoration: const InputDecoration(border: InputBorder.none),
-                        activeColor: const Color(0xFF1E3A8A),
-                      ),
-                    ),
-
-                    const SizedBox(height: 50),
+                      const SizedBox(height: 50),
+                    ],
 
                     // Action Buttons
                     Row(

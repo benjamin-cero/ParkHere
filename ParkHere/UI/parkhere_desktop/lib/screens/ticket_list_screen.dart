@@ -4,8 +4,8 @@ import 'package:parkhere_desktop/model/ticket.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/ticket_provider.dart';
 import 'package:parkhere_desktop/screens/ticket_details_screen.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:parkhere_desktop/widgets/ticket_scanner_dialog.dart';
 import 'package:parkhere_desktop/utils/qr_generator.dart';
@@ -20,6 +20,7 @@ class TicketListScreen extends StatefulWidget {
 
 class _TicketListScreenState extends State<TicketListScreen> {
   late TicketProvider ticketProvider;
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController userFullNameController = TextEditingController();
   final TextEditingController festivalTitleController = TextEditingController();
@@ -42,6 +43,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
     };
 
     final result = await ticketProvider.get(filter: filter);
+    
     setState(() {
       tickets = result;
       _currentPage = pageToFetch;
@@ -127,80 +129,126 @@ class _TicketListScreenState extends State<TicketListScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    userFullNameController.dispose();
+    festivalTitleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MasterScreen(
       title: 'Tickets',
-      child: Center(
-        child: Column(
-          children: [
-            _buildSearch(),
-            Expanded(child: _buildResultView()),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildSearch(),
+          Expanded(child: _buildResultView()),
+        ],
       ),
     );
   }
 
   Widget _buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'User Full Name',
-                    prefixIcon: Icons.person,
-                  ),
-                  controller: userFullNameController,
-                  onSubmitted: (_) => _performSearch(page: 0),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: userFullNameController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Search by user...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'Festival Title',
-                    prefixIcon: Icons.festival,
-                  ),
-                  controller: festivalTitleController,
-                  onSubmitted: (_) => _performSearch(page: 0),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: festivalTitleController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Festival...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.festival, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              const SizedBox(width: 10),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _performSearch(page: 0),
-                    child: const Text('Search'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      userFullNameController.clear();
-                      festivalTitleController.clear();
-                      _performSearch(page: 0);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.orange,
-                    ),
-                    child: const Text('Clear'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: _showScannerDialog,
-                    icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text('Redeem Ticket'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: () => _performSearch(page: 0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E3A8A),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+            onPressed: () {
+              userFullNameController.clear();
+              festivalTitleController.clear();
+              _performSearch(page: 0);
+            },
+            tooltip: "Reset",
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
+            onPressed: _showScannerDialog,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            icon: const Icon(Icons.qr_code_scanner, size: 18),
+            label: const Text("Redeem", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
           ),
         ],
       ),
@@ -208,184 +256,70 @@ class _TicketListScreenState extends State<TicketListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        tickets == null || tickets!.items == null || tickets!.items!.isEmpty;
+    if (tickets == null || tickets!.items == null || tickets!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.confirmation_number_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            const Text("No tickets found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
+          ],
+        ),
+      );
+    }
+
     final int totalCount = tickets?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BaseTable(
-            icon: Icons.confirmation_number,
-            title: 'Tickets',
-            width: 1200,
-            height: 423,
-            columnWidths: [
-              200, // Festival
-              150, // User Full Name
-              120, // Ticket Type
-              100, // Price
-              150, // Text Code
-              100, // Status
-              100, // Actions
-            ],
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'Festival',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'User Full Name',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Ticket Type',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Price',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-
-              DataColumn(
-                label: Text(
-                  'Redeem Code',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Status',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Actions',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
-            rows: isEmpty
-                ? []
-                : tickets!.items!
-                      .map(
-                        (e) => DataRow(
-                          cells: [
-                            DataCell(
-                              Text(
-                                e.festivalTitle,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.userFullName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.ticketTypeName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                '\$${e.finalPrice.toStringAsFixed(2)}',
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-
-                            DataCell(
-                              Text(
-                                e.textCode,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: e.isRedeemed
-                                      ? Colors.red
-                                      : Colors.green,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  e.isRedeemed ? 'Redeemed' : 'Active',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          TicketDetailsScreen(ticket: e),
-                                      settings: const RouteSettings(
-                                        name: 'TicketDetailsScreen',
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.info_outline,
-                                  color: Colors.blue,
-                                ),
-                                tooltip: 'View Details',
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-            emptyIcon: Icons.confirmation_number,
-            emptyText: 'No tickets found.',
-            emptySubtext: 'Try adjusting your search criteria.',
-          ),
-          const SizedBox(height: 30),
-          BasePagination(
-            currentPage: _currentPage,
-            totalPages: totalPages,
-            onPrevious: isFirstPage
-                ? null
-                : () => _performSearch(page: _currentPage - 1),
-            onNext: isLastPage
-                ? null
-                : () => _performSearch(page: _currentPage + 1),
-            showPageSizeSelector: true,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (newSize) {
-              if (newSize != null && newSize != _pageSize) {
-                _performSearch(page: 0, pageSize: newSize);
-              }
-            },
-          ),
-        ],
-      ),
+    return BaseCardsGrid(
+      controller: _scrollController,
+      items: tickets!.items!.map((e) {
+        return BaseGridCardItem(
+          title: e.userFullName,
+          subtitle: e.festivalTitle,
+          isActive: !e.isRedeemed,
+          data: {
+            Icons.confirmation_number_outlined: e.ticketTypeName,
+            Icons.attach_money: "\$${e.finalPrice.toStringAsFixed(2)}",
+            Icons.code: e.textCode,
+            Icons.info_outline: e.isRedeemed ? "Redeemed" : "Active",
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.info_outline,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TicketDetailsScreen(ticket: e),
+                    settings: const RouteSettings(name: 'TicketDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: true,
+            ),
+          ],
+        );
+      }).toList(),
+      pagination: (tickets != null && totalCount > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

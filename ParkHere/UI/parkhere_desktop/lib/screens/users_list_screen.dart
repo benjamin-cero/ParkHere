@@ -7,7 +7,6 @@ import 'package:parkhere_desktop/screens/users_details_screen.dart';
 import 'package:parkhere_desktop/screens/users_edit_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +19,7 @@ class UsersListScreen extends StatefulWidget {
 
 class _UsersListScreenState extends State<UsersListScreen> {
   late UserProvider userProvider;
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -59,6 +59,14 @@ class _UsersListScreenState extends State<UsersListScreen> {
       userProvider = context.read<UserProvider>();
       await _performSearch(page: 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    usernameController.dispose();
+    emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -229,6 +237,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
     }
 
     return BaseCardsGrid(
+      controller: _scrollController,
       items: users!.items!.map((user) {
         return BaseGridCardItem(
           title: "${user.firstName} ${user.lastName}",
@@ -238,7 +247,9 @@ class _UsersListScreenState extends State<UsersListScreen> {
           data: {
             Icons.email_outlined: user.email,
             Icons.location_city_outlined: user.cityName.isEmpty ? "Unknown City" : user.cityName,
-            Icons.admin_panel_settings_outlined: "User Role", // Simplified
+            Icons.admin_panel_settings_outlined: user.roles.map((r) => r.name).join(', ').isEmpty 
+                ? "No Role" 
+                : user.roles.map((r) => r.name).join(', '),
           },
           actions: [
             BaseGridAction(
@@ -272,23 +283,23 @@ class _UsersListScreenState extends State<UsersListScreen> {
           ],
         );
       }).toList(),
-      pagination: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: BasePagination(
-          currentPage: _currentPage,
-          totalPages: totalPages,
-          onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
-          onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
-          showPageSizeSelector: true,
-          pageSize: _pageSize,
-          pageSizeOptions: _pageSizeOptions,
-          onPageSizeChanged: (newSize) {
-            if (newSize != null && newSize != _pageSize) {
-              _performSearch(page: 0, pageSize: newSize);
-            }
-          },
-        ),
-      ),
+      pagination: (users != null && (users?.totalCount ?? 0) > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

@@ -6,8 +6,8 @@ import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/review_provider.dart';
 import 'package:parkhere_desktop/providers/festival_provider.dart';
 import 'package:parkhere_desktop/screens/review_details_screen.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +22,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
   late ReviewProvider reviewProvider;
   late FestivalProvider festivalProvider;
   List<Festival> festivals = [];
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController festivalTitleController = TextEditingController();
@@ -47,6 +48,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
     };
 
     final result = await reviewProvider.get(filter: filter);
+    
     setState(() {
       reviews = result;
       _currentPage = pageToFetch;
@@ -63,6 +65,14 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
       await _loadFestivals();
       await _performSearch(page: 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    usernameController.dispose();
+    festivalTitleController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadFestivals() async {
@@ -100,103 +110,134 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
   }
 
   Widget _buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'Full Name',
-                    prefixIcon: Icons.person,
-                  ),
-                  controller: usernameController,
-                  onSubmitted: (_) => _performSearch(page: 0),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: usernameController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Search by name...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'Title',
-                    prefixIcon: Icons.festival,
-                  ),
-                  controller: festivalTitleController,
-                  onSubmitted: (_) => _performSearch(page: 0),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: festivalTitleController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Festival...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.festival, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  decoration: customTextFieldDecoration(
-                    'Rating',
-                    prefixIcon: Icons.star,
-                  ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 1,
+            child: Container(
+              height: 42,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int?>(
                   value: selectedRating,
+                  dropdownColor: const Color(0xFF1E3A8A),
+                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 20),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+                  hint: Text("Rating", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                  isExpanded: true,
                   items: [
-                    const DropdownMenuItem<int>(
-                      value: null,
-                      child: Text('All Ratings'),
-                    ),
+                    const DropdownMenuItem<int?>(value: null, child: Text("All")),
                     ...List.generate(5, (index) => index + 1).map(
-                      (rating) => DropdownMenuItem<int>(
+                      (rating) => DropdownMenuItem<int?>(
                         value: rating,
                         child: Row(
-                          mainAxisSize: MainAxisSize.min, // Keep row tight
                           children: [
-                            Flexible(
-                              child: Text('$rating'),
-                            ), // Allow text to wrap or shrink
+                            Text("$rating"),
                             const SizedBox(width: 4),
-                            ...List.generate(
-                              rating,
-                              (index) => const Icon(
-                                Icons.star,
-                                size: 16,
-                                color: Colors.amber,
-                              ),
-                            ),
+                            Icon(Icons.star, size: 14, color: Colors.amber[400]),
                           ],
                         ),
                       ),
                     ),
                   ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedRating = value;
-                    });
+                  onChanged: (val) {
+                    setState(() => selectedRating = val);
                     _performSearch(page: 0);
                   },
                 ),
               ),
-
-              const SizedBox(width: 10),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _performSearch,
-                    child: const Text('Search'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      usernameController.clear();
-                      setState(() {
-                        festivalTitleController.clear();
-                        selectedRating = null;
-                      });
-                      _performSearch(page: 0);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.orange,
-                    ),
-                    child: const Text('Clear'),
-                  ),
-                ],
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: () => _performSearch(page: 0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E3A8A),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+            onPressed: () {
+              usernameController.clear();
+              festivalTitleController.clear();
+              setState(() => selectedRating = null);
+              _performSearch(page: 0);
+            },
+            tooltip: "Reset",
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ],
       ),
@@ -204,163 +245,68 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        reviews == null || reviews!.items == null || reviews!.items!.isEmpty;
+    if (reviews == null || reviews!.items == null || reviews!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.rate_review_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            const Text("No reviews found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
+          ],
+        ),
+      );
+    }
+
     final int totalCount = reviews?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BaseTable(
-            icon: Icons.rate_review,
-            title: 'Reviews',
-            width: 1200,
-            height: 423,
-            columnWidths: [
-              200, // Festival
-              150, // Full Name
-              100, // Rating
-              300, // Comment
-              150, // Date
-              100, // Actions
-            ],
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'Festival',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Full Name',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Rating',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Comment',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Date',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Actions',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
-            rows: isEmpty
-                ? []
-                : reviews!.items!
-                      .map(
-                        (e) => DataRow(
-                          cells: [
-                            DataCell(
-                              Text(
-                                e.festivalTitle,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.userFullName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Row(
-                                children: [
-                                  ...List.generate(
-                                    e.rating,
-                                    (index) => const Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Colors.amber,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.comment ?? 'No comment',
-                                style: const TextStyle(fontSize: 15),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                '${e.createdAt.day}/${e.createdAt.month}/${e.createdAt.year}',
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ReviewDetailsScreen(review: e),
-                                      settings: const RouteSettings(
-                                        name: 'ReviewDetailsScreen',
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.info_outline,
-                                  color: Colors.blue,
-                                ),
-                                tooltip: 'View Details',
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-            emptyIcon: Icons.rate_review,
-            emptyText: 'No reviews found.',
-            emptySubtext: 'Try adjusting your search criteria.',
-          ),
-          const SizedBox(height: 30),
-          BasePagination(
-            currentPage: _currentPage,
-            totalPages: totalPages,
-            onPrevious: isFirstPage
-                ? null
-                : () => _performSearch(page: _currentPage - 1),
-            onNext: isLastPage
-                ? null
-                : () => _performSearch(page: _currentPage + 1),
-            showPageSizeSelector: true,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (newSize) {
-              if (newSize != null && newSize != _pageSize) {
-                _performSearch(page: 0, pageSize: newSize);
-              }
-            },
-          ),
-        ],
-      ),
+    return BaseCardsGrid(
+      controller: _scrollController,
+      items: reviews!.items!.map((e) {
+        return BaseGridCardItem(
+          title: e.userFullName,
+          subtitle: e.festivalTitle,
+          data: {
+            Icons.star_outline: "${e.rating} Stars",
+            Icons.comment_outlined: e.comment ?? "No comment",
+            Icons.calendar_today_outlined: "${e.createdAt.day}/${e.createdAt.month}/${e.createdAt.year}",
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.info_outline,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewDetailsScreen(review: e),
+                    settings: const RouteSettings(name: 'ReviewDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: true,
+            ),
+          ],
+        );
+      }).toList(),
+      pagination: (reviews != null && totalCount > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

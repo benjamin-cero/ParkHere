@@ -5,7 +5,7 @@ import 'package:parkhere_desktop/model/country.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/country_provider.dart';
 import 'package:parkhere_desktop/screens/country_details_screen.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +19,8 @@ class CountryListScreen extends StatefulWidget {
 
 class _CountryListScreenState extends State<CountryListScreen> {
   late CountryProvider countryProvider;
-
-  TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   SearchResult<Country>? countries;
   int _currentPage = 0;
@@ -58,6 +58,13 @@ class _CountryListScreenState extends State<CountryListScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
   }
@@ -66,47 +73,87 @@ class _CountryListScreenState extends State<CountryListScreen> {
   Widget build(BuildContext context) {
     return MasterScreen(
       title: "Countries",
-      child: SingleChildScrollView(
-        child: Center(
-          child: Column(children: [_buildSearch(), _buildResultView()]),
-        ),
+      child: Column(
+        children: [
+          _buildSearch(),
+          Expanded(child: _buildResultView()),
+        ],
       ),
     );
   }
 
   Widget _buildSearch() {
-    return Padding(
-      padding: EdgeInsets.all(10),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
             child: TextField(
-              decoration: customTextFieldDecoration(
-                "Name",
-                prefixIcon: Icons.search,
-              ),
               controller: nameController,
-              onSubmitted: (value) => _performSearch(),
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Search countries...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
             ),
           ),
-          SizedBox(width: 10),
-          ElevatedButton(onPressed: _performSearch, child: Text("Search")),
-          SizedBox(width: 10),
+          const SizedBox(width: 12),
           ElevatedButton(
+            onPressed: () => _performSearch(page: 0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E3A8A),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CountryDetailsScreen(),
+                  builder: (context) => const CountryDetailsScreen(),
                   settings: const RouteSettings(name: 'CountryDetailsScreen'),
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E3A8A), // Blue
-              foregroundColor: Colors.white, // white text & icon
+              backgroundColor: Colors.white.withOpacity(0.2),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
             ),
-            child: const Row(children: [Icon(Icons.add), Text('Add Country')]),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text("Add Country", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
           ),
         ],
       ),
@@ -114,129 +161,67 @@ class _CountryListScreenState extends State<CountryListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        countries == null ||
-        countries!.items == null ||
-        countries!.items!.isEmpty;
+    if (countries == null || countries!.items == null || countries!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.flag_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            const Text("No countries found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
+          ],
+        ),
+      );
+    }
+
     final int totalCount = countries?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
-    return Column(
-      children: [
-        BaseTable(
-          icon: Icons.flag_outlined,
-          title: "Countries",
-          width: 600,
-          height: 423,
-          columns: [
-            DataColumn(
-              label: Text(
-                "Flag",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                "Name",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+
+    return BaseCardsGrid(
+      controller: _scrollController,
+      items: countries!.items!.map((e) {
+        return BaseGridCardItem(
+          title: e.name,
+          subtitle: "Country Code: ${e.id}",
+          imageUrl: e.flag,
+          data: {
+            Icons.location_on_outlined: "Region/Continent", // Placeholder
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.edit_outlined,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CountryDetailsScreen(country: e),
+                    settings: const RouteSettings(name: 'CountryDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: true,
             ),
           ],
-          rows: isEmpty
-              ? []
-              : countries!.items!
-                    .map(
-                      (e) => DataRow(
-                        onSelectChanged: (value) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CountryDetailsScreen(country: e),
-                              settings: const RouteSettings(
-                                name: 'CountryDetailsScreen',
-                              ),
-                            ),
-                          );
-                        },
-                        cells: [
-                          DataCell(
-                            e.flag != null
-                                ? Container(
-                                    width: 40,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Image.memory(
-                                        base64Decode(e.flag!),
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: Icon(
-                                                  Icons.flag,
-                                                  color: Colors.grey[400],
-                                                  size: 20,
-                                                ),
-                                              );
-                                            },
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    width: 40,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Icon(
-                                      Icons.flag,
-                                      color: Colors.grey[400],
-                                      size: 20,
-                                    ),
-                                  ),
-                          ),
-                          DataCell(
-                            Text(e.name, style: TextStyle(fontSize: 15)),
-                          ),
-                        ],
-                      ),
-                    )
-                    .toList(),
-          emptyIcon: Icons.flag,
-          emptyText: "No countries found.",
-          emptySubtext: "Try adjusting your search or add a new country.",
-        ),
-        SizedBox(height: 30),
-        BasePagination(
-          currentPage: _currentPage,
-          totalPages: totalPages,
-          onPrevious: isFirstPage
-              ? null
-              : () => _performSearch(page: _currentPage - 1),
-          onNext: isLastPage
-              ? null
-              : () => _performSearch(page: _currentPage + 1),
-          showPageSizeSelector: true,
-          pageSize: _pageSize,
-          pageSizeOptions: _pageSizeOptions,
-          onPageSizeChanged: (newSize) {
-            if (newSize != null && newSize != _pageSize) {
-              _performSearch(page: 0, pageSize: newSize);
-            }
-          },
-        ),
-      ],
+        );
+      }).toList(),
+      pagination: (countries != null && totalCount > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

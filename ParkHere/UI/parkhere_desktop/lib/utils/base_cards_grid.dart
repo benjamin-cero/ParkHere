@@ -40,11 +40,15 @@ class BaseGridAction {
 class BaseCardsGrid extends StatelessWidget {
   final List<BaseGridCardItem> items;
   final Widget? pagination;
+  final ScrollController? controller;
+  final double childAspectRatio;
 
   const BaseCardsGrid({
     super.key,
     required this.items,
     this.pagination,
+    this.controller,
+    this.childAspectRatio = 1.25,
   });
 
   @override
@@ -94,6 +98,8 @@ class BaseCardsGrid extends StatelessWidget {
           }
 
           return CustomScrollView(
+            key: const PageStorageKey('base_cards_grid'),
+            controller: controller,
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.only(top: 8, bottom: 24),
@@ -102,7 +108,7 @@ class BaseCardsGrid extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 1.25,
+                    childAspectRatio: childAspectRatio,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildCard(items[index]),
@@ -112,11 +118,10 @@ class BaseCardsGrid extends StatelessWidget {
               ),
               if (pagination != null)
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 32),
-                    child: pagination!,
-                  ),
+                  child: pagination!,
                 ),
+              // Add a small spacer at the very bottom
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
           );
         },

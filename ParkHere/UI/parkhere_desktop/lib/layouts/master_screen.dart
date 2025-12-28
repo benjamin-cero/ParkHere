@@ -14,6 +14,7 @@ import 'package:parkhere_desktop/screens/festival_upsert_screen.dart';
 import 'package:parkhere_desktop/screens/review_list_screen.dart';
 import 'package:parkhere_desktop/screens/ticket_list_screen.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
+import 'package:parkhere_desktop/screens/profile_screen.dart';
 import 'package:parkhere_desktop/providers/user_provider.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -180,39 +181,57 @@ class _MasterScreenState extends State<MasterScreen>
                           children: [
                             Row(
                               children: [
-                                SizedBox(
-                                  width: 48,
-                                  height: 48,
-                                  child: _buildUserAvatar(radius: 24),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        user != null
-                                            ? '${user.firstName} ${user.lastName}'
-                                            : 'Guest',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF1F2937),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).maybePop();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const ProfileScreen(),
+                                          settings: const RouteSettings(name: 'ProfileScreen'),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        user?.username ?? '-',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 48,
+                                          height: 48,
+                                          child: _buildUserAvatar(radius: 24),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              user != null
+                                                  ? '${user.firstName} ${user.lastName}'
+                                                  : 'Guest',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF1F2937),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              user?.username ?? '-',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
+                                const Spacer(),
                                 IconButton(
                                   onPressed: () =>
                                       Navigator.of(context).maybePop(),

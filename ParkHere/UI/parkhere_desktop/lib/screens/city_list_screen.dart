@@ -18,6 +18,7 @@ class CityListScreen extends StatefulWidget {
 class _CityListScreenState extends State<CityListScreen> {
   late CityProvider cityProvider;
   final TextEditingController nameController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   SearchResult<City>? cities;
   int _currentPage = 0;
@@ -70,6 +71,13 @@ class _CityListScreenState extends State<CityListScreen> {
         );
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -228,30 +236,6 @@ class _CityListScreenState extends State<CityListScreen> {
               ? const Center(child: CircularProgressIndicator())
               : _buildCityList(),
         ),
-
-        // Pagination
-        if (cities != null && (cities?.totalCount ?? 0) > 0)
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: BasePagination(
-              currentPage: _currentPage,
-              totalPages: ((cities?.totalCount ?? 0) / _pageSize).ceil(),
-              onPrevious: _currentPage > 0 
-                  ? () => _performSearch(page: _currentPage - 1) 
-                  : null,
-              onNext: _currentPage < ((cities?.totalCount ?? 0) / _pageSize).ceil() - 1 
-                  ? () => _performSearch(page: _currentPage + 1) 
-                  : null,
-              showPageSizeSelector: true,
-              pageSize: _pageSize,
-              pageSizeOptions: _pageSizeOptions,
-              onPageSizeChanged: (newSize) {
-                if (newSize != null && newSize != _pageSize) {
-                  _performSearch(page: 0, pageSize: newSize);
-                }
-              },
-            ),
-          ),
       ],
     );
   }
@@ -285,19 +269,21 @@ class _CityListScreenState extends State<CityListScreen> {
       );
     }
 
+    final int totalPages = ((cities?.totalCount ?? 0) / _pageSize).ceil();
+
     return BaseCardsGrid(
+      controller: _scrollController,
+      childAspectRatio: 1.6,
       items: cities!.items!.map((city) {
         return BaseGridCardItem(
           title: city.name,
-          subtitle: city.countryName.isNotEmpty ? city.countryName : "No Country",
+          subtitle: city.countryName,
           imageUrl: null, // No image for city yet
-          data: {
-             Icons.numbers: "ID: ${city.id}",
-          },
+          data: const {},
           actions: [
             BaseGridAction(
-              label: "Details",
-              icon: Icons.info_outline,
+              label: "Edit",
+              icon: Icons.edit,
               onPressed: () {
                  Navigator.push(
                   context,
@@ -312,6 +298,23 @@ class _CityListScreenState extends State<CityListScreen> {
           ],
         );
       }).toList(),
+      pagination: (cities != null && (cities?.totalCount ?? 0) > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

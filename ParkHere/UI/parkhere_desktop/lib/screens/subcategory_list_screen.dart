@@ -6,8 +6,8 @@ import 'package:parkhere_desktop/model/subcategory.dart';
 import 'package:parkhere_desktop/providers/category_provider.dart';
 import 'package:parkhere_desktop/providers/subcategory_provider.dart';
 import 'package:parkhere_desktop/screens/subcategory_details_screen.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +21,7 @@ class SubcategoryListScreen extends StatefulWidget {
 class _SubcategoryListScreenState extends State<SubcategoryListScreen> {
   late SubcategoryProvider subcategoryProvider;
   late CategoryProvider categoryProvider;
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController nameController = TextEditingController();
   Category? _selectedCategory;
@@ -43,6 +44,7 @@ class _SubcategoryListScreenState extends State<SubcategoryListScreen> {
       'includeTotalCount': true,
     };
     final result = await subcategoryProvider.get(filter: filter);
+    
     setState(() {
       subcategories = result;
       _currentPage = pageToFetch;
@@ -59,6 +61,13 @@ class _SubcategoryListScreenState extends State<SubcategoryListScreen> {
       await _loadCategories();
       await _performSearch(page: 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    nameController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCategories() async {
@@ -130,59 +139,120 @@ class _SubcategoryListScreenState extends State<SubcategoryListScreen> {
   Widget build(BuildContext context) {
     return MasterScreen(
       title: 'Subcategories',
-      child: Center(
-        child: Column(
-          children: [
-            _buildSearch(),
-            Expanded(child: _buildResultView()),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildSearch(),
+          Expanded(child: _buildResultView()),
+        ],
       ),
     );
   }
 
   Widget _buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.all(10),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
+            flex: 2,
             child: TextField(
-              decoration: customTextFieldDecoration(
-                'Name',
-                prefixIcon: Icons.search,
-              ),
               controller: nameController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
               onSubmitted: (_) => _performSearch(page: 0),
+              decoration: InputDecoration(
+                hintText: "Search subcategories...",
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.7), size: 18),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
             ),
           ),
-          const SizedBox(width: 10),
-          SizedBox(width: 350, child: _buildCategoryDropdown(asFilter: true)),
-          const SizedBox(width: 10),
-          ElevatedButton(
-            onPressed: _performSearch,
-            child: const Text('Search'),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: Container(
+              height: 42,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<Category?>(
+                  value: _selectedCategory,
+                  dropdownColor: const Color(0xFF1E3A8A),
+                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 20),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+                  hint: Text("Category", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                  isExpanded: true,
+                  items: [
+                    const DropdownMenuItem<Category?>(value: null, child: Text("All Categories")),
+                    ..._categories.map(
+                      (c) => DropdownMenuItem<Category?>(value: c, child: Text(c.name)),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    setState(() => _selectedCategory = val);
+                    _performSearch(page: 0);
+                  },
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           ElevatedButton(
+            onPressed: () => _performSearch(page: 0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E3A8A),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SubcategoryDetailsScreen(),
-                  settings: const RouteSettings(
-                    name: 'SubcategoryDetailsScreen',
-                  ),
+                  settings: const RouteSettings(name: 'SubcategoryDetailsScreen'),
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E3A8A), // Blue
-              foregroundColor: Colors.white, // white text & icon
+              backgroundColor: Colors.white.withOpacity(0.2),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
             ),
-            child: const Row(
-              children: [Icon(Icons.add), Text('Add Subcategory')],
-            ),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text("New", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
           ),
         ],
       ),
@@ -190,119 +260,68 @@ class _SubcategoryListScreenState extends State<SubcategoryListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        subcategories?.items == null || subcategories!.items!.isEmpty;
+    if (subcategories == null || subcategories!.items == null || subcategories!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.category_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            const Text("No subcategories found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
+          ],
+        ),
+      );
+    }
+
     final int totalCount = subcategories?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BaseTable(
-            icon: Icons.category_outlined,
-            title: 'Subcategories',
-            width: 1100,
-            height: 423,
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'Name',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Category',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Description',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Active',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
-            rows: isEmpty
-                ? []
-                : subcategories!.items!
-                      .map(
-                        (e) => DataRow(
-                          onSelectChanged: (_) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    SubcategoryDetailsScreen(item: e),
-                                settings: const RouteSettings(
-                                  name: 'SubcategoryDetailsScreen',
-                                ),
-                              ),
-                            );
-                          },
-                          cells: [
-                            DataCell(
-                              Text(
-                                e.name,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.categoryName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.description ?? '',
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Icon(
-                                e.isActive ? Icons.check_circle : Icons.cancel,
-                                color: e.isActive ? Colors.green : Colors.red,
-                                size: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-            emptyIcon: Icons.category,
-            emptyText: 'No subcategories found.',
-            emptySubtext: 'Try adjusting your search or add a new subcategory.',
-          ),
-          const SizedBox(height: 30),
-          BasePagination(
-            currentPage: _currentPage,
-            totalPages: totalPages,
-            onPrevious: isFirstPage
-                ? null
-                : () => _performSearch(page: _currentPage - 1),
-            onNext: isLastPage
-                ? null
-                : () => _performSearch(page: _currentPage + 1),
-            showPageSizeSelector: true,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (newSize) {
-              if (newSize != null && newSize != _pageSize) {
-                _performSearch(page: 0, pageSize: newSize);
-              }
-            },
-          ),
-        ],
-      ),
+    return BaseCardsGrid(
+      controller: _scrollController,
+      items: subcategories!.items!.map((e) {
+        return BaseGridCardItem(
+          title: e.name,
+          subtitle: e.categoryName,
+          isActive: e.isActive,
+          data: {
+            Icons.description_outlined: e.description ?? "No description",
+            Icons.info_outline: e.isActive ? "Active" : "Inactive",
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.edit_outlined,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SubcategoryDetailsScreen(item: e),
+                    settings: const RouteSettings(name: 'SubcategoryDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: true,
+            ),
+          ],
+        );
+      }).toList(),
+      pagination: (subcategories != null && totalCount > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }

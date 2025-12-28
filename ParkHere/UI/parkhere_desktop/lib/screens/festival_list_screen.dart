@@ -7,8 +7,8 @@ import 'package:parkhere_desktop/providers/festival_provider.dart';
 import 'package:parkhere_desktop/providers/subcategory_provider.dart';
 import 'package:parkhere_desktop/screens/festival_details_screen.dart';
 import 'package:parkhere_desktop/screens/festival_upsert_screen.dart';
+import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -24,6 +24,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   late FestivalProvider festivalProvider;
   late SubcategoryProvider subcategoryProvider;
   List<Subcategory> subcategories = [];
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
@@ -48,6 +49,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
     };
 
     final result = await festivalProvider.getWithoutAssets(filter: filter);
+    
     setState(() {
       festivals = result;
       _currentPage = pageToFetch;
@@ -64,6 +66,14 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
       await _loadSubcategories();
       await _performSearch(page: 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    titleController.dispose();
+    cityController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSubcategories() async {
@@ -101,113 +111,149 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   }
 
   Widget _buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.all(10),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'Title',
-                    prefixIcon: Icons.festival,
-                  ),
                   controller: titleController,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
                   onSubmitted: (_) => _performSearch(page: 0),
+                  decoration: InputDecoration(
+                    hintText: "Search festivals...",
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.7), size: 18),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
+                flex: 2,
                 child: TextField(
-                  decoration: customTextFieldDecoration(
-                    'City',
-                    prefixIcon: Icons.location_city,
-                  ),
                   controller: cityController,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
                   onSubmitted: (_) => _performSearch(page: 0),
+                  decoration: InputDecoration(
+                    hintText: "City...",
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    prefixIcon: Icon(Icons.location_city, color: Colors.white.withOpacity(0.7), size: 18),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<int>(
-                  decoration: customTextFieldDecoration(
-                    'Subcategory',
-                    prefixIcon: Icons.category,
+                flex: 1,
+                child: Container(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  value: selectedSubcategoryId,
-                  items: [
-                    const DropdownMenuItem<int>(
-                      value: null,
-                      child: Text('All Subcategories'),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int?>(
+                      value: selectedSubcategoryId,
+                      dropdownColor: const Color(0xFF1E3A8A),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 20),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+                      hint: Text("Subcategory", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                      isExpanded: true,
+                      items: [
+                        const DropdownMenuItem<int?>(value: null, child: Text("All")),
+                        ...subcategories.map(
+                          (s) => DropdownMenuItem<int?>(value: s.id, child: Text(s.name)),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        setState(() => selectedSubcategoryId = val);
+                        _performSearch(page: 0);
+                      },
                     ),
-                    ...subcategories.map(
-                      (subcategory) => DropdownMenuItem<int>(
-                        value: subcategory.id,
-                        child: Text(subcategory.name),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedSubcategoryId = value;
-                    });
-                    _performSearch(page: 0);
-                  },
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _performSearch,
-                    child: const Text('Search'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      titleController.clear();
-                      cityController.clear();
-                      setState(() {
-                        selectedSubcategoryId = null;
-                      });
-                      _performSearch(page: 0);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.orange,
-                    ),
-                    child: const Text('Clear'),
-                  ),
-                ],
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () => _performSearch(page: 0),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF1E3A8A),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
               ),
-              const SizedBox(width: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FestivalUpsertScreen(),
-                          settings: const RouteSettings(
-                            name: 'FestivalUpsertScreen',
-                          ),
-                        ),
-                      );
-                      // Refresh the list if a festival was created/updated
-                      if (result == true) {
-                        await _performSearch(page: _currentPage);
-                      }
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('New Festival'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A), // Blue
-                      foregroundColor: Colors.white, // white text & icon
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+                onPressed: () {
+                  titleController.clear();
+                  cityController.clear();
+                  setState(() => selectedSubcategoryId = null);
+                  _performSearch(page: 0);
+                },
+                tooltip: "Reset",
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FestivalUpsertScreen(),
+                      settings: const RouteSettings(name: 'FestivalUpsertScreen'),
                     ),
-                  ),
-                ],
+                  );
+                  if (result == true) await _performSearch(page: _currentPage);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text("New", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
               ),
             ],
           ),
@@ -217,255 +263,88 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        festivals == null ||
-        festivals!.items == null ||
-        festivals!.items!.isEmpty;
+    if (festivals == null || festivals!.items == null || festivals!.items!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.festival_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            const Text("No festivals found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
+          ],
+        ),
+      );
+    }
+
     final int totalCount = festivals?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
-    final bool isFirstPage = _currentPage == 0;
-    final bool isLastPage = _currentPage >= totalPages - 1 || totalPages == 0;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BaseTable(
-            icon: Icons.festival,
-            title: 'Festivals',
-            width: 1400,
-            height: 423,
-            columnWidths: [
-              65, // Logo
-              250, // Title
-              120, // Date Range
-
-              130, // City
-              125, // Subcategory
-
-              73, // Status
-              100, // Actions
-            ],
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'Logo',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Title',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Date Range',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-
-              DataColumn(
-                label: Text(
-                  'City',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Subcategory',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-
-              DataColumn(
-                label: Text(
-                  'Status',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Actions',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
-            rows: isEmpty
-                ? []
-                : festivals!.items!
-                      .map(
-                        (e) => DataRow(
-                          cells: [
-                            DataCell(
-                              e.logo != null
-                                  ? Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: Colors.grey.withOpacity(0.3),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Image.memory(
-                                          base64Decode(e.logo!),
-                                          fit: BoxFit.fitHeight,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return Container(
-                                                  color: Colors.grey[200],
-                                                  child: Icon(
-                                                    Icons.festival_outlined,
-                                                    color: Colors.grey[400],
-                                                    size: 20,
-                                                  ),
-                                                );
-                                              },
-                                        ),
-                                      ),
-                                    )
-                                  : Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Icon(
-                                        Icons.flag,
-                                        color: Colors.grey[400],
-                                        size: 20,
-                                      ),
-                                    ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.title,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.dateRange,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-
-                            DataCell(
-                              Text(
-                                e.cityName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                e.subcategoryName,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-
-                            DataCell(
-                              Icon(
-                                e.isActive ? Icons.check_circle : Icons.cancel,
-                                color: e.isActive ? Colors.green : Colors.red,
-                                size: 20,
-                              ),
-                            ),
-                            DataCell(
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    onPressed: () async {
-                                      final full = await festivalProvider
-                                          .getById(e.id);
-                                      if (!mounted) return;
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              FestivalDetailsScreen(
-                                                festival: full ?? e,
-                                              ),
-                                          settings: const RouteSettings(
-                                            name: 'FestivalDetailsScreen',
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.info_outline,
-                                      color: Colors.blue,
-                                    ),
-                                    tooltip: 'View Details',
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: () async {
-                                      final full = await festivalProvider
-                                          .getById(e.id);
-                                      if (!mounted) return;
-                                      final result = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              FestivalUpsertScreen(
-                                                festival: full ?? e,
-                                              ),
-                                          settings: const RouteSettings(
-                                            name: 'FestivalUpsertScreen',
-                                          ),
-                                        ),
-                                      );
-                                      // Refresh the list if a festival was updated
-                                      if (result == true) {
-                                        await _performSearch(
-                                          page: _currentPage,
-                                        );
-                                      }
-                                    },
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      color: Colors.orange,
-                                    ),
-                                    tooltip: 'Edit Festival',
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-            emptyIcon: Icons.festival,
-            emptyText: 'No festivals found.',
-            emptySubtext: 'Try adjusting your search criteria.',
-          ),
-          const SizedBox(height: 30),
-          BasePagination(
-            currentPage: _currentPage,
-            totalPages: totalPages,
-            onPrevious: isFirstPage
-                ? null
-                : () => _performSearch(page: _currentPage - 1),
-            onNext: isLastPage
-                ? null
-                : () => _performSearch(page: _currentPage + 1),
-            showPageSizeSelector: true,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (newSize) {
-              if (newSize != null && newSize != _pageSize) {
-                _performSearch(page: 0, pageSize: newSize);
-              }
-            },
-          ),
-        ],
-      ),
+    return BaseCardsGrid(
+      controller: _scrollController,
+      items: festivals!.items!.map((e) {
+        return BaseGridCardItem(
+          title: e.title,
+          subtitle: e.cityName,
+          imageUrl: e.logo,
+          isActive: e.isActive,
+          data: {
+            Icons.category_outlined: e.subcategoryName,
+            Icons.calendar_today_outlined: e.dateRange,
+          },
+          actions: [
+            BaseGridAction(
+              label: "Details",
+              icon: Icons.info_outline,
+              onPressed: () async {
+                final full = await festivalProvider.getById(e.id);
+                if (!mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FestivalDetailsScreen(festival: full ?? e),
+                    settings: const RouteSettings(name: 'FestivalDetailsScreen'),
+                  ),
+                );
+              },
+              isPrimary: false,
+            ),
+            BaseGridAction(
+              label: "Edit",
+              icon: Icons.edit_outlined,
+              onPressed: () async {
+                final full = await festivalProvider.getById(e.id);
+                if (!mounted) return;
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FestivalUpsertScreen(festival: full ?? e),
+                    settings: const RouteSettings(name: 'FestivalUpsertScreen'),
+                  ),
+                );
+                if (result == true) await _performSearch(page: _currentPage);
+              },
+              isPrimary: true,
+            ),
+          ],
+        );
+      }).toList(),
+      pagination: (festivals != null && totalCount > 0)
+          ? BasePagination(
+              scrollController: _scrollController,
+              currentPage: _currentPage,
+              totalPages: totalPages,
+              onPrevious: _currentPage > 0 ? () => _performSearch(page: _currentPage - 1) : null,
+              onNext: _currentPage < totalPages - 1 ? () => _performSearch(page: _currentPage + 1) : null,
+              showPageSizeSelector: true,
+              pageSize: _pageSize,
+              pageSizeOptions: _pageSizeOptions,
+              onPageSizeChanged: (newSize) {
+                if (newSize != null && newSize != _pageSize) {
+                  _performSearch(page: 0, pageSize: newSize);
+                }
+              },
+            )
+          : null,
     );
   }
 }
