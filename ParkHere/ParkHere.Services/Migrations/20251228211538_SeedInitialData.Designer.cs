@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20251228203927_SeedInitialData")]
+    [Migration("20251228211538_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -397,16 +397,9 @@ namespace ParkHere.Services.Migrations
                     b.Property<int>("ParkingReservationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParkingReservationId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ParkingReservationId");
-
-                    b.HasIndex("ParkingReservationId1")
-                        .IsUnique()
-                        .HasFilter("[ParkingReservationId1] IS NOT NULL");
 
                     b.ToTable("ParkingSessions");
 
@@ -2342,10 +2335,6 @@ namespace ParkHere.Services.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ParkHere.Services.Database.ParkingReservation", null)
-                        .WithOne("ParkingSession")
-                        .HasForeignKey("ParkHere.Services.Database.ParkingSession", "ParkingReservationId1");
-
                     b.Navigation("ParkingReservation");
                 });
 
@@ -2426,11 +2415,6 @@ namespace ParkHere.Services.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ParkHere.Services.Database.ParkingReservation", b =>
-                {
-                    b.Navigation("ParkingSession");
                 });
 
             modelBuilder.Entity("ParkHere.Services.Database.Role", b =>

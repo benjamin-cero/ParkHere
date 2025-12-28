@@ -23,7 +23,6 @@ namespace ParkHere.Services.Services
         {
             query = query.Include(x => x.User)
                          .Include(x => x.Vehicle)
-                         .Include(x => x.ParkingSession)
                          .Include(x => x.ParkingSpot)
                             .ThenInclude(ps => ps.ParkingWing)
                                 .ThenInclude(pw => pw.ParkingSector)
@@ -185,7 +184,20 @@ namespace ParkHere.Services.Services
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");
         }
 
-
-
+        public override ParkingReservationResponse MapToResponse(ParkingReservation entity)
+        {
+            var response = base.MapToResponse(entity);
+            
+            var session = _context.ParkingSessions
+                .FirstOrDefault(x => x.ParkingReservationId == entity.Id);
+                
+            if (session != null)
+            {
+                response.ActualStartTime = session.ActualStartTime;
+                response.ActualEndTime = session.ActualEndTime;
+            }
+            
+            return response;
+        }
     }
-} 
+}

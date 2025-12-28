@@ -22,6 +22,7 @@ namespace ParkHere.Model.Responses
         public UserResponse User { get; set; } = null!;
         public VehicleResponse Vehicle { get; set; } = null!;
         public ParkingSpotResponse ParkingSpot { get; set; } = null!;
-        public ParkingSessionResponse? ParkingSession { get; set; }
+        public DateTime? ActualStartTime { get; set; }
+        public DateTime? ActualEndTime { get; set; }
     }
 }

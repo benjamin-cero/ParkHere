@@ -71,7 +71,16 @@ class ReservationDetailsScreen extends StatelessWidget {
                 color: Color(0xFF1F2937),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 1),
+            Text(
+              "${reservation.user?.email}",
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+            const SizedBox(height: 15),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -156,8 +165,8 @@ class ReservationDetailsScreen extends StatelessWidget {
                         child: _buildInfoTile(
                           icon: Icons.access_time_filled_rounded,
                           label: "Actual Start",
-                          value: reservation.parkingSession?.actualStartTime != null 
-                              ? DateFormat('dd.MM.yyyy HH:mm').format(reservation.parkingSession!.actualStartTime!) 
+                          value: reservation.actualStartTime != null 
+                              ? DateFormat('dd.MM.yyyy HH:mm').format(reservation.actualStartTime!) 
                               : "Not set",
                         ),
                       ),
@@ -166,8 +175,8 @@ class ReservationDetailsScreen extends StatelessWidget {
                         child: _buildInfoTile(
                           icon: Icons.history_rounded,
                           label: "Actual End",
-                          value: reservation.parkingSession?.actualEndTime != null 
-                              ? DateFormat('dd.MM.yyyy HH:mm').format(reservation.parkingSession!.actualEndTime!) 
+                          value: reservation.actualEndTime != null 
+                              ? DateFormat('dd.MM.yyyy HH:mm').format(reservation.actualEndTime!) 
                               : "Not set",
                         ),
                       ),

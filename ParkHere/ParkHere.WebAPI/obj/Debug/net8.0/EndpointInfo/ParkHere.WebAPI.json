@@ -3272,9 +3272,6 @@
           },
           "parkingSpot": {
             "$ref": "#/components/schemas/ParkingSpotResponse"
-          },
-          "parkingSession": {
-            "$ref": "#/components/schemas/ParkingSessionResponse"
           }
         },
         "additionalProperties": false

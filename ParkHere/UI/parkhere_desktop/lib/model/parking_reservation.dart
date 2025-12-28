@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'user.dart';
 import 'vehicle.dart';
 import 'parking_spot.dart';
-import 'parking_session.dart';
 
 part 'parking_reservation.g.dart';
 
@@ -22,7 +21,8 @@ class ParkingReservation {
   final User? user;
   final Vehicle? vehicle;
   final ParkingSpot? parkingSpot;
-  final ParkingSession? parkingSession;
+  final DateTime? actualStartTime;
+  final DateTime? actualEndTime;
 
   ParkingReservation({
     this.id = 0,
@@ -37,7 +37,8 @@ class ParkingReservation {
     this.user,
     this.vehicle,
     this.parkingSpot,
-    this.parkingSession,
+    this.actualStartTime,
+    this.actualEndTime,
   });
 
   factory ParkingReservation.fromJson(Map<String, dynamic> json) => _$ParkingReservationFromJson(json);
