@@ -227,49 +227,110 @@ class _CityDetailsScreenState extends State<CityDetailsScreen> {
   }
 
   Widget _buildForm() {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: FormBuilder(
-              key: formKey,
-              initialValue: _initialValue,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // City Name
-                  FormBuilderTextField(
-                    name: "name",
-                    decoration: customTextFieldDecoration(
-                      "City Name",
-                      prefixIcon: Icons.location_city_rounded,
-                      hintText: "Enter the name of the city",
-                    ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: "City name is required"),
-                      FormBuilderValidators.match(
-                        RegExp(r'^[\p{L} ]+$', unicode: true),
-                        errorText: 'Only letters and spaces allowed',
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 32),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E3A8A).withOpacity(0.05),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                          width: 2,
+                        ),
                       ),
-                    ]),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Save and Cancel Buttons
-                  _buildSaveButton(),
-                ],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(60),
+                        child: Image.asset(
+                          "assets/images/3.png",
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.city != null ? "Update City Details" : "Register New City",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E3A8A),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Provide the information below to ${widget.city != null ? 'update' : 'create'} a city entry",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              // Form Section
+              Card(
+                elevation: 8,
+                shadowColor: Colors.black.withOpacity(0.1),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: FormBuilder(
+                    key: formKey,
+                    initialValue: _initialValue,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Basic Information",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF374151),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        FormBuilderTextField(
+                          name: "name",
+                          decoration: customTextFieldDecoration(
+                            "City Name",
+                            prefixIcon: Icons.location_city_rounded,
+                            hintText: "Enter the name of the city",
+                          ).copyWith(
+                            fillColor: const Color(0xFFF8FAFC),
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(errorText: "City name is required"),
+                            FormBuilderValidators.match(
+                              RegExp(r'^[\p{L} ]+$', unicode: true),
+                              errorText: 'Only letters and spaces allowed',
+                            ),
+                          ]),
+                        ),
+                        const SizedBox(height: 48),
+
+                        // Action Buttons
+                        _buildSaveButton(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
