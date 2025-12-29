@@ -11,6 +11,7 @@ import 'package:parkhere_desktop/providers/city_provider.dart';
 import 'package:parkhere_desktop/providers/gender_provider.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:parkhere_desktop/screens/users_list_screen.dart';
+import 'package:parkhere_desktop/utils/base_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -283,121 +284,140 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
           initialValue: _initialValue,
           child: Column(
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.bottomCenter,
-                children: [
-                  // 1. Hero Header (Same as Details)
-                  Container(
-                    height: 200,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
-                        begin: Alignment.bottomLeft,
-                        end: Alignment.topRight,
+              SizedBox(
+                height: 260,
+                width: double.infinity,
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    // 1. Hero Header
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                          begin: Alignment.bottomLeft,
+                          end: Alignment.topRight,
+                        ),
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
                       ),
-                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 20,
-                          right: 20,
-                          child: Icon(
-                            Icons.circle,
-                            size: 200,
-                            color: Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-                        Positioned(
-                          top: 60,
-                          left: 40,
-                          child: Icon(
-                            Icons.circle_outlined,
-                            size: 100,
-                            color: Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-
-                  // 2. Overlapping Editable Profile Picture
-                  Positioned(
-                    bottom: -60,
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 6),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 65,
-                            backgroundColor: Colors.grey[200],
-                            backgroundImage:
-                                _initialValue['picture'] != null && (_initialValue['picture'] as String).isNotEmpty
-                                    ? MemoryImage(base64Decode(_initialValue['picture']))
-                                    : null,
-                            child: (_initialValue['picture'] == null || (_initialValue['picture'] as String).isEmpty)
-                                ? const Icon(Icons.person, size: 64, color: Colors.grey)
-                                : null,
-                          ),
-                        ),
-                        
-                        // Edit/Camera Badge
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: _pickImage,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF1E3A8A),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 20,
+                            right: 20,
+                            child: Icon(
+                              Icons.circle,
+                              size: 200,
+                              color: Colors.white.withOpacity(0.05),
                             ),
                           ),
-                        ),
-                         // Remove Image Badge (only if image exists)
-                        if (_initialValue['picture'] != null && (_initialValue['picture'] as String).isNotEmpty)
                           Positioned(
-                            top: 0,
+                            top: 60,
+                            left: 40,
+                            child: Icon(
+                              Icons.circle_outlined,
+                              size: 100,
+                              color: Colors.white.withOpacity(0.05),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // 2. Overlapping Editable Profile Picture
+                    Positioned(
+                      bottom: 0,
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: InkWell(
+                              onTap: _pickImage,
+                              borderRadius: BorderRadius.circular(65),
+                              child: CircleAvatar(
+                                radius: 65,
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: _initialValue['picture'] != null &&
+                                        (_initialValue['picture'] as String).isNotEmpty
+                                    ? MemoryImage(base64Decode(_initialValue['picture']!
+                                        .replaceAll(RegExp(r'^data:image/[^;]+;base64,'), '')))
+                                    : null,
+                                child: (_initialValue['picture'] == null ||
+                                        (_initialValue['picture'] as String).isEmpty)
+                                    ? const Icon(Icons.person, size: 64, color: Colors.grey)
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          
+                          // Edit/Camera Badge
+                          Positioned(
+                            bottom: 0,
                             right: 0,
                             child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _image = null;
-                                  _initialValue['picture'] = null;
-                                });
-                              },
+                              onTap: _pickImage,
                               child: Container(
-                                padding: const EdgeInsets.all(6),
+                                padding: const EdgeInsets.all(12),
                                 decoration: const BoxDecoration(
-                                  color: Colors.red,
+                                  color: Color(0xFF1E3A8A),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close, color: Colors.white, size: 16),
+                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
                               ),
                             ),
                           ),
-                      ],
+                           // Remove Image Badge (only if image exists)
+                          if (_initialValue['picture'] != null && (_initialValue['picture'] as String).isNotEmpty)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: InkWell(
+                                  onTap: () async {
+                                    bool? confirm = await BaseDialog.show(
+                                      context: context,
+                                      title: "Confirm Removal",
+                                      message: "Are you sure you want to remove your profile picture?",
+                                      type: BaseDialogType.confirmation,
+                                      confirmLabel: "Remove",
+                                      cancelLabel: "Cancel",
+                                    );
+
+                                    if (confirm == true) {
+                                      setState(() {
+                                        _image = null;
+                                        _initialValue['picture'] = null;
+                                      });
+                                    }
+                                  },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 16),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 70), // Spacer for Profile Picture
+              const SizedBox(height: 10), // Reduced spacer
 
               // 3. Title
               const Text(
@@ -620,17 +640,29 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
       request['picture'] = _initialValue['picture'];
 
       try {
-        await userProvider.update(widget.user.id, request);
+        if (widget.user.id == UserProvider.currentUser?.id) {
+          await userProvider.updateProfile(widget.user.id, request);
+        } else {
+          await userProvider.update(widget.user.id, request);
+        }
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('User updated successfully'), backgroundColor: Colors.green),
           );
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const UsersListScreen(),
-              settings: const RouteSettings(name: 'UsersListScreen'),
-            ),
-          );
+          
+          if (widget.user.id == UserProvider.currentUser?.id) {
+            // If editing self, just go back to profile
+            Navigator.of(context).pop();
+          } else {
+            // If admin editing others, go back to list
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const UsersListScreen(),
+                settings: const RouteSettings(name: 'UsersListScreen'),
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {

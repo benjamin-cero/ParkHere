@@ -280,6 +280,35 @@ namespace ParkHere.Services.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Reviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ReservationId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reviews_ParkingReservations_ReservationId",
+                        column: x => x.ReservationId,
+                        principalTable: "ParkingReservations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "Cities",
                 columns: new[] { "Id", "Name" },
@@ -575,6 +604,25 @@ namespace ParkHere.Services.Migrations
                     { 12, new DateTime(2024, 12, 28, 0, 59, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), new DateTime(2024, 12, 27, 21, 9, 0, 0, DateTimeKind.Utc), 5.95m, 119, 12 }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Reviews",
+                columns: new[] { "Id", "Comment", "CreatedAt", "Rating", "ReservationId", "UserId" },
+                values: new object[,]
+                {
+                    { 1, "Excellent service, easy to find the spot.", new DateTime(2024, 12, 27, 12, 30, 0, 0, DateTimeKind.Utc), 4, 1, 1 },
+                    { 2, "Smooth parking process, highly recommended!", new DateTime(2024, 12, 27, 13, 30, 0, 0, DateTimeKind.Utc), 5, 2, 2 },
+                    { 3, "Top notch facility, will use again.", new DateTime(2024, 12, 27, 14, 30, 0, 0, DateTimeKind.Utc), 4, 3, 3 },
+                    { 4, "Simple and fast, exactly what I needed.", new DateTime(2024, 12, 27, 15, 30, 0, 0, DateTimeKind.Utc), 5, 4, 4 },
+                    { 5, "Great experience, very convenient!", new DateTime(2024, 12, 27, 16, 30, 0, 0, DateTimeKind.Utc), 4, 5, 5 },
+                    { 6, "Excellent service, easy to find the spot.", new DateTime(2024, 12, 27, 17, 30, 0, 0, DateTimeKind.Utc), 5, 6, 6 },
+                    { 7, "Smooth parking process, highly recommended!", new DateTime(2024, 12, 27, 18, 30, 0, 0, DateTimeKind.Utc), 4, 7, 7 },
+                    { 8, "Top notch facility, will use again.", new DateTime(2024, 12, 27, 19, 30, 0, 0, DateTimeKind.Utc), 5, 8, 8 },
+                    { 9, "Simple and fast, exactly what I needed.", new DateTime(2024, 12, 27, 20, 30, 0, 0, DateTimeKind.Utc), 4, 9, 9 },
+                    { 10, "Great experience, very convenient!", new DateTime(2024, 12, 27, 21, 30, 0, 0, DateTimeKind.Utc), 5, 10, 10 },
+                    { 11, "Excellent service, easy to find the spot.", new DateTime(2024, 12, 27, 22, 30, 0, 0, DateTimeKind.Utc), 4, 11, 11 },
+                    { 12, "Smooth parking process, highly recommended!", new DateTime(2024, 12, 27, 23, 30, 0, 0, DateTimeKind.Utc), 5, 12, 12 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_Name",
                 table: "Cities",
@@ -621,6 +669,16 @@ namespace ParkHere.Services.Migrations
                 name: "IX_ParkingWings_ParkingSectorId",
                 table: "ParkingWings",
                 column: "ParkingSectorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_ReservationId",
+                table: "Reviews",
+                column: "ReservationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_UserId",
+                table: "Reviews",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
@@ -672,6 +730,9 @@ namespace ParkHere.Services.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ParkingSessions");
+
+            migrationBuilder.DropTable(
+                name: "Reviews");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");

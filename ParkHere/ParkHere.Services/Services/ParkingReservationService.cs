@@ -184,7 +184,7 @@ namespace ParkHere.Services.Services
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");
         }
 
-        public override ParkingReservationResponse MapToResponse(ParkingReservation entity)
+        protected override ParkingReservationResponse MapToResponse(ParkingReservation entity)
         {
             var response = base.MapToResponse(entity);
             

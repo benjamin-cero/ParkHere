@@ -4,6 +4,7 @@ import 'package:parkhere_desktop/model/city.dart';
 import 'package:parkhere_desktop/providers/city_provider.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
+import 'package:parkhere_desktop/utils/base_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -41,26 +42,13 @@ class _CityDetailsScreenState extends State<CityDetailsScreen> {
   }
 
   Future<void> _onDelete() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await BaseDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete "${widget.city?.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete city "${widget.city?.name}"?',
+      type: BaseDialogType.confirmation,
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
     );
 
     if (confirmed == true && widget.city != null) {
@@ -83,19 +71,12 @@ class _CityDetailsScreenState extends State<CityDetailsScreen> {
         }
       } catch (e) {
         if (mounted) {
-           setState(() => _isSaving = false);
-          showDialog(
+          setState(() => _isSaving = false);
+          BaseDialog.show(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(e.toString()),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+            title: 'Error',
+            message: e.toString(),
+            type: BaseDialogType.error,
           );
         }
       }
@@ -184,20 +165,11 @@ class _CityDetailsScreenState extends State<CityDetailsScreen> {
                       }
                     } catch (e) {
                       if (mounted) {
-                        showDialog(
+                        BaseDialog.show(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Error'),
-                            content: Text(
-                              e.toString().replaceFirst('Exception: ', ''),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),
+                          title: 'Error',
+                          message: e.toString().replaceFirst('Exception: ', ''),
+                          type: BaseDialogType.error,
                         );
                       }
                     } finally {

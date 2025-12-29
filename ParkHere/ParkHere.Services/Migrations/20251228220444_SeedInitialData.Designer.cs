@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20251228211538_SeedInitialData")]
+    [Migration("20251228220444_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -1763,6 +1763,149 @@ namespace ParkHere.Services.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ParkHere.Services.Database.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReservationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Comment = "Excellent service, easy to find the spot.",
+                            CreatedAt = new DateTime(2024, 12, 27, 12, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 1,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Comment = "Smooth parking process, highly recommended!",
+                            CreatedAt = new DateTime(2024, 12, 27, 13, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 2,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Comment = "Top notch facility, will use again.",
+                            CreatedAt = new DateTime(2024, 12, 27, 14, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 3,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Comment = "Simple and fast, exactly what I needed.",
+                            CreatedAt = new DateTime(2024, 12, 27, 15, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 4,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Comment = "Great experience, very convenient!",
+                            CreatedAt = new DateTime(2024, 12, 27, 16, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 5,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Comment = "Excellent service, easy to find the spot.",
+                            CreatedAt = new DateTime(2024, 12, 27, 17, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 6,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Comment = "Smooth parking process, highly recommended!",
+                            CreatedAt = new DateTime(2024, 12, 27, 18, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 7,
+                            UserId = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Comment = "Top notch facility, will use again.",
+                            CreatedAt = new DateTime(2024, 12, 27, 19, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 8,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Comment = "Simple and fast, exactly what I needed.",
+                            CreatedAt = new DateTime(2024, 12, 27, 20, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 9,
+                            UserId = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Comment = "Great experience, very convenient!",
+                            CreatedAt = new DateTime(2024, 12, 27, 21, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 10,
+                            UserId = 10
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Comment = "Excellent service, easy to find the spot.",
+                            CreatedAt = new DateTime(2024, 12, 27, 22, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 4,
+                            ReservationId = 11,
+                            UserId = 11
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Comment = "Smooth parking process, highly recommended!",
+                            CreatedAt = new DateTime(2024, 12, 27, 23, 30, 0, 0, DateTimeKind.Utc),
+                            Rating = 5,
+                            ReservationId = 12,
+                            UserId = 12
+                        });
+                });
+
             modelBuilder.Entity("ParkHere.Services.Database.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -2366,6 +2509,25 @@ namespace ParkHere.Services.Migrations
                         .IsRequired();
 
                     b.Navigation("ParkingSector");
+                });
+
+            modelBuilder.Entity("ParkHere.Services.Database.Review", b =>
+                {
+                    b.HasOne("ParkHere.Services.Database.ParkingReservation", "ParkingReservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ParkHere.Services.Database.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ParkingReservation");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ParkHere.Services.Database.User", b =>

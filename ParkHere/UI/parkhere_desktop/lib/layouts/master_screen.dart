@@ -12,6 +12,7 @@ import 'package:parkhere_desktop/screens/parking_management_screen.dart';
 import 'package:parkhere_desktop/screens/reservation_management_screen.dart';
 import 'package:parkhere_desktop/screens/profile_screen.dart';
 import 'package:parkhere_desktop/providers/user_provider.dart';
+import 'package:parkhere_desktop/utils/base_dialog.dart';
 
 class MasterScreen extends StatefulWidget {
   const MasterScreen({
@@ -19,10 +20,12 @@ class MasterScreen extends StatefulWidget {
     required this.child,
     required this.title,
     this.showBackButton = false,
+    this.onBack,
   });
   final Widget child;
   final String title;
   final bool showBackButton;
+  final VoidCallback? onBack;
 
 
 
@@ -181,9 +184,17 @@ class _MasterScreenState extends State<MasterScreen>
                                   cursor: SystemMouseCursors.click,
                                   child: GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).maybePop();
-                                      Navigator.push(
-                                        context,
+                                      final mainNavigator = Navigator.of(context);
+                                      // 1. Pop the dialog first
+                                      Navigator.of(context).pop();
+
+                                      // 2. Check if we are already on ProfileScreen to avoid double push
+                                      // We check the current route name from the main context
+                                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                                      if (currentRoute == 'ProfileScreen') return;
+
+                                      // 3. Push ProfileScreen on the main navigator
+                                      mainNavigator.push(
                                         MaterialPageRoute(
                                           builder: (context) => const ProfileScreen(),
                                           settings: const RouteSettings(name: 'ProfileScreen'),
@@ -689,7 +700,7 @@ class _MasterScreenState extends State<MasterScreen>
                 margin: const EdgeInsets.only(right: 16),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: widget.onBack ?? () => Navigator.of(context).pop(),
                   color: Colors.white,
                 ),
               ),
@@ -745,50 +756,22 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
+  void _showLogoutDialog(BuildContext context) async {
+    bool? confirm = await BaseDialog.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
-            children: [
-              Icon(Icons.logout_rounded, color: Color(0xFF1E3A8A)),
-              SizedBox(width: 12),
-              Text('Confirm Logout'),
-            ],
-          ),
-          content: const Text(
-            'Are you sure you want to logout from your account?',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E3A8A),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
+      title: "Confirm Logout",
+      message: "Are you sure you want to logout from your account?",
+      type: BaseDialogType.confirmation,
+      confirmLabel: "Logout",
+      cancelLabel: "Cancel",
     );
+
+    if (confirm == true && mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
+    }
   }
 }

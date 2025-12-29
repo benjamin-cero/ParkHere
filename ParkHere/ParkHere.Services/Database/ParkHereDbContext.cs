@@ -20,6 +20,7 @@ namespace ParkHere.Services.Database
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<ParkingReservation> ParkingReservations { get; set; }
         public DbSet<ParkingSession> ParkingSessions { get; set; }
+        public DbSet<Review> Reviews { get; set; }
     
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -110,6 +111,19 @@ namespace ParkHere.Services.Database
                 .WithMany() // ili dodaj ICollection<ParkingSession> u ParkingReservation
                 .HasForeignKey(ps => ps.ParkingReservationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Review entity
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.ParkingReservation)
+                .WithMany()
+                .HasForeignKey(r => r.ReservationId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
 

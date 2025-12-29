@@ -414,6 +414,37 @@ namespace ParkHere.Services.Database
             }
 
             modelBuilder.Entity<ParkingSession>().HasData(sessions);
+
+            // Seed Reviews
+            var reviews = new List<Review>();
+            int reviewIdCounter = 1;
+            var reviewComments = new[]
+            {
+                "Great experience, very convenient!",
+                "Excellent service, easy to find the spot.",
+                "Smooth parking process, highly recommended!",
+                "Top notch facility, will use again.",
+                "Simple and fast, exactly what I needed."
+            };
+
+            foreach (var reservation in reservations)
+            {
+                // Rating 4 or 5 based on reservation ID
+                int rating = (reservation.Id % 2 == 0) ? 5 : 4;
+                string comment = reviewComments[reservation.Id % reviewComments.Length];
+
+                reviews.Add(new Review
+                {
+                    Id = reviewIdCounter++,
+                    UserId = reservation.UserId,
+                    ReservationId = reservation.Id,
+                    Rating = rating,
+                    Comment = comment,
+                    CreatedAt = reservation.EndTime.AddMinutes(30)
+                });
+            }
+
+            modelBuilder.Entity<Review>().HasData(reviews);
         }
     }
 }

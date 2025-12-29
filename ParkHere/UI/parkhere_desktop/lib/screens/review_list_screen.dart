@@ -31,22 +31,29 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
     final int pageToFetch = page ?? _currentPage;
     final int pageSizeToUse = pageSize ?? _pageSize;
 
-    final filter = {
-      'userFullName': usernameController.text,
-      'minRating': selectedRating,
-      'maxRating': selectedRating,
-      'page': pageToFetch,
-      'pageSize': pageSizeToUse,
-      'includeTotalCount': true,
-    };
+    try {
+      final filter = {
+        'name': usernameController.text,
+        'rating': selectedRating,
+        'page': pageToFetch,
+        'pageSize': pageSizeToUse,
+        'includeTotalCount': true,
+      };
 
-    final result = await reviewProvider.get(filter: filter);
-    
-    setState(() {
-      reviews = result;
-      _currentPage = pageToFetch;
-      _pageSize = pageSizeToUse;
-    });
+      final result = await reviewProvider.get(filter: filter);
+      
+      setState(() {
+        reviews = result;
+        _currentPage = pageToFetch;
+        _pageSize = pageSizeToUse;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error loading reviews: $e")),
+        );
+      }
+    }
   }
 
   @override
@@ -214,8 +221,9 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
       controller: _scrollController,
       items: reviews!.items!.map((e) {
         return BaseGridCardItem(
-          title: e.userFullName,
-          subtitle: "@${e.username}",
+          title: "${e.user?.firstName ?? 'Unknown'} ${e.user?.lastName ?? 'User'}",
+          subtitle: "@${e.user?.username ?? 'unknown'}",
+          imageUrl: e.user?.picture,
           data: {
             Icons.star_outline: "${e.rating} Stars",
             Icons.comment_outlined: e.comment ?? "No comment",

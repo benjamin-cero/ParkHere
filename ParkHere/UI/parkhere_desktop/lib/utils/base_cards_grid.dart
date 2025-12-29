@@ -219,7 +219,8 @@ class BaseCardsGrid extends StatelessWidget {
                     backgroundColor: const Color(0xFFF3F4F6),
                     backgroundImage:
                         (item.imageUrl != null && item.imageUrl!.isNotEmpty)
-                            ? MemoryImage(base64Decode(item.imageUrl!))
+                            ? MemoryImage(base64Decode(item.imageUrl!
+                                .replaceAll(RegExp(r'^data:image/[^;]+;base64,'), '')))
                             : null,
                     child: (item.imageUrl == null || item.imageUrl!.isEmpty)
                         ? Text(

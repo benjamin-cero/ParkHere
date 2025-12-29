@@ -8,6 +8,7 @@ import 'package:parkhere_desktop/providers/parking_sector_provider.dart';
 import 'package:parkhere_desktop/providers/parking_wing_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_type_provider.dart';
+import 'package:parkhere_desktop/utils/base_dialog.dart';
 import 'package:provider/provider.dart';
 
 class ParkingManagementScreen extends StatefulWidget {
@@ -92,28 +93,16 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
     if (_selectedSector == null) return;
     
     final newStatus = !_selectedSector!.isActive;
-    final action = newStatus ? "aktivirati" : "deaktivirati";
+    final action = newStatus ? "activate" : "deactivate";
     
     // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
+    final confirmed = await BaseDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Potvrda"),
-        content: Text("Da li želite $action sprat ${_selectedSector!.name}? Svi wingovi i spotovi će biti ${newStatus ? 'aktivirani' : 'deaktivirani'}."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Ne"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-            ),
-            child: const Text("Da"),
-          ),
-        ],
-      ),
+      title: "Confirmation",
+      message: "Do you want to $action floor ${_selectedSector!.name}? All wings and spots will be ${newStatus ? 'activated' : 'deactivated'}.",
+      type: BaseDialogType.confirmation,
+      confirmLabel: "Yes",
+      cancelLabel: "No",
     );
     
     if (confirmed != true) return;
@@ -142,39 +131,27 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Sprat je uspješno ${newStatus ? 'aktiviran' : 'deaktiviran'}!"),
+          content: Text("Floor successfully ${newStatus ? 'activated' : 'deactivated'}!"),
           backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Greška: $e")));
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
   Future<void> _toggleWingStatus(ParkingWing wing) async {
     final newStatus = !wing.isActive;
-    final action = newStatus ? "aktivirati" : "deaktivirati";
+    final action = newStatus ? "activate" : "deactivate";
     
     // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
+    final confirmed = await BaseDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Potvrda"),
-        content: Text("Da li želite $action wing ${wing.name}? Svi spotovi u ovom wingu će biti ${newStatus ? 'aktivirani' : 'deaktivirani'}."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Ne"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-            ),
-            child: const Text("Da"),
-          ),
-        ],
-      ),
+      title: "Confirmation",
+      message: "Do you want to $action wing ${wing.name}? All spots in this wing will be ${newStatus ? 'activated' : 'deactivated'}.",
+      type: BaseDialogType.confirmation,
+      confirmLabel: "Yes",
+      cancelLabel: "No",
     );
     
     if (confirmed != true) return;
@@ -194,13 +171,13 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Wing je uspješno ${newStatus ? 'aktiviran' : 'deaktiviran'}!"),
+          content: Text("Wing successfully ${newStatus ? 'activated' : 'deactivated'}!"),
           backgroundColor: newStatus ? const Color(0xFF10B981) : const Color(0xFFEF4444),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Greška: $e")));
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
@@ -548,26 +525,14 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                     final statusChanging = isActive != spot.isActive;
                     
                     if (statusChanging) {
-                      final action = isActive ? "aktivirati" : "deaktivirati";
-                      final confirmed = await showDialog<bool>(
+                      final action = isActive ? "activate" : "deactivate";
+                      final confirmed = await BaseDialog.show(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text("Potvrda"),
-                          content: Text("Da li želite $action spot ${spot.spotCode}?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text("Ne"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isActive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                              ),
-                              child: const Text("Da"),
-                            ),
-                          ],
-                        ),
+                        title: "Confirmation",
+                        message: "Do you want to $action spot ${spot.spotCode}?",
+                        type: BaseDialogType.confirmation,
+                        confirmLabel: "Yes",
+                        cancelLabel: "No",
                       );
                       
                       if (confirmed != true) return;
@@ -585,15 +550,15 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                       
                       // Show success message
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Spot je uspješno ažuriran!"),
-                          backgroundColor: const Color(0xFF10B981),
+                        const SnackBar(
+                          content: Text("Spot successfully updated!"),
+                          backgroundColor: Color(0xFF10B981),
                         ),
                       );
                     } catch (e) {
                       print("Error updating: $e");
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Greška: $e")),
+                        SnackBar(content: Text("Error: $e")),
                       );
                     }
                   },

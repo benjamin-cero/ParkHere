@@ -39,36 +39,32 @@ class ReviewDetailsScreen extends StatelessWidget {
                           width: 75,
                           height: 75,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
+                            shape: BoxShape.circle,
                             border: Border.all(
                               color: Colors.grey.withOpacity(0.3),
                               width: 1,
                             ),
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(37.5),
                             child:
-                                review.festivalLogo != null &&
-                                    review.festivalLogo!.isNotEmpty
+                                review.user?.picture != null &&
+                                    review.user!.picture!.isNotEmpty
                                 ? Image.memory(
-                                    base64Decode(review.festivalLogo!),
+                                    base64Decode(review.user!.picture!.replaceAll(RegExp(r'^data:image/[^;]+;base64,'), '')),
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Icon(
-                                        Icons.festival,
+                                        Icons.person,
                                         size: 48,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
+                                        color: Theme.of(context).colorScheme.primary,
                                       );
                                     },
                                   )
                                 : Icon(
-                                    Icons.festival,
+                                    Icons.person,
                                     size: 48,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                           ),
                         ),
@@ -78,7 +74,7 @@ class ReviewDetailsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Review by ${review.userFullName}',
+                                'Review by ${review.user?.firstName ?? ''} ${review.user?.lastName ?? ''}',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -86,9 +82,9 @@ class ReviewDetailsScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                review.festivalTitle,
-                                style: const TextStyle(
+                              const Text(
+                                "Customer Review",
+                                style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.grey,
                                 ),
@@ -130,10 +126,11 @@ class ReviewDetailsScreen extends StatelessWidget {
                     _buildInfoRow('Comment', review.comment!),
                   ],
                   const Divider(),
-                  _buildInfoRow('Full Name', review.userFullName),
-                  _buildInfoRow('Username', review.username),
+                  _buildInfoRow('User', "${review.user?.firstName} ${review.user?.lastName}"),
+                  _buildInfoRow('Username', review.user?.username ?? 'N/A'),
                   const Divider(),
-                  _buildInfoRow('Festival Title', review.festivalTitle),
+                  if (review.parkingReservation?.parkingSpot?.spotCode != null)
+                      _buildInfoRow('Parking Spot', review.parkingReservation!.parkingSpot!.spotCode),
                 ]),
               ),
             ),

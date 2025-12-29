@@ -24,6 +24,7 @@ builder.Services.AddTransient<IParkingWingService, ParkingWingService>();
 builder.Services.AddTransient<IVehicleService, VehicleService>();
 builder.Services.AddTransient<IParkingReservationService, ParkingReservationService>();
 builder.Services.AddTransient<IParkingSessionService, ParkingSessionService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
 
 
 // Configure database

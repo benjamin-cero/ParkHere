@@ -62,4 +62,18 @@ class UserProvider extends BaseProvider<User> {
       throw Exception("Authentication failed: $e");
     }
   }
+
+  Future<User?> updateProfile(int id, dynamic request) async {
+    try {
+      var updatedUser = await update(id, request);
+      if (currentUser?.id == id) {
+        currentUser = updatedUser;
+        notifyListeners();
+      }
+      return updatedUser;
+    } catch (e) {
+      print("Error updating profile: $e");
+      rethrow;
+    }
+  }
 }

@@ -16,6 +16,7 @@ import 'package:parkhere_desktop/providers/parking_session_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
+import 'package:parkhere_desktop/utils/base_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -197,46 +198,25 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
+    BaseDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.error_outline, color: Color(0xFFE53E3E)),
-            SizedBox(width: 8),
-            Text("Login Failed"),
-          ],
-        ),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
+      title: "Login Failed",
+      message: message,
+      type: BaseDialogType.error,
     );
   }
 
   void _showAccessDeniedDialog() {
-    showDialog(
+    BaseDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Access Denied"),
-        content: const Text("You do not have administrator privileges."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              usernameController.clear();
-              passwordController.clear();
-            },
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
+      title: "Access Denied",
+      message: "You do not have administrator privileges to access this system.",
+      type: BaseDialogType.warning,
+      confirmLabel: "OK",
+    ).then((_) {
+      usernameController.clear();
+      passwordController.clear();
+    });
   }
 
   @override
