@@ -18,7 +18,8 @@ namespace ParkHere.Services.Services
         protected override IQueryable<Review> ApplyFilter(IQueryable<Review> query, ReviewSearchObject search)
         {
             query = query.Include(x => x.User)
-                         .Include(x => x.ParkingReservation);
+                         .Include(x => x.ParkingReservation)
+                            .ThenInclude(x => x.ParkingSpot);
 
             if (search.UserId.HasValue)
                 query = query.Where(x => x.UserId == search.UserId);

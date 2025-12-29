@@ -319,15 +319,26 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
           // Spot Type Legend
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildLegendItem(Icons.local_parking_rounded, Colors.grey[400]!, "Standard"),
-              const SizedBox(width: 16),
-              _buildLegendItem(Icons.star_rounded, const Color(0xFFD97706), "VIP"),
-              const SizedBox(width: 16),
-              _buildLegendItem(Icons.bolt_rounded, const Color(0xFF059669), "Electric"),
-              const SizedBox(width: 16),
-              _buildLegendItem(Icons.accessible_forward_rounded, const Color(0xFF2563EB), "Handicapped"),
-            ],
+            children: _spotTypes.map((type) {
+              IconData icon = Icons.local_parking_rounded;
+              Color color = Colors.grey[400]!;
+              
+              if (type.type == "VIP") {
+                icon = Icons.star_rounded;
+                color = const Color(0xFFD97706);
+              } else if (type.type == "Electric") {
+                icon = Icons.bolt_rounded;
+                color = const Color(0xFF059669);
+              } else if (type.type == "Handicapped") {
+                icon = Icons.accessible_forward_rounded;
+                color = const Color(0xFF2563EB);
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: _buildLegendItem(icon, color, type),
+              );
+            }).toList(),
           ),
           const Spacer(),
           // Stats or Actions
@@ -371,29 +382,260 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
     );
   }
 
-  Widget _buildLegendItem(IconData icon, Color color, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
+  Widget _buildLegendItem(IconData icon, Color color, ParkingSpotType type) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _showSpotTypeEditDialog(type),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey[200]!),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                type.type,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Future<void> _showSpotTypeEditDialog(ParkingSpotType type) async {
+    final nameController = TextEditingController(text: type.type);
+    final multiplierController = TextEditingController(text: type.priceMultiplier.toString());
+    bool isSaving = false;
+
+    await showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          contentPadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E3A8A),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    topRight: Radius.circular(28),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.edit_road_rounded, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Edit Spot Type",
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            type.type,
+                            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Body
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Type Configuration",
+                      style: TextStyle(fontSize: 14, color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    _buildDialogTextField(
+                      label: "Type Name",
+                      controller: nameController,
+                      icon: Icons.label_rounded,
+                      hint: "Enter type name",
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    _buildDialogTextField(
+                      label: "Price Multiplier",
+                      controller: multiplierController,
+                      icon: Icons.star_half_rounded,
+                      hint: "e.g. 1.5",
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      helper: "Multiplier applied to base parking price",
+                    ),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: isSaving ? null : () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: BorderSide(color: Colors.grey[300]!),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text("Cancel", style: TextStyle(color: Color(0xFF4B5563), fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isSaving 
+                              ? null 
+                              : () async {
+                                if (nameController.text.isEmpty || multiplierController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("All fields are required"))
+                                  );
+                                  return;
+                                }
+
+                                final multiplier = double.tryParse(multiplierController.text);
+                                if (multiplier == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Multiplier must be a valid number"))
+                                  );
+                                  return;
+                                }
+
+                                setDialogState(() => isSaving = true);
+                                try {
+                                  await _spotTypeProvider.update(type.id, {
+                                    'type': nameController.text,
+                                    'priceMultiplier': multiplier,
+                                    'isActive': type.isActive,
+                                  });
+                                  
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    _loadData();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Spot type updated successfully!"),
+                                        backgroundColor: Color(0xFF10B981),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    setDialogState(() => isSaving = false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Error: $e"))
+                                    );
+                                  }
+                                }
+                              },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E3A8A),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
+                            child: isSaving 
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Text("Save Changes", style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDialogTextField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    String? helper,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.normal),
+            prefixIcon: Icon(icon, size: 20, color: const Color(0xFF1E3A8A).withOpacity(0.7)),
+            filled: true,
+            fillColor: const Color(0xFFF8FAFC),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[200]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[200]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            helperText: helper,
+            helperStyle: TextStyle(fontSize: 11, color: Colors.grey[500], fontStyle: FontStyle.italic),
+          ),
+        ),
+      ],
     );
   }
 

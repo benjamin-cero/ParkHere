@@ -38,6 +38,9 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
         'page': pageToFetch,
         'pageSize': pageSizeToUse,
         'includeTotalCount': true,
+        'includeUser': true,
+        'includeParkingReservation': true,
+        'includeParkingSpot': true,
       };
 
       final result = await reviewProvider.get(filter: filter);

@@ -84,110 +84,154 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
   Widget build(BuildContext context) {
     return MasterScreen(
       title: "Reservation Management",
-      child: Center(
-        child: Column(
-          children: [
-            _buildSearch(),
-            Expanded(
-              child: _isLoading && _reservations == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildResultView(),
-            ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 24),
+          _buildSearchAndFilters(),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _isLoading && _reservations == null
+                ? const Center(child: CircularProgressIndicator())
+                : _buildResultView(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSearch() {
+  Widget _buildHeader() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3A8A), Color(0xFF1E40AF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.25),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         children: [
           Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _licensePlateController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _loadData(page: 0),
-              decoration: InputDecoration(
-                hintText: "License Plate...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.directions_car, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Manage Reservations",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: _fullNameController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _loadData(page: 0),
-              decoration: InputDecoration(
-                hintText: "User Full Name...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                const SizedBox(height: 4),
+                Text(
+                  "Monitor and search all parking reservations",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
+              ],
             ),
           ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () => _loadData(page: 0),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF1E3A8A),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
-            ),
-            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          ),
-          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
-            onPressed: () {
-              _licensePlateController.clear();
-              _fullNameController.clear();
-              _loadData(page: 0);
-            },
-            tooltip: "Reset",
+            onPressed: () => _loadData(page: 0),
+            icon: const Icon(Icons.refresh_rounded),
+            color: const Color(0xFF1E3A8A),
+            tooltip: "Refresh Data",
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: const Color(0xFFF3F4F6),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilters() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: _buildSearchField(
+            controller: _licensePlateController,
+            hint: "Search by license plate...",
+            icon: Icons.directions_car_rounded,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 2,
+          child: _buildSearchField(
+            controller: _fullNameController,
+            hint: "Search by user name...",
+            icon: Icons.person_search_rounded,
+          ),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: () => _loadData(page: 0),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E3A8A),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 2,
+          ),
+          child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(width: 12),
+        IconButton(
+          onPressed: () {
+            _licensePlateController.clear();
+            _fullNameController.clear();
+            _loadData(page: 0);
+          },
+          icon: const Icon(Icons.backspace_outlined),
+          tooltip: "Clear Filters",
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: Colors.white,
+            side: BorderSide(color: Colors.grey.shade200),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        onSubmitted: (_) => _loadData(page: 0),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+          prefixIcon: Icon(icon, color: const Color(0xFF1E3A8A).withOpacity(0.5), size: 20),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
     );
   }
@@ -204,11 +248,8 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Color(0xFFEFF6FF),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF3B82F6)),
+              decoration: const BoxDecoration(color: Color(0xFFF3F4F6), shape: BoxShape.circle),
+              child: const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF9CA3AF)),
             ),
             const SizedBox(height: 16),
             const Text("No reservations found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937))),
@@ -221,12 +262,16 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
     return Column(
       children: [
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade100),
+            ),
             child: BaseTable(
               width: double.infinity,
               height: double.infinity,
-              title: "Reservations",
+              title: "Reservation List",
               icon: Icons.list_alt_rounded,
               columns: const [
                 DataColumn(label: Text("License Plate")),
@@ -263,7 +308,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
         ),
         if (_reservations != null && totalCount > 0)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: BasePagination(
               scrollController: _scrollController,
               currentPage: _currentPage,
@@ -287,16 +332,16 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
   Widget _buildStatusBadge(ParkingReservation res) {
     bool isPaid = res.isPaid;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isPaid ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: isPaid ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+        borderRadius: BorderRadius.circular(50),
       ),
       child: Text(
         isPaid ? "Paid" : "Unpaid",
         style: TextStyle(
-          color: isPaid ? Colors.green : Colors.orange,
-          fontSize: 12,
+          color: isPaid ? const Color(0xFF166534) : const Color(0xFF92400E),
+          fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
       ),
