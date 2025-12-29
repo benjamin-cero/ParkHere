@@ -93,6 +93,8 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
 
   Widget _buildSearch() {
     return BaseSearchBar(
+      title: "Review Search",
+      icon: Icons.rate_review_rounded,
       fields: [
         BaseSearchField(
           controller: usernameController,

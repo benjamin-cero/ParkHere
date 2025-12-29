@@ -494,8 +494,8 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
                             name: "email",
                             decoration: customTextFieldDecoration("Email", prefixIcon: Icons.email_outlined),
                             validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(),
-                              FormBuilderValidators.email(),
+                              FormBuilderValidators.required(errorText: 'Email is required'),
+                              FormBuilderValidators.email(errorText: 'Invalid email address format'),
                             ]),
                           ),
                         ),
@@ -504,6 +504,13 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
                           child: FormBuilderTextField(
                             name: "phoneNumber",
                             decoration: customTextFieldDecoration("Phone (Optional)", prefixIcon: Icons.phone_outlined),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return null;
+                              return FormBuilderValidators.match(
+                                RegExp(r'^[+]{0,1}[0-9\s\-]{8,20}$'),
+                                errorText: 'Invalid phone number format',
+                              )(value);
+                            },
                           ),
                         ),
                       ],

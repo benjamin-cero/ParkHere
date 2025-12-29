@@ -630,6 +630,8 @@ class _MasterScreenState extends State<MasterScreen>
     } else if (label == 'Reviews') {
       return currentRoute == 'ReviewListScreen' ||
           currentRoute == 'ReviewDetailsScreen';
+    } else if (label == 'Parking') {
+      return currentRoute == 'ParkingManagementScreen';
     } else if (label == 'Reservations') {
       return currentRoute == 'ReservationManagementScreen';
     } else if (label == 'Profile') {

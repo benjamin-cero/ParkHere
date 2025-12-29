@@ -86,6 +86,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
   Widget _buildSearch() {
     return BaseSearchBar(
+      title: "User Management",
+      icon: Icons.people_alt_rounded,
       fields: [
         BaseSearchField(
           controller: usernameController,
