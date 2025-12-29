@@ -3838,6 +3838,9 @@ namespace ParkHere.Services.Migrations
                     b.Property<DateTime?>("ActualStartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("ArrivalTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 

@@ -21,6 +21,7 @@ class ParkingReservation {
   final User? user;
   final Vehicle? vehicle;
   final ParkingSpot? parkingSpot;
+  final DateTime? arrivalTime;
   final DateTime? actualStartTime;
   final DateTime? actualEndTime;
 
@@ -37,6 +38,7 @@ class ParkingReservation {
     this.user,
     this.vehicle,
     this.parkingSpot,
+    this.arrivalTime,
     this.actualStartTime,
     this.actualEndTime,
   });

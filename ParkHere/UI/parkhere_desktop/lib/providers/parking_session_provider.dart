@@ -11,23 +11,33 @@ class ParkingSessionProvider extends BaseProvider<ParkingSession> {
     return ParkingSession.fromJson(json);
   }
 
-  Future<ParkingSession> startSession(int reservationId) async {
-    var url = "${BaseProvider.baseUrl}ParkingSession/set-start-time";
+  Future<ParkingSession> registerArrival(int reservationId) async {
+    var url = "${BaseProvider.baseUrl}ParkingSession/register-arrival/$reservationId";
     var uri = Uri.parse(url);
     var headers = createHeaders();
 
-    var request = {
-      "reservationId": reservationId,
-      "actualStartTime": DateTime.now().toIso8601String(),
-    };
-
-    var response = await http.post(uri, headers: headers, body: jsonEncode(request));
+    var response = await http.post(uri, headers: headers);
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
-      throw Exception("Failed to start session");
+      throw Exception("Failed to register arrival");
+    }
+  }
+
+  Future<ParkingSession> approveEntry(int reservationId) async {
+    var url = "${BaseProvider.baseUrl}ParkingSession/set-start-time/$reservationId";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.post(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return fromJson(data);
+    } else {
+      throw Exception("Failed to approve entry");
     }
   }
 }

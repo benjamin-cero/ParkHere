@@ -1104,30 +1104,45 @@
         }
       }
     },
-    "/ParkingSession/set-start-time": {
+    "/ParkingSession/register-arrival/{reservationId}": {
       "post": {
         "tags": [
           "ParkingSession"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetStartTimeRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetStartTimeRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetStartTimeRequest"
-              }
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
-        },
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/ParkingSession/set-start-time/{reservationId}": {
+      "post": {
+        "tags": [
+          "ParkingSession"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -3659,6 +3674,11 @@
             "format": "date-time",
             "nullable": true
           },
+          "arrivalTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "actualEndTime": {
             "type": "string",
             "format": "date-time",
@@ -3802,6 +3822,11 @@
             "format": "int32"
           },
           "actualStartTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "arrivalTime": {
             "type": "string",
             "format": "date-time",
             "nullable": true
@@ -4297,20 +4322,6 @@
             "format": "int32"
           },
           "actualEndTime": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "SetStartTimeRequest": {
-        "type": "object",
-        "properties": {
-          "reservationId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "actualStartTime": {
             "type": "string",
             "format": "date-time"
           }

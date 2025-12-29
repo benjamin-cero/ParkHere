@@ -41,6 +41,6 @@ namespace ParkHere.Model.Requests
         public string? Password { get; set; }
         
         // Collection of role IDs to assign to the user
-        public List<int> RoleIds { get; set; } = new List<int>();
+        public List<int>? RoleIds { get; set; }
     }
 } 

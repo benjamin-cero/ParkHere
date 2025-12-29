@@ -15,6 +15,7 @@ import 'package:parkhere_desktop/providers/parking_reservation_provider.dart';
 import 'package:parkhere_desktop/providers/parking_session_provider.dart';
 import 'package:parkhere_desktop/screens/business_report_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
+import 'package:parkhere_desktop/screens/dashboard_screen.dart';
 import 'package:parkhere_desktop/utils/base_textfield.dart';
 import 'package:parkhere_desktop/utils/base_dialog.dart';
 import 'package:provider/provider.dart';
@@ -164,8 +165,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const CityListScreen(),
-                settings: const RouteSettings(name: 'CityListScreen'),
+                builder: (context) => DashboardScreen(),
+                settings: RouteSettings(name: 'DashboardScreen'),
               ),
             );
           }

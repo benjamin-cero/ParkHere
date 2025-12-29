@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:parkhere_desktop/main.dart';
 import 'package:flutter/services.dart';
 
+import 'package:parkhere_desktop/screens/dashboard_screen.dart';
 import 'package:parkhere_desktop/screens/city_list_screen.dart';
 import 'package:parkhere_desktop/screens/users_list_screen.dart';
 import 'package:parkhere_desktop/screens/review_list_screen.dart';
@@ -384,6 +385,15 @@ class _MasterScreenState extends State<MasterScreen>
                     children: [
                       _buildNavTile(
                         context,
+                        icon: Icons.dashboard_outlined,
+                        activeIcon: Icons.dashboard_rounded,
+                        label: 'Dashboard',
+                        screen: const DashboardScreen(),
+                        routeName: 'DashboardScreen',
+                      ),
+                      const SizedBox(height: 4),
+                      _buildNavTile(
+                        context,
                         icon: Icons.analytics_outlined,
                         activeIcon: Icons.analytics,
                         label: 'Business Report',
@@ -618,7 +628,9 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   bool _isRouteSelected(String label, String? currentRoute) {
-    if (label == 'Business Report') {
+    if (label == 'Dashboard') {
+      return currentRoute == 'DashboardScreen' || currentRoute == '/';
+    } else if (label == 'Business Report') {
       return currentRoute == 'BusinessReportScreen';
     } else if (label == 'Cities') {
       return currentRoute == 'CityListScreen' ||

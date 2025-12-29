@@ -8,6 +8,7 @@ class ParkingSession {
   final int id;
   final int parkingReservationId;
   final DateTime? actualStartTime;
+  final DateTime? arrivalTime;
   final DateTime? actualEndTime;
   final int? extraMinutes;
   final double? extraCharge;
@@ -18,6 +19,7 @@ class ParkingSession {
     this.id = 0,
     this.parkingReservationId = 0,
     this.actualStartTime,
+    this.arrivalTime,
     this.actualEndTime,
     this.extraMinutes,
     this.extraCharge,

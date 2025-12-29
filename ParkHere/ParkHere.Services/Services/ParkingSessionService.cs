@@ -71,11 +71,30 @@ namespace ParkHere.Services.Services
             entity.ExtraCharge = request.ExtraCharge;
         }
 
-        // Custom action 1: Set actual start time (for admin to let someone cross the ramp)
-        public async Task<ParkingSessionResponse> SetActualStartTimeAsync(int reservationId, DateTime actualStartTime)
+        // Custom action 1: Register arrival (for user app, or simulated by admin)
+        public async Task<ParkingSessionResponse> RegisterArrivalAsync(int reservationId)
         {
-            // Find the session by reservation ID
             var session = await _context.ParkingSessions
+                .FirstOrDefaultAsync(s => s.ParkingReservationId == reservationId);
+
+            if (session == null)
+                throw new InvalidOperationException($"No session found for reservation ID {reservationId}.");
+
+            if (session.ArrivalTime.HasValue)
+                throw new InvalidOperationException("Arrival time has already been registered for this session.");
+
+            session.ArrivalTime = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ParkingSessionResponse>(session);
+        }
+
+        // Custom action 2: Set actual start time (for admin to let someone cross the ramp)
+        public async Task<ParkingSessionResponse> SetActualStartTimeAsync(int reservationId)
+        {
+            // Find the session by reservation ID with reservation details
+            var session = await _context.ParkingSessions
+                .Include(s => s.ParkingReservation)
                 .FirstOrDefaultAsync(s => s.ParkingReservationId == reservationId);
 
             if (session == null)
@@ -84,8 +103,20 @@ namespace ParkHere.Services.Services
             if (session.ActualStartTime.HasValue)
                 throw new InvalidOperationException("Actual start time has already been set for this session.");
 
-            // Set actual start time
-            session.ActualStartTime = actualStartTime;
+            // Calculate actual start time based on user requirements:
+            // If they arrive early, use ArrivalTime. 
+            // If they arrive late (or time is just right), use the Reserved Start Time.
+            // If no ArrivalTime was set (legacy or direct entry), use current time.
+            
+            DateTime now = DateTime.UtcNow;
+            DateTime reservedStart = session.ParkingReservation.StartTime;
+            DateTime arrival = session.ArrivalTime ?? now;
+
+            // Simple logic: session starts at the EARLIER of (Arrival, ReservedStart)
+            // But if they are late, we start at ReservedStart.
+            // If they are early, we start at Arrival.
+            session.ActualStartTime = arrival < reservedStart ? arrival : reservedStart;
+
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ParkingSessionResponse>(session);

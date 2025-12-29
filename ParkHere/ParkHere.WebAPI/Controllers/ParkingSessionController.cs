@@ -19,12 +19,26 @@ namespace ParkHere.WebAPI.Controllers
             _service = service;
         }
 
-        [HttpPost("set-start-time")]
-        public async Task<IActionResult> SetActualStartTime([FromBody] SetStartTimeRequest request)
+        [HttpPost("register-arrival/{reservationId}")]
+        public async Task<IActionResult> RegisterArrival(int reservationId)
         {
             try
             {
-                var result = await _service.SetActualStartTimeAsync(request.ReservationId, request.ActualStartTime);
+                var result = await _service.RegisterArrivalAsync(reservationId);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("set-start-time/{reservationId}")]
+        public async Task<IActionResult> SetActualStartTime(int reservationId)
+        {
+            try
+            {
+                var result = await _service.SetActualStartTimeAsync(reservationId);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)

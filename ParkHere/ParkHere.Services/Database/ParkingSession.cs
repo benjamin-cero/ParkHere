@@ -14,7 +14,7 @@ namespace ParkHere.Services.Database
         public int ParkingReservationId { get; set; }
 
         public DateTime? ActualStartTime { get; set; }
-
+        public DateTime? ArrivalTime { get; set; }
         public DateTime? ActualEndTime { get; set; }
 
         public int? ExtraMinutes { get; set; }

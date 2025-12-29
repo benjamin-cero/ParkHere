@@ -194,6 +194,7 @@ namespace ParkHere.Services.Services
             if (session != null)
             {
                 response.ActualStartTime = session.ActualStartTime;
+                response.ArrivalTime = session.ArrivalTime;
                 response.ActualEndTime = session.ActualEndTime;
             }
             

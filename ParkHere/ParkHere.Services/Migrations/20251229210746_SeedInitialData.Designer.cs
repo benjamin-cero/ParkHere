@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20251229192025_SeedInitialData")]
+    [Migration("20251229210746_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -3839,6 +3839,9 @@ namespace ParkHere.Services.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ActualStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ArrivalTime")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")

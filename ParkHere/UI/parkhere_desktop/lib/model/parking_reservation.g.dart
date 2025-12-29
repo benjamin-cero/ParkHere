@@ -26,6 +26,9 @@ ParkingReservation _$ParkingReservationFromJson(Map<String, dynamic> json) =>
       parkingSpot: json['parkingSpot'] == null
           ? null
           : ParkingSpot.fromJson(json['parkingSpot'] as Map<String, dynamic>),
+      arrivalTime: json['arrivalTime'] == null
+          ? null
+          : DateTime.parse(json['arrivalTime'] as String),
       actualStartTime: json['actualStartTime'] == null
           ? null
           : DateTime.parse(json['actualStartTime'] as String),
@@ -48,6 +51,7 @@ Map<String, dynamic> _$ParkingReservationToJson(ParkingReservation instance) =>
       'user': instance.user,
       'vehicle': instance.vehicle,
       'parkingSpot': instance.parkingSpot,
+      'arrivalTime': instance.arrivalTime?.toIso8601String(),
       'actualStartTime': instance.actualStartTime?.toIso8601String(),
       'actualEndTime': instance.actualEndTime?.toIso8601String(),
     };

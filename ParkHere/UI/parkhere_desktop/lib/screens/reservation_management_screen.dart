@@ -4,6 +4,7 @@ import 'package:parkhere_desktop/layouts/master_screen.dart';
 import 'package:parkhere_desktop/model/parking_reservation.dart';
 import 'package:parkhere_desktop/model/search_result.dart';
 import 'package:parkhere_desktop/providers/parking_reservation_provider.dart';
+import 'package:parkhere_desktop/providers/parking_session_provider.dart';
 import 'package:parkhere_desktop/screens/reservation_details_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
@@ -19,6 +20,7 @@ class ReservationManagementScreen extends StatefulWidget {
 
 class _ReservationManagementScreenState extends State<ReservationManagementScreen> {
   late ParkingReservationProvider _reservationProvider;
+  late ParkingSessionProvider _sessionProvider;
   final ScrollController _scrollController = ScrollController();
 
   bool _isLoading = false;
@@ -35,6 +37,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
   void initState() {
     super.initState();
     _reservationProvider = context.read<ParkingReservationProvider>();
+    _sessionProvider = context.read<ParkingSessionProvider>();
     _loadData();
   }
 
@@ -152,14 +155,54 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
           title: "${res.user?.firstName} ${res.user?.lastName}",
           subtitle: res.vehicle?.licensePlate ?? "N/A",
           imageUrl: res.user?.picture,
-          isActive: res.isPaid,
-          statusTitle: res.isPaid ? "Paid" : "Unpaid",
+          isActive: res.actualStartTime != null,
+          statusTitle: res.actualEndTime != null 
+              ? "Finished" 
+              : (res.actualStartTime != null 
+                  ? "Active" 
+                  : (res.arrivalTime != null ? "Arrived" : "Reserved")),
           data: {
             Icons.payments_outlined: "${res.price.toStringAsFixed(2)} KM",
-            Icons.access_time_rounded: DateFormat('dd.MM HH:mm').format(res.startTime),
+            Icons.access_time_rounded: res.arrivalTime != null 
+                ? "Arr: ${DateFormat('HH:mm').format(res.arrivalTime!)}"
+                : "Starts: ${DateFormat('dd.MM HH:mm').format(res.startTime)}",
             Icons.local_parking_rounded: res.parkingSpot?.spotCode ?? "N/A",
           },
           actions: [
+            if (res.arrivalTime == null && res.actualStartTime == null)
+              BaseGridAction(
+                label: "Simulate Arrival",
+                icon: Icons.hail_rounded,
+                onPressed: () async {
+                  try {
+                    await _sessionProvider.registerArrival(res.id);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Arrival simulated! Check Dashboard."), backgroundColor: Colors.blue));
+                      _loadData();
+                    }
+                  } catch (e) {
+                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                  }
+                },
+                isPrimary: false,
+              ),
+            if (res.arrivalTime != null && res.actualStartTime == null)
+               BaseGridAction(
+                label: "Approve Entry",
+                icon: Icons.login_rounded,
+                onPressed: () async {
+                  try {
+                    await _sessionProvider.approveEntry(res.id);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Entry approved!"), backgroundColor: Colors.green));
+                      _loadData();
+                    }
+                  } catch (e) {
+                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                  }
+                },
+                isPrimary: true,
+              ),
             BaseGridAction(
               label: "Details",
               icon: Icons.info_outline,
@@ -172,7 +215,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
                   ),
                 );
               },
-              isPrimary: true,
+              isPrimary: res.arrivalTime == null && res.actualStartTime == null ? true : false,
             ),
           ],
         );
