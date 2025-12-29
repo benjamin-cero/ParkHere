@@ -264,6 +264,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
                   _loadData(page: 0, pageSize: newSize);
                 }
               },
+              onPageSelected: (page) => _loadData(page: page),
             ),
           ),
       ],

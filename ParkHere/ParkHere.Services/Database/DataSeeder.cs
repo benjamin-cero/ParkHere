@@ -302,50 +302,55 @@ namespace ParkHere.Services.Database
             );
 
             // Seed ParkingReservations
-            // Strategy: One reservation per user
+            // Strategy: Multiple reservations per user across different months of 2025
             // Price calculation base on spot type multiplier
             
             var reservations = new List<ParkingReservation>();
             int reservationIdCounter = 1;
             decimal baseHourlyRate = 3.0m; // Updated to match service logic
 
-            for (int i = 0; i < users.Count; i++)
+            // Seed reservations for all 12 months of 2025
+            for (int month = 1; month <= 12; month++)
             {
-                var user = users[i];
-                // Find user's first vehicle
-                var vehicle = vehicles.FirstOrDefault(v => v.UserId == user.Id && v.IsActive);
+                // Increase number of reservations gradually as the year progresses to show growth
+                int reservationsPerMonth = users.Count + (month * 2); 
                 
-                // If user has no active vehicle, skip (shouldn't happen with current seed logic)
-                if (vehicle == null) continue;
-
-                // Assign a unique spot to each user sequentially
-                // Check bounds just in case
-                if (i >= parkingSpots.Count) break; 
-                var spot = parkingSpots[i];
-
-                // Calculate Price dynamically using the seeded ParkingSpotTypes
-                var spotType = parkingSpotTypes.FirstOrDefault(pst => pst.Id == spot.ParkingSpotTypeId);
-                decimal multiplier = spotType?.PriceMultiplier ?? 1.0m;
-
-                // Create a reasonable time slot in the PAST
-                // e.g., 5 days BEFORE fixedDate, staggered by hour
-                DateTime start = fixedDate.AddDays(-5).AddHours(10 + i); 
-                DateTime end = start.AddHours(2); // 2 hours duration
-
-                decimal price = baseHourlyRate * 2 * multiplier; // 2 hours
-
-                reservations.Add(new ParkingReservation
+                for (int i = 0; i < reservationsPerMonth; i++)
                 {
-                    Id = reservationIdCounter++,
-                    UserId = user.Id,
-                    VehicleId = vehicle.Id,
-                    ParkingSpotId = spot.Id,
-                    StartTime = start,
-                    EndTime = end,
-                    Price = Math.Round(price, 2),
-                    IsPaid = true, // Seeed reservations are paid
-                    CreatedAt = fixedDate.AddDays(-10) // Created even earlier
-                });
+                    var user = users[i % users.Count];
+                    var vehicle = vehicles.FirstOrDefault(v => v.UserId == user.Id && v.IsActive);
+                    if (vehicle == null) continue;
+
+                    // Distribute across spots more randomly to hit different sectors/wings
+                    var random = new Random(reservationIdCounter);
+                    var spotIndex = random.Next(0, parkingSpots.Count);
+                    var spot = parkingSpots[spotIndex];
+
+                    var spotType = parkingSpotTypes.FirstOrDefault(pst => pst.Id == spot.ParkingSpotTypeId);
+                    decimal multiplier = spotType?.PriceMultiplier ?? 1.0m;
+
+                    // Stagger days and hours to create a natural look
+                    int day = random.Next(1, 28);
+                    int hour = random.Next(8, 20);
+                    DateTime start = new DateTime(2025, month, day, hour, 0, 0, DateTimeKind.Utc);
+                    DateTime end = start.AddHours(random.Next(1, 4)); // 1-3 hours duration
+
+                    decimal hours = (decimal)(end - start).TotalHours;
+                    decimal price = baseHourlyRate * hours * multiplier;
+
+                    reservations.Add(new ParkingReservation
+                    {
+                        Id = reservationIdCounter++,
+                        UserId = user.Id,
+                        VehicleId = vehicle.Id,
+                        ParkingSpotId = spot.Id,
+                        StartTime = start,
+                        EndTime = end,
+                        Price = Math.Round(price, 2),
+                        IsPaid = true,
+                        CreatedAt = start.AddDays(-random.Next(1, 5))
+                    });
+                }
             }
 
             modelBuilder.Entity<ParkingReservation>().HasData(reservations);

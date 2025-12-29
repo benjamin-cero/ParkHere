@@ -5,6 +5,7 @@ class BasePagination extends StatefulWidget {
   final int totalPages;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
+  final Function(int)? onPageSelected;
   final bool showPageSizeSelector;
   final int pageSize;
   final List<int> pageSizeOptions;
@@ -17,9 +18,10 @@ class BasePagination extends StatefulWidget {
     required this.totalPages,
     this.onNext,
     this.onPrevious,
+    this.onPageSelected,
     this.showPageSizeSelector = false,
     this.pageSize = 10,
-    this.pageSizeOptions = const [5, 7, 10, 20, 50],
+    this.pageSizeOptions = const [5, 10, 20, 50],
     this.onPageSizeChanged,
     this.scrollController,
   });
@@ -29,27 +31,6 @@ class BasePagination extends StatefulWidget {
 }
 
 class _BasePaginationState extends State<BasePagination> {
-  late double _currentSliderValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentSliderValue = _getSliderValueFromPageSize(widget.pageSize);
-  }
-
-  @override
-  void didUpdateWidget(BasePagination oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.pageSize != widget.pageSize) {
-      _currentSliderValue = _getSliderValueFromPageSize(widget.pageSize);
-    }
-  }
-
-  double _getSliderValueFromPageSize(int size) {
-    int index = widget.pageSizeOptions.indexOf(size);
-    return (index != -1 ? index : 0).toDouble();
-  }
-
   void _scrollToBottom() {
     if (widget.scrollController != null && widget.scrollController!.hasClients) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -64,167 +45,95 @@ class _BasePaginationState extends State<BasePagination> {
 
   @override
   Widget build(BuildContext context) {
-    final int divisions = widget.pageSizeOptions.length > 1 ? widget.pageSizeOptions.length - 1 : 1;
-
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white, width: 1.5),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left side: Page info and navigation
-          Row(
-            children: [
-              // Page info chip
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1E3A8A), Color(0xFF1E40AF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1E3A8A).withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'Page ${widget.currentPage + 1} of ${widget.totalPages == 0 ? 1 : widget.totalPages}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
+          // Left: Page Size Selector
+          if (widget.showPageSizeSelector) _buildPageSizeSelector() else const SizedBox(),
 
-              // Previous button
-              _buildNavigationButton(
-                context,
-                icon: Icons.arrow_back_ios_new_rounded,
-                label: 'Previous',
-                onPressed: (widget.currentPage == 0) ? null : widget.onPrevious,
+          // Center: Page Numbers and Nav
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNavButton(
+                icon: Icons.chevron_left_rounded,
+                onPressed: widget.onPrevious,
                 isEnabled: widget.currentPage > 0,
               ),
-
-              const SizedBox(width: 12),
-
-              // Next button
-              _buildNavigationButton(
-                context,
-                icon: Icons.arrow_forward_ios_rounded,
-                label: 'Next',
-                onPressed: (widget.currentPage >= widget.totalPages - 1 || widget.totalPages == 0) ? null : widget.onNext,
-                isEnabled: widget.currentPage < widget.totalPages - 1 && widget.totalPages > 0,
-                isNext: true,
+              const SizedBox(width: 8),
+              ..._buildPageNumbers(),
+              const SizedBox(width: 8),
+              _buildNavButton(
+                icon: Icons.chevron_right_rounded,
+                onPressed: widget.onNext,
+                isEnabled: widget.currentPage < widget.totalPages - 1,
               ),
             ],
           ),
 
-          // Right side: Page size selector
-          if (widget.showPageSizeSelector) _buildPageSizeSelector(context, divisions),
+          // Right: Results Info
+          Text(
+            "Page ${widget.currentPage + 1} of ${widget.totalPages == 0 ? 1 : widget.totalPages}",
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPageSizeSelector(BuildContext context, int divisions) {
-    int displayValue = widget.pageSizeOptions[_currentSliderValue.round()];
-
+  Widget _buildPageSizeSelector() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Items per page:",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 140,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: const Color(0xFF1E3A8A),
-                inactiveTrackColor: const Color(0xFFCBD5E1),
-                thumbColor: Colors.white,
-                overlayColor: const Color(0xFF1E3A8A).withOpacity(0.1),
-                valueIndicatorColor: const Color(0xFF1E3A8A),
-                trackHeight: 4,
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 8,
-                  elevation: 4,
-                  pressedElevation: 6,
-                ),
-                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                valueIndicatorTextStyle: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-              child: Slider(
-                min: 0,
-                max: (widget.pageSizeOptions.length - 1).toDouble(),
-                divisions: divisions,
-                value: _currentSliderValue,
-                label: displayValue.toString(),
-                onChanged: (double val) {
-                  setState(() {
-                    _currentSliderValue = val;
-                  });
-                },
-                onChangeEnd: (double val) {
-                  int idx = val.round();
-                  int newSize = widget.pageSizeOptions[idx];
-                  if (widget.onPageSizeChanged != null) {
-                    widget.onPageSizeChanged!(newSize);
-                    _scrollToBottom();
-                  }
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E3A8A),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              displayValue.toString(),
+          Text("Show", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          const SizedBox(width: 8),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: widget.pageSize,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF1E3A8A)),
               style: const TextStyle(
+                color: Color(0xFF1E3A8A),
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Colors.white,
+                fontSize: 13,
               ),
+              items: widget.pageSizeOptions.map((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+              onChanged: (newSize) {
+                if (newSize != null && widget.onPageSizeChanged != null) {
+                  widget.onPageSizeChanged!(newSize);
+                  _scrollToBottom();
+                }
+              },
             ),
           ),
         ],
@@ -232,64 +141,107 @@ class _BasePaginationState extends State<BasePagination> {
     );
   }
 
-  Widget _buildNavigationButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback? onPressed,
-    required bool isEnabled,
-    bool isNext = false,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isEnabled
-            ? [
-                BoxShadow(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
-      child: ElevatedButton(
-        onPressed: () {
-          if (onPressed != null) {
-            onPressed();
+  List<Widget> _buildPageNumbers() {
+    List<Widget> numbers = [];
+    int total = widget.totalPages == 0 ? 1 : widget.totalPages;
+    int current = widget.currentPage;
+
+    if (total <= 7) {
+      for (int i = 0; i < total; i++) {
+        numbers.add(_buildPageButton(i));
+      }
+    } else {
+      // Logic for truncation: 1 2 3 ... 10
+      numbers.add(_buildPageButton(0));
+      
+      if (current > 2) {
+        numbers.add(_buildEllipsis());
+      }
+
+      int start = (current - 1).clamp(1, total - 2);
+      int end = (current + 1).clamp(1, total - 2);
+
+      if (current <= 2) end = 3;
+      if (current >= total - 3) start = total - 4;
+
+      for (int i = start; i <= end; i++) {
+        numbers.add(_buildPageButton(i));
+      }
+
+      if (current < total - 3) {
+        numbers.add(_buildEllipsis());
+      }
+
+      numbers.add(_buildPageButton(total - 1));
+    }
+
+    return numbers;
+  }
+
+  Widget _buildPageButton(int pageIndex) {
+    bool isSelected = pageIndex == widget.currentPage;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: InkWell(
+        onTap: () {
+          if (!isSelected && widget.onPageSelected != null) {
+            widget.onPageSelected!(pageIndex);
             _scrollToBottom();
           }
         },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled ? Colors.white : const Color(0xFFF1F5F9),
-          foregroundColor: isEnabled ? const Color(0xFF1E3A8A) : const Color(0xFF94A3B8),
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isEnabled ? const Color(0xFF1E3A8A).withOpacity(0.2) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: isSelected ? null : Border.all(color: Colors.transparent),
+          ),
+          child: Text(
+            (pageIndex + 1).toString(),
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF374151),
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              fontSize: 13,
             ),
           ),
-          minimumSize: const Size(110, 40),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isNext) ...[
-              Icon(icon, size: 16),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            if (isNext) ...[
-              const SizedBox(width: 8),
-              Icon(icon, size: 16),
-            ],
-          ],
+      ),
+    );
+  }
+
+  Widget _buildEllipsis() {
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      child: Text(
+        "...",
+        style: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildNavButton({required IconData icon, required VoidCallback? onPressed, required bool isEnabled}) {
+    return InkWell(
+      onTap: isEnabled ? () {
+        onPressed?.call();
+        _scrollToBottom();
+      } : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: isEnabled ? const Color(0xFFF3F4F6) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: isEnabled ? const Color(0xFF1E3A8A) : Colors.grey[300],
         ),
       ),
     );

@@ -196,6 +196,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
                   _performSearch(page: 0, pageSize: newSize);
                 }
               },
+              onPageSelected: (page) => _performSearch(page: page),
             )
           : null,
     );

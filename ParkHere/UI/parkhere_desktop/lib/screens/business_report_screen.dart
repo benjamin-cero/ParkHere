@@ -16,12 +16,25 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  
+  final List<Color> _chartColors = [
+    const Color(0xFF1E3A8A), // Deep Blue
+    const Color(0xFF10B981), // Emerald
+    const Color(0xFFF59E0B), // Amber
+    const Color(0xFFEC4899), // Pink
+    const Color(0xFF8B5CF6), // Violet
+    const Color(0xFF06B6D4), // Cyan
+    const Color(0xFFF97316), // Orange
+  ];
+
+  int _touchedSpotIndex = -1;
+  int _touchedGenderIndex = -1;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -29,7 +42,6 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
     );
     _animationController.forward();
 
-    // Fetch business report data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<BusinessReportProvider>().getBusinessReport();
     });
@@ -44,7 +56,7 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
-      title: "Business Report",
+      title: "Business Analytics",
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Consumer<BusinessReportProvider>(
@@ -58,640 +70,662 @@ class _BusinessReportScreenState extends State<BusinessReportScreen>
             }
 
             if (provider.error != null) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error loading report',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      provider.error!,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => provider.getBusinessReport(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E3A8A),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
+              return _buildErrorView(provider);
             }
 
             final report = provider.businessReport;
             if (report == null) {
-              return const Center(child: Text('No data available'));
+              return const Center(child: Text('No analytical data available'));
             }
 
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column - Pie Chart
-                    Expanded(flex: 1, child: _buildPieChartColumn(report)),
-                    const SizedBox(width: 24),
-
-                    // Middle Column - 3 Stacked Cards
-                    Expanded(flex: 1, child: _buildMiddleColumn(report)),
-                    const SizedBox(width: 24),
-
-                    // Right Column - Bar Chart
-                    Expanded(flex: 1, child: _buildBarChartColumn(report)),
-                  ],
-                ),
-              ),
-            );
+            return _buildDashboard(report);
           },
         ),
       ),
     );
   }
 
-  Widget _buildPieChartColumn(BusinessReportResponse report) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildDashboard(BusinessReportResponse report) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double availableWidth = constraints.maxWidth;
+        bool isLargeScreen = availableWidth > 1100;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.pie_chart,
-                  color: Color(0xFF1E3A8A),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'Top Grossing Festivals',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 300,
-            child: PieChart(
-              PieChartData(
-                sections: _buildPieChartSections(report.topGrossingFestivals),
-                centerSpaceRadius: 60,
-                sectionsSpace: 2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          _buildPieChartLegend(report.topGrossingFestivals),
-        ],
-      ),
-    );
-  }
-
-  List<PieChartSectionData> _buildPieChartSections(
-    List<FestivalRevenueResponse> festivals,
-  ) {
-    final colors = [
-      const Color(0xFF1E3A8A),
-      const Color(0xFF3B82F6),
-      const Color(0xFF60A5FA),
-    ];
-
-    return festivals.asMap().entries.map((entry) {
-      final index = entry.key;
-      final festival = entry.value;
-      final color = colors[index % colors.length];
-
-      return PieChartSectionData(
-        color: color,
-        value: festival.totalRevenue,
-        title: '${festival.totalRevenue.toStringAsFixed(0)}€',
-        radius: 80,
-        titleStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      );
-    }).toList();
-  }
-
-  Widget _buildPieChartLegend(List<FestivalRevenueResponse> festivals) {
-    final colors = [
-      const Color(0xFF1E3A8A),
-      const Color(0xFF3B82F6),
-      const Color(0xFF60A5FA),
-    ];
-
-    return Column(
-      children: festivals.asMap().entries.map((entry) {
-        final index = entry.key;
-        final festival = entry.value;
-        final color = colors[index % colors.length];
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  festival.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF374151),
+              _buildAnimatedItem(0, _buildHeaderSection(report)),
+              const SizedBox(height: 32),
+              _buildAnimatedItem(1, _buildMainStats(report, availableWidth)),
+              const SizedBox(height: 32),
+              Wrap(
+                spacing: 32,
+                runSpacing: 32,
+                children: [
+                  SizedBox(
+                    width: isLargeScreen ? (availableWidth - 96) * 0.65 : availableWidth - 64,
+                    child: report.monthlyRevenueTrends.isEmpty 
+                      ? _buildNoDataPlaceholder("No revenue data available")
+                      : _buildAnimatedItem(2, _buildRevenueChart(report)),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  SizedBox(
+                    width: isLargeScreen ? (availableWidth - 96) * 0.35 : availableWidth - 64,
+                    child: report.spotTypeDistribution.isEmpty
+                      ? _buildNoDataPlaceholder("No spot type data")
+                      : _buildAnimatedItem(3, _buildSpotTypePie(report)),
+                  ),
+                ],
               ),
-              Text(
-                '${festival.totalRevenue.toStringAsFixed(2)}€',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E3A8A),
-                ),
+              const SizedBox(height: 32),
+              Wrap(
+                spacing: 32,
+                runSpacing: 32,
+                children: [
+                  SizedBox(
+                    width: isLargeScreen ? (availableWidth - 128) / 3 : availableWidth - 64,
+                    child: report.sectorDistribution.isEmpty
+                      ? _buildNoDataPlaceholder("No sector data")
+                      : _buildAnimatedItem(4, _buildSectorDistribution(report)),
+                  ),
+                  SizedBox(
+                    width: isLargeScreen ? (availableWidth - 128) / 3 : availableWidth - 64,
+                    child: report.genderDistribution.isEmpty
+                      ? _buildNoDataPlaceholder("No gender data")
+                      : _buildAnimatedItem(5, _buildGenderDistribution(report)),
+                  ),
+                  SizedBox(
+                    width: isLargeScreen ? (availableWidth - 128) / 3 : availableWidth - 64,
+                    child: _buildAnimatedItem(6, _buildPopularItemsList(report)),
+                  ),
+                ],
               ),
             ],
           ),
         );
-      }).toList(),
+      },
     );
   }
 
-  Widget _buildMiddleColumn(BusinessReportResponse report) {
-    return Column(
+  Widget _buildAnimatedItem(int index, Widget child) {
+    final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(
+          (0.1 * index).clamp(0.0, 1.0),
+          (0.1 * index + 0.5).clamp(0.0, 1.0),
+          curve: Curves.easeOutCubic,
+        ),
+      ),
+    );
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection(BusinessReportResponse report) {
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 20,
+      runSpacing: 20,
       children: [
-        // Total Revenue Card
-        _buildMetricCard(
-          icon: Icons.attach_money,
-          title: 'Total Revenue This Year',
-          value: '${report.totalRevenueThisYear.toStringAsFixed(2)}€',
-          color: const Color(0xFF10B981),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF10B981), Color(0xFF059669)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Performance Overview",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF111827)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Real-time analytics and parking insights for ${DateTime.now().year}",
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            context.read<BusinessReportProvider>().getBusinessReport();
+            _animationController.reset();
+            _animationController.forward();
+          },
+          icon: const Icon(Icons.refresh_rounded, size: 20),
+          label: const Text("Refresh Data"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E3A8A),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 4,
+            shadowColor: const Color(0xFF1E3A8A).withOpacity(0.3),
           ),
         ),
-        const SizedBox(height: 16),
-
-        // Total Tickets Card
-        _buildMetricCard(
-          icon: Icons.confirmation_number,
-          title: 'Total Tickets Sold This Year',
-          value: report.totalTicketsSoldThisYear.toString(),
-          color: const Color(0xFF3B82F6),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // User with Most Tickets Card
-        _buildUserCard(report),
       ],
     );
   }
 
-  Widget _buildMetricCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required Color color,
-    required Gradient gradient,
-  }) {
+  Widget _buildMainStats(BusinessReportResponse report, double availableWidth) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      width: availableWidth,
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Wrap(
+        spacing: 48,
+        runSpacing: 24,
+        alignment: WrapAlignment.spaceAround,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          _buildStatItem("Total Revenue", "${report.totalRevenue.toStringAsFixed(2)} KM", Icons.account_balance_wallet_rounded, const Color(0xFF1E3A8A)),
+          _buildStatItem("Total Reservations", report.totalReservations.toString(), Icons.local_parking_rounded, const Color(0xFF10B981)),
+          _buildStatItem("Active Users", report.totalUsers.toString(), Icons.people_alt_rounded, const Color(0xFFF59E0B)),
         ],
       ),
     );
   }
 
-  Widget _buildUserCard(BusinessReportResponse report) {
-    if (report.userWithMostTickets == null) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+  Widget _buildStatItem(String title, String value, IconData icon, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(icon, color: color, size: 28),
         ),
-        child: const Column(
+        const SizedBox(width: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.person_off, size: 48, color: Colors.grey),
-            SizedBox(height: 16),
             Text(
-              'No user data available',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              title, 
+              style: TextStyle(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w600)
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value, 
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF111827))
             ),
           ],
         ),
-      );
-    }
+      ],
+    );
+  }
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFF1E3A8A),
-                  size: 24,
+  Widget _buildRevenueChart(BusinessReportResponse report) {
+    return _buildChartContainer(
+      title: "Monthly Revenue Flow",
+      subtitle: "Earnings trend over the year",
+      child: AspectRatio(
+        aspectRatio: 1.8,
+        child: LineChart(
+          LineChartData(
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey[200]!, strokeWidth: 1),
+            ),
+            titlesData: FlTitlesData(
+              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 60,
+                  getTitlesWidget: (value, meta) {
+                    if (value == meta.max || value == meta.min) return const Text("");
+                    return Text("${value.toInt()} KM", 
+                      style: TextStyle(color: Colors.grey[400], fontSize: 10));
+                  },
                 ),
               ),
-              const SizedBox(width: 16),
-              const Text(
-                'Top Ticket Buyer',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 40,
+                  interval: 1, // Ensure all months potentially show but we can filter
+                  getTitlesWidget: (value, meta) {
+                    if (value.toInt() >= 0 && value.toInt() < report.monthlyRevenueTrends.length) {
+                      // Only show every 2nd label if screen is small? 
+                      // For now, let's just make sure they have space.
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(report.monthlyRevenueTrends[value.toInt()].month,
+                            style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                      );
+                    }
+                    return const Text("");
+                  },
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: false),
+            lineBarsData: [
+              LineChartBarData(
+                spots: report.monthlyRevenueTrends.asMap().entries.map((e) {
+                  return FlSpot(e.key.toDouble(), e.value.revenue.toDouble());
+                }).toList(),
+                isCurved: true,
+                color: const Color(0xFF1E3A8A),
+                barWidth: 4,
+                dotData: const FlDotData(show: true),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF1E3A8A).withOpacity(0.3),
+                      const Color(0xFF1E3A8A).withOpacity(0.0),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
-                child: Text(
-                  _getUserInitials(
-                    report.userWithMostTickets!.firstName,
-                    report.userWithMostTickets!.lastName,
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFF1E3A8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    return LineTooltipItem(
+                      "${report.monthlyRevenueTrends[spot.x.toInt()].month}: ${spot.y.toStringAsFixed(2)} KM",
+                      const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    );
+                  }).toList();
+                },
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${report.userWithMostTickets!.firstName} ${report.userWithMostTickets!.lastName}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1F2937),
-                      ),
-                    ),
-                    Text(
-                      '${report.userWithMostTicketsCount} tickets',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildBarChartColumn(BusinessReportResponse report) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+  Widget _buildSpotTypePie(BusinessReportResponse report) {
+    return _buildChartContainer(
+      title: "Spot Type Demand",
+      subtitle: "Usage by parking type",
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.star,
-                  color: Color(0xFF1E3A8A),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'Highest Rated Festivals',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 300,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: 5.0,
-                barTouchData: BarTouchData(enabled: false),
-                titlesData: FlTitlesData(
-                  show: true,
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= 0 &&
-                            value.toInt() <
-                                report.topFestivalsByAverageRating.length) {
-                          final festival =
-                              report.topFestivalsByAverageRating[value.toInt()];
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              festival.title.length > 15
-                                  ? '${festival.title.substring(0, 15)}...'
-                                  : festival.title,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF6B7280),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          );
-                        }
-                        return const Text('');
-                      },
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 2,
+                centerSpaceRadius: 40,
+                sections: report.spotTypeDistribution.asMap().entries.map((e) {
+                  final isTouched = e.key == _touchedSpotIndex;
+                  final fontSize = isTouched ? 16.0 : 12.0;
+                  final radius = isTouched ? 70.0 : 60.0;
+                  final percentage = report.totalReservations > 0 
+                      ? (e.value.count / report.totalReservations) * 100 
+                      : 0.0;
+                  
+                  return PieChartSectionData(
+                    color: _chartColors[e.key % _chartColors.length],
+                    value: e.value.count.toDouble(),
+                    title: isTouched 
+                        ? "${e.value.count} res\n${e.value.revenue?.toStringAsFixed(0)} KM"
+                        : "${percentage.toStringAsFixed(0)}%",
+                    radius: radius,
+                    titleStyle: TextStyle(
+                      fontSize: fontSize, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.white,
+                      shadows: isTouched ? [const Shadow(color: Colors.black, blurRadius: 2)] : [],
                     ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          value.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF6B7280),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: _buildBarGroups(report.topFestivalsByAverageRating),
-                gridData: FlGridData(
-                  show: true,
-                  horizontalInterval: 1,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(color: Color(0xFFE5E7EB), strokeWidth: 1);
+                  );
+                }).toList(),
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        _touchedSpotIndex = -1;
+                        return;
+                      }
+                      _touchedSpotIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    });
                   },
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          _buildBarChartLegend(report.topFestivalsByAverageRating),
+          const SizedBox(height: 20),
+          ...report.spotTypeDistribution.asMap().entries.map((e) {
+            final item = e.value;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: _chartColors[e.key % _chartColors.length],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(item.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  const Spacer(),
+                  Text("${item.count} res", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                  const SizedBox(width: 8),
+                  Text("${item.revenue?.toStringAsFixed(0)} KM", 
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                ],
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
-  List<BarChartGroupData> _buildBarGroups(
-    List<FestivalRatingResponse> festivals,
-  ) {
-    return festivals.asMap().entries.map((entry) {
-      final index = entry.key;
-      final festival = entry.value;
-      final colors = [
-        const Color(0xFF1E3A8A),
-        const Color(0xFF3B82F6),
-        const Color(0xFF60A5FA),
-      ];
-
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: festival.averageRating,
-            color: colors[index % colors.length],
-            width: 20,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(4),
+  Widget _buildSectorDistribution(BusinessReportResponse report) {
+    return _buildChartContainer(
+      title: "Sector Occupancy",
+      subtitle: "Reservations per sector",
+      child: AspectRatio(
+        aspectRatio: 1.3,
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: report.sectorDistribution.isEmpty ? 10 : report.sectorDistribution.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble() * 1.2,
+            titlesData: FlTitlesData(
+              leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    if (value.toInt() >= 0 && value.toInt() < report.sectorDistribution.length) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(report.sectorDistribution[value.toInt()].name,
+                            style: TextStyle(color: Colors.grey[600], fontSize: 11, fontWeight: FontWeight.bold)),
+                      );
+                    }
+                    return const Text("");
+                  },
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: false),
+            barGroups: report.sectorDistribution.asMap().entries.map((e) {
+              return BarChartGroupData(
+                x: e.key,
+                barRods: [
+                  BarChartRodData(
+                    toY: e.value.count.toDouble(),
+                    gradient: LinearGradient(
+                      colors: [
+                        _chartColors[e.key % _chartColors.length],
+                        _chartColors[e.key % _chartColors.length].withOpacity(0.7),
+                      ],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
+                    width: 28,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  ),
+                ],
+              );
+            }).toList(),
+            barTouchData: BarTouchData(
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  final item = report.sectorDistribution[group.x.toInt()];
+                  return BarTooltipItem(
+                    "${item.name}\n${item.count} Res\n${item.revenue?.toStringAsFixed(2)} KM",
+                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  );
+                },
+              ),
             ),
           ),
-        ],
-      );
-    }).toList();
-  }
-
-  Widget _buildBarChartLegend(List<FestivalRatingResponse> festivals) {
-    final colors = [
-      const Color(0xFF1E3A8A),
-      const Color(0xFF3B82F6),
-      const Color(0xFF60A5FA),
-    ];
-
-    return Column(
-      children: festivals.asMap().entries.map((entry) {
-        final index = entry.key;
-        final festival = entry.value;
-        final color = colors[index % colors.length];
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  festival.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF374151),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                '${festival.averageRating.toStringAsFixed(1)}★',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E3A8A),
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+        ),
+      ),
     );
   }
 
-  String _getUserInitials(String? firstName, String? lastName) {
-    final f = (firstName ?? '').trim();
-    final l = (lastName ?? '').trim();
-    if (f.isEmpty && l.isEmpty) return 'U';
-    final a = f.isNotEmpty ? f[0] : '';
-    final b = l.isNotEmpty ? l[0] : '';
-    return (a + b).toUpperCase();
+  Widget _buildPopularItemsList(BusinessReportResponse report) {
+    return _buildChartContainer(
+      title: "Popularity Insights",
+      subtitle: "Top performing parking units",
+      child: Column(
+        children: [
+          _buildPopularRow("Most Active Spot", report.mostPopularSpot?.name ?? "N/A", Icons.place_rounded),
+          _buildPopularRow("Top Category", report.mostPopularType?.name ?? "N/A", Icons.category_rounded),
+          _buildPopularRow("Busiest Wing", report.mostPopularWing?.name ?? "N/A", Icons.door_front_door_rounded),
+          _buildPopularRow("Primary Sector", report.mostPopularSector?.name ?? "N/A", Icons.dashboard_customize_rounded),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopularRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey[400], size: 20),
+          const SizedBox(width: 16),
+          Expanded(child: Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14))),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
+            child: Text(value, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenderDistribution(BusinessReportResponse report) {
+    return _buildChartContainer(
+      title: "Gender Analytics",
+      subtitle: "Reservations and spending by gender",
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 4,
+                centerSpaceRadius: 35,
+                sections: report.genderDistribution.asMap().entries.map((e) {
+                  final isTouched = e.key == _touchedGenderIndex;
+                  final fontSize = isTouched ? 16.0 : 12.0;
+                  final radius = isTouched ? 60.0 : 50.0;
+                  final percentage = report.totalReservations > 0 
+                      ? (e.value.count / report.totalReservations) * 100 
+                      : 0.0;
+
+                  return PieChartSectionData(
+                    color: e.value.name == "Male" ? const Color(0xFF1E3A8A) : const Color(0xFFEC4899),
+                    value: e.value.count.toDouble(),
+                    title: isTouched 
+                        ? "${e.value.count} res\n${e.value.revenue?.toStringAsFixed(0)} KM"
+                        : "${percentage.toStringAsFixed(0)}%",
+                    radius: radius,
+                    titleStyle: TextStyle(
+                      fontSize: fontSize, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.white,
+                      shadows: isTouched ? [const Shadow(color: Colors.black, blurRadius: 2)] : [],
+                    ),
+                  );
+                }).toList(),
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        _touchedGenderIndex = -1;
+                        return;
+                      }
+                      _touchedGenderIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ...report.genderDistribution.map((item) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: item.name == "Male" ? const Color(0xFF1E3A8A) : const Color(0xFFEC4899),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(item.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text("${item.count} res", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                const SizedBox(width: 12),
+                Text("${item.revenue?.toStringAsFixed(0)} KM", 
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+              ],
+            ),
+          )).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoDataPlaceholder(String message) {
+    return _buildChartContainer(
+      title: "No Data",
+      subtitle: message,
+      child: Container(
+        height: 200,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bar_chart_rounded, size: 48, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(message, style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChartContainer({required String title, required String subtitle, required Widget child}) {
+    return _HoverCard(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title, 
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF111827)),
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              subtitle, 
+              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 24),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(BusinessReportProvider provider) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.analytics_outlined, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text("Failed to load analytics", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+          const SizedBox(height: 8),
+          Text(provider.error ?? "Unknown error", style: TextStyle(color: Colors.grey[400])),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => provider.getBusinessReport(),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
+            child: const Text("Try Again"),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _HoverCard extends StatefulWidget {
+  final Widget child;
+  const _HoverCard({required this.child});
+
+  @override
+  State<_HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<_HoverCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _isHovered ? const Color(0xFF1E3A8A).withOpacity(0.3) : const Color(0xFFE5E7EB),
+            width: _isHovered ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(_isHovered ? 0.12 : 0.04),
+              blurRadius: _isHovered ? 30 : 15,
+              offset: Offset(0, _isHovered ? 15 : 6),
+            ),
+          ],
+        ),
+        child: widget.child,
+      ),
+    );
   }
 }

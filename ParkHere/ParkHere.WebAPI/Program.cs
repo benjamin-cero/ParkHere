@@ -25,6 +25,7 @@ builder.Services.AddTransient<IVehicleService, VehicleService>();
 builder.Services.AddTransient<IParkingReservationService, ParkingReservationService>();
 builder.Services.AddTransient<IParkingSessionService, ParkingSessionService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<IBusinessReportService, BusinessReportService>();
 
 
 // Configure database

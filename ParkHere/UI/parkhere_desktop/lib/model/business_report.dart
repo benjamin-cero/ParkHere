@@ -1,35 +1,33 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'user.dart';
 
 part 'business_report.g.dart';
 
 @JsonSerializable()
 class BusinessReportResponse {
-  @JsonKey(name: 'topGrossingFestivals')
-  final List<FestivalRevenueResponse> topGrossingFestivals;
-
-  @JsonKey(name: 'totalRevenueThisYear')
-  final double totalRevenueThisYear;
-
-  @JsonKey(name: 'totalTicketsSoldThisYear')
-  final int totalTicketsSoldThisYear;
-
-  @JsonKey(name: 'userWithMostTickets')
-  final User? userWithMostTickets;
-
-  @JsonKey(name: 'userWithMostTicketsCount')
-  final int? userWithMostTicketsCount;
-
-  @JsonKey(name: 'topFestivalsByAverageRating')
-  final List<FestivalRatingResponse> topFestivalsByAverageRating;
+  final double totalRevenue;
+  final int totalReservations;
+  final int totalUsers;
+  final List<MonthlyRevenue> monthlyRevenueTrends;
+  final PopularItem? mostPopularSpot;
+  final PopularItem? mostPopularType;
+  final PopularItem? mostPopularWing;
+  final PopularItem? mostPopularSector;
+  final List<PopularItem> spotTypeDistribution;
+  final List<PopularItem> sectorDistribution;
+  final List<PopularItem> genderDistribution;
 
   BusinessReportResponse({
-    required this.topGrossingFestivals,
-    required this.totalRevenueThisYear,
-    required this.totalTicketsSoldThisYear,
-    this.userWithMostTickets,
-    this.userWithMostTicketsCount,
-    required this.topFestivalsByAverageRating,
+    required this.totalRevenue,
+    required this.totalReservations,
+    required this.totalUsers,
+    required this.monthlyRevenueTrends,
+    this.mostPopularSpot,
+    this.mostPopularType,
+    this.mostPopularWing,
+    this.mostPopularSector,
+    required this.spotTypeDistribution,
+    required this.sectorDistribution,
+    required this.genderDistribution,
   });
 
   factory BusinessReportResponse.fromJson(Map<String, dynamic> json) =>
@@ -39,47 +37,28 @@ class BusinessReportResponse {
 }
 
 @JsonSerializable()
-class FestivalRevenueResponse {
-  @JsonKey(name: 'festivalId')
-  final int festivalId;
+class MonthlyRevenue {
+  final String month;
+  final double revenue;
 
-  @JsonKey(name: 'title')
-  final String title;
+  MonthlyRevenue({required this.month, required this.revenue});
 
-  @JsonKey(name: 'totalRevenue')
-  final double totalRevenue;
+  factory MonthlyRevenue.fromJson(Map<String, dynamic> json) =>
+      _$MonthlyRevenueFromJson(json);
 
-  FestivalRevenueResponse({
-    required this.festivalId,
-    required this.title,
-    required this.totalRevenue,
-  });
-
-  factory FestivalRevenueResponse.fromJson(Map<String, dynamic> json) =>
-      _$FestivalRevenueResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$FestivalRevenueResponseToJson(this);
+  Map<String, dynamic> toJson() => _$MonthlyRevenueToJson(this);
 }
 
 @JsonSerializable()
-class FestivalRatingResponse {
-  @JsonKey(name: 'festivalId')
-  final int festivalId;
+class PopularItem {
+  final String name;
+  final int count;
+  final double? revenue;
 
-  @JsonKey(name: 'title')
-  final String title;
+  PopularItem({required this.name, required this.count, this.revenue});
 
-  @JsonKey(name: 'averageRating')
-  final double averageRating;
+  factory PopularItem.fromJson(Map<String, dynamic> json) =>
+      _$PopularItemFromJson(json);
 
-  FestivalRatingResponse({
-    required this.festivalId,
-    required this.title,
-    required this.averageRating,
-  });
-
-  factory FestivalRatingResponse.fromJson(Map<String, dynamic> json) =>
-      _$FestivalRatingResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$FestivalRatingResponseToJson(this);
+  Map<String, dynamic> toJson() => _$PopularItemToJson(this);
 }

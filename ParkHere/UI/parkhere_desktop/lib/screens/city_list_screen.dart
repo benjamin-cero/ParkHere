@@ -268,6 +268,7 @@ class _CityListScreenState extends State<CityListScreen> {
                   _performSearch(page: 0, pageSize: newSize);
                 }
               },
+              onPageSelected: (page) => _performSearch(page: page),
             )
           : null,
     );

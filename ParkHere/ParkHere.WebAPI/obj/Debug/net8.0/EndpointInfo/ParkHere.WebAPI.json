@@ -5,6 +5,35 @@
     "version": "1.0"
   },
   "paths": {
+    "/BusinessReport": {
+      "get": {
+        "tags": [
+          "BusinessReport"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessReportResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessReportResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessReportResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/City": {
       "get": {
         "tags": [
@@ -3388,6 +3417,64 @@
   },
   "components": {
     "schemas": {
+      "BusinessReportResponse": {
+        "type": "object",
+        "properties": {
+          "totalRevenue": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalReservations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "monthlyRevenueTrends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyRevenue"
+            },
+            "nullable": true
+          },
+          "mostPopularSpot": {
+            "$ref": "#/components/schemas/PopularItem"
+          },
+          "mostPopularType": {
+            "$ref": "#/components/schemas/PopularItem"
+          },
+          "mostPopularWing": {
+            "$ref": "#/components/schemas/PopularItem"
+          },
+          "mostPopularSector": {
+            "$ref": "#/components/schemas/PopularItem"
+          },
+          "spotTypeDistribution": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopularItem"
+            },
+            "nullable": true
+          },
+          "sectorDistribution": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopularItem"
+            },
+            "nullable": true
+          },
+          "genderDistribution": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopularItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CityResponse": {
         "type": "object",
         "properties": {
@@ -3476,6 +3563,20 @@
             "maxLength": 50,
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MonthlyRevenue": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "nullable": true
+          },
+          "revenue": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -4009,6 +4110,25 @@
           },
           "isActive": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PopularItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revenue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false
