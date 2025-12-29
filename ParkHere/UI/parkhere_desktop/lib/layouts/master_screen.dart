@@ -393,6 +393,15 @@ class _MasterScreenState extends State<MasterScreen>
                       const SizedBox(height: 4),
                       _buildNavTile(
                         context,
+                        icon: Icons.person_outline,
+                        activeIcon: Icons.person,
+                        label: 'Profile',
+                        screen: const ProfileScreen(),
+                        routeName: 'ProfileScreen',
+                      ),
+                      const SizedBox(height: 4),
+                      _buildNavTile(
+                        context,
                         icon: Icons.rate_review_outlined,
                         activeIcon: Icons.rate_review,
                         label: 'Reviews',
@@ -623,6 +632,8 @@ class _MasterScreenState extends State<MasterScreen>
           currentRoute == 'ReviewDetailsScreen';
     } else if (label == 'Reservations') {
       return currentRoute == 'ReservationManagementScreen';
+    } else if (label == 'Profile') {
+      return currentRoute == 'ProfileScreen';
     }
     return false;
   }
