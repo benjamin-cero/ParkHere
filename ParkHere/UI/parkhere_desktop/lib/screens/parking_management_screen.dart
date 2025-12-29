@@ -9,6 +9,7 @@ import 'package:parkhere_desktop/providers/parking_wing_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_provider.dart';
 import 'package:parkhere_desktop/providers/parking_spot_type_provider.dart';
 import 'package:parkhere_desktop/utils/base_dialog.dart';
+import 'package:parkhere_desktop/utils/base_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class ParkingManagementScreen extends StatefulWidget {
@@ -377,6 +378,18 @@ class _ParkingManagementScreenState extends State<ParkingManagementScreen> {
                 ),
               ),
             ),
+          const SizedBox(width: 32),
+          IconButton(
+            onPressed: () => _loadData(),
+            icon: const Icon(Icons.refresh_rounded),
+            color: const Color(0xFF1E3A8A),
+            tooltip: "Refresh Data",
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(16),
+              backgroundColor: const Color(0xFFF3F4F6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ],
       ),
     );

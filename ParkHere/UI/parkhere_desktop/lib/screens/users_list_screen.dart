@@ -7,7 +7,7 @@ import 'package:parkhere_desktop/screens/users_details_screen.dart';
 import 'package:parkhere_desktop/screens/users_edit_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
-import 'package:parkhere_desktop/utils/base_textfield.dart';
+import 'package:parkhere_desktop/utils/base_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class UsersListScreen extends StatefulWidget {
@@ -85,133 +85,47 @@ class _UsersListScreenState extends State<UsersListScreen> {
   }
 
   Widget _buildSearch() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return BaseSearchBar(
+      fields: [
+        BaseSearchField(
+          controller: usernameController,
+          hint: "Username...",
+          icon: Icons.search,
+          onSubmitted: () => _performSearch(page: 0),
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.25),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: usernameController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _performSearch(page: 0),
-              decoration: InputDecoration(
-                hintText: "Username...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: emailController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _performSearch(page: 0),
-              decoration: InputDecoration(
-                hintText: "Email...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 1,
-            child: Container(
-              height: 42,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<int?>(
-                  value: selectedRoleFilter,
-                  dropdownColor: const Color(0xFF1E3A8A),
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 20),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
-                  hint: Text("Role", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
-                  isExpanded: true,
-                  items: const [
-                    DropdownMenuItem<int?>(value: null, child: Text("All")),
-                    DropdownMenuItem<int>(value: 1, child: Text("Admin")),
-                    DropdownMenuItem<int>(value: 2, child: Text("User")),
-                  ],
-                  onChanged: (val) {
-                    setState(() => selectedRoleFilter = val);
-                    _performSearch(page: 0);
-                  },
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () => _performSearch(page: 0),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF1E3A8A),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
-            ),
-            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
-            onPressed: () {
-              usernameController.clear();
-              emailController.clear();
-              setState(() => selectedRoleFilter = null);
-              _performSearch(page: 0);
-            },
-            tooltip: "Reset",
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.1),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
-      ),
+        BaseSearchField(
+          controller: emailController,
+          hint: "Email...",
+          icon: Icons.email_outlined,
+          onSubmitted: () => _performSearch(page: 0),
+        ),
+        BaseSearchDropdown<int?>(
+          value: selectedRoleFilter,
+          hint: "Role",
+          icon: Icons.admin_panel_settings_rounded,
+          items: const [
+            DropdownMenuItem<int?>(value: null, child: Text("All")),
+            DropdownMenuItem<int>(value: 1, child: Text("Admin")),
+            DropdownMenuItem<int>(value: 2, child: Text("User")),
+          ],
+          onChanged: (val) {
+            setState(() => selectedRoleFilter = val);
+            _performSearch(page: 0);
+          },
+        ),
+      ],
+      onSearch: () => _performSearch(page: 0),
+      onClear: () {
+        usernameController.clear();
+        emailController.clear();
+        setState(() => selectedRoleFilter = null);
+        _performSearch(page: 0);
+      },
     );
   }
 
   Widget _buildResultView() {
-    final isEmpty =
-        users == null || users!.items == null || users!.items!.isEmpty;
+    final isEmpty = users == null || users!.items == null || users!.items!.isEmpty;
     final int totalCount = users?.totalCount ?? 0;
     final int totalPages = (totalCount / _pageSize).ceil();
 

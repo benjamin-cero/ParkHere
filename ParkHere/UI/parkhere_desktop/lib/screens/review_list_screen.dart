@@ -6,6 +6,7 @@ import 'package:parkhere_desktop/providers/review_provider.dart';
 import 'package:parkhere_desktop/screens/review_details_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
+import 'package:parkhere_desktop/utils/base_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class ReviewListScreen extends StatefulWidget {
@@ -91,115 +92,45 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
   }
 
   Widget _buildSearch() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return BaseSearchBar(
+      fields: [
+        BaseSearchField(
+          controller: usernameController,
+          hint: "Search by name...",
+          icon: Icons.person,
+          onSubmitted: () => _performSearch(page: 0),
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.25),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: usernameController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              onSubmitted: (_) => _performSearch(page: 0),
-              decoration: InputDecoration(
-                hintText: "Search by name...",
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.person, color: Colors.white.withOpacity(0.7), size: 18),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 1,
-            child: Container(
-              height: 42,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<int?>(
-                  value: selectedRating,
-                  dropdownColor: const Color(0xFF1E3A8A),
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 20),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
-                  hint: Text("Rating", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
-                  isExpanded: true,
-                  items: [
-                    const DropdownMenuItem<int?>(value: null, child: Text("All")),
-                    ...List.generate(5, (index) => index + 1).map(
-                      (rating) => DropdownMenuItem<int?>(
-                        value: rating,
-                        child: Row(
-                          children: [
-                            Text("$rating"),
-                            const SizedBox(width: 4),
-                            Icon(Icons.star, size: 14, color: Colors.amber[400]),
-                          ],
-                        ),
-                      ),
-                    ),
+        BaseSearchDropdown<int?>(
+          value: selectedRating,
+          hint: "Rating",
+          icon: Icons.star_rounded,
+          items: [
+            const DropdownMenuItem<int?>(value: null, child: Text("All")),
+            ...List.generate(5, (index) => index + 1).map(
+              (rating) => DropdownMenuItem<int?>(
+                value: rating,
+                child: Row(
+                  children: [
+                    Text("$rating"),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.star, size: 14, color: Colors.amber),
                   ],
-                  onChanged: (val) {
-                    setState(() => selectedRating = val);
-                    _performSearch(page: 0);
-                  },
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () => _performSearch(page: 0),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF1E3A8A),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
-            ),
-            child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
-            onPressed: () {
-              usernameController.clear();
-              setState(() => selectedRating = null);
-              _performSearch(page: 0);
-            },
-            tooltip: "Reset",
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.1),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
-      ),
+          ],
+          onChanged: (val) {
+            setState(() => selectedRating = val);
+            _performSearch(page: 0);
+          },
+        ),
+      ],
+      onSearch: () => _performSearch(page: 0),
+      onClear: () {
+        usernameController.clear();
+        setState(() => selectedRating = null);
+        _performSearch(page: 0);
+      },
     );
   }
 

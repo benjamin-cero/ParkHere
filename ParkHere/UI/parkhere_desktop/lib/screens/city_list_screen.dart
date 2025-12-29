@@ -6,6 +6,7 @@ import 'package:parkhere_desktop/providers/city_provider.dart';
 import 'package:parkhere_desktop/screens/city_details_screen.dart';
 import 'package:parkhere_desktop/utils/base_cards_grid.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
+import 'package:parkhere_desktop/utils/base_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class CityListScreen extends StatefulWidget {
@@ -167,67 +168,21 @@ class _CityListScreenState extends State<CityListScreen> {
   Widget _buildResultView() {
     return Column(
       children: [
-        // Search & Filters Bar
-        Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: nameController,
-                    onSubmitted: (_) => _performSearch(page: 0),
-                    decoration: InputDecoration(
-                      hintText: "Search cities by name...",
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: () => _performSearch(page: 0),
-                  icon: const Icon(Icons.refresh_rounded),
-                  color: const Color(0xFF1E3A8A),
-                  tooltip: "Refresh List",
-                ),
-              ),
-            ],
-          ),
+        // 2. Search Bar
+        BaseSearchBar(
+          fields: [
+            BaseSearchField(
+              controller: nameController,
+              hint: "Search cities by name...",
+              icon: Icons.search,
+              onSubmitted: () => _performSearch(page: 0),
+            ),
+          ],
+          onSearch: () => _performSearch(page: 0),
+          onClear: () {
+            nameController.clear();
+            _performSearch(page: 0);
+          },
         ),
 
         // List Content

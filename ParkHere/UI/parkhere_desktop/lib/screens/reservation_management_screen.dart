@@ -7,6 +7,7 @@ import 'package:parkhere_desktop/providers/parking_reservation_provider.dart';
 import 'package:parkhere_desktop/screens/reservation_details_screen.dart';
 import 'package:parkhere_desktop/utils/base_table.dart';
 import 'package:parkhere_desktop/utils/base_pagination.dart';
+import 'package:parkhere_desktop/utils/base_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class ReservationManagementScreen extends StatefulWidget {
@@ -89,7 +90,28 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
         children: [
           _buildHeader(),
           const SizedBox(height: 24),
-          _buildSearchAndFilters(),
+          BaseSearchBar(
+            fields: [
+              BaseSearchField(
+                controller: _licensePlateController,
+                hint: "Search by license plate...",
+                icon: Icons.directions_car_rounded,
+                onSubmitted: () => _loadData(page: 0),
+              ),
+              BaseSearchField(
+                controller: _fullNameController,
+                hint: "Search by user name...",
+                icon: Icons.person_search_rounded,
+                onSubmitted: () => _loadData(page: 0),
+              ),
+            ],
+            onSearch: () => _loadData(page: 0),
+            onClear: () {
+              _licensePlateController.clear();
+              _fullNameController.clear();
+              _loadData(page: 0);
+            },
+          ),
           const SizedBox(height: 16),
           Expanded(
             child: _isLoading && _reservations == null
@@ -151,87 +173,6 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchAndFilters() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: _buildSearchField(
-            controller: _licensePlateController,
-            hint: "Search by license plate...",
-            icon: Icons.directions_car_rounded,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 2,
-          child: _buildSearchField(
-            controller: _fullNameController,
-            hint: "Search by user name...",
-            icon: Icons.person_search_rounded,
-          ),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: () => _loadData(page: 0),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1E3A8A),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 2,
-          ),
-          child: const Text("Search", style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        const SizedBox(width: 12),
-        IconButton(
-          onPressed: () {
-            _licensePlateController.clear();
-            _fullNameController.clear();
-            _loadData(page: 0);
-          },
-          icon: const Icon(Icons.backspace_outlined),
-          tooltip: "Clear Filters",
-          style: IconButton.styleFrom(
-            padding: const EdgeInsets.all(16),
-            backgroundColor: Colors.white,
-            side: BorderSide(color: Colors.grey.shade200),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        onSubmitted: (_) => _loadData(page: 0),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-          prefixIcon: Icon(icon, color: const Color(0xFF1E3A8A).withOpacity(0.5), size: 20),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
       ),
     );
   }

@@ -545,6 +545,21 @@ class _UsersEditScreenState extends State<UsersEditScreen> {
                           initialValue: _initialValue['isActive'] as bool? ?? true,
                           decoration: const InputDecoration(border: InputBorder.none),
                           activeColor: const Color(0xFF1E3A8A),
+                          onChanged: (val) async {
+                            if (val == false) {
+                              bool? confirm = await BaseDialog.show(
+                                context: context,
+                                title: "Confirm Deactivation",
+                                message: "Are you sure you want to deactivate this user? They will no longer be able to log in.",
+                                type: BaseDialogType.confirmation,
+                                confirmLabel: "Deactivate",
+                                cancelLabel: "Cancel",
+                              );
+                              if (confirm != true) {
+                                formKey.currentState?.fields['isActive']?.didChange(true);
+                              }
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(height: 50),
