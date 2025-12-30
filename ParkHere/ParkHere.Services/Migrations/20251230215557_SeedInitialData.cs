@@ -175,6 +175,7 @@ namespace ParkHere.Services.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     LicensePlate = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -549,22 +550,22 @@ namespace ParkHere.Services.Migrations
 
             migrationBuilder.InsertData(
                 table: "Vehicles",
-                columns: new[] { "Id", "IsActive", "LicensePlate", "UserId" },
+                columns: new[] { "Id", "IsActive", "LicensePlate", "Name", "UserId" },
                 values: new object[,]
                 {
-                    { 1, true, "VHC-001-1", 1 },
-                    { 2, true, "VHC-002-1", 2 },
-                    { 3, false, "VHC-002-2", 2 },
-                    { 4, true, "VHC-003-1", 3 },
-                    { 5, true, "VHC-004-1", 4 },
-                    { 6, true, "VHC-005-1", 5 },
-                    { 7, true, "VHC-006-1", 6 },
-                    { 8, true, "VHC-007-1", 7 },
-                    { 9, true, "VHC-008-1", 8 },
-                    { 10, true, "VHC-009-1", 9 },
-                    { 11, true, "VHC-010-1", 10 },
-                    { 12, true, "VHC-011-1", 11 },
-                    { 13, true, "VHC-012-1", 12 }
+                    { 1, true, "VHC-001-1", "Primary Vehicle", 1 },
+                    { 2, true, "VHC-002-1", "Benjamin's SUV", 2 },
+                    { 3, false, "VHC-002-2", "Old Sedan", 2 },
+                    { 4, true, "VHC-003-1", "Primary Vehicle", 3 },
+                    { 5, true, "VHC-004-1", "Primary Vehicle", 4 },
+                    { 6, true, "VHC-005-1", "Primary Vehicle", 5 },
+                    { 7, true, "VHC-006-1", "Primary Vehicle", 6 },
+                    { 8, true, "VHC-007-1", "Primary Vehicle", 7 },
+                    { 9, true, "VHC-008-1", "Primary Vehicle", 8 },
+                    { 10, true, "VHC-009-1", "Primary Vehicle", 9 },
+                    { 11, true, "VHC-010-1", "Primary Vehicle", 10 },
+                    { 12, true, "VHC-011-1", "Primary Vehicle", 11 },
+                    { 13, true, "VHC-012-1", "Primary Vehicle", 12 }
                 });
 
             migrationBuilder.InsertData(

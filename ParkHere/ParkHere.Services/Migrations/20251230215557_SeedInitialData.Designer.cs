@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20251229210746_SeedInitialData")]
+    [Migration("20251230215557_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -10887,6 +10887,11 @@ namespace ParkHere.Services.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -10902,6 +10907,7 @@ namespace ParkHere.Services.Migrations
                             Id = 1,
                             IsActive = true,
                             LicensePlate = "VHC-001-1",
+                            Name = "Primary Vehicle",
                             UserId = 1
                         },
                         new
@@ -10909,6 +10915,7 @@ namespace ParkHere.Services.Migrations
                             Id = 2,
                             IsActive = true,
                             LicensePlate = "VHC-002-1",
+                            Name = "Benjamin's SUV",
                             UserId = 2
                         },
                         new
@@ -10916,6 +10923,7 @@ namespace ParkHere.Services.Migrations
                             Id = 3,
                             IsActive = false,
                             LicensePlate = "VHC-002-2",
+                            Name = "Old Sedan",
                             UserId = 2
                         },
                         new
@@ -10923,6 +10931,7 @@ namespace ParkHere.Services.Migrations
                             Id = 4,
                             IsActive = true,
                             LicensePlate = "VHC-003-1",
+                            Name = "Primary Vehicle",
                             UserId = 3
                         },
                         new
@@ -10930,6 +10939,7 @@ namespace ParkHere.Services.Migrations
                             Id = 5,
                             IsActive = true,
                             LicensePlate = "VHC-004-1",
+                            Name = "Primary Vehicle",
                             UserId = 4
                         },
                         new
@@ -10937,6 +10947,7 @@ namespace ParkHere.Services.Migrations
                             Id = 6,
                             IsActive = true,
                             LicensePlate = "VHC-005-1",
+                            Name = "Primary Vehicle",
                             UserId = 5
                         },
                         new
@@ -10944,6 +10955,7 @@ namespace ParkHere.Services.Migrations
                             Id = 7,
                             IsActive = true,
                             LicensePlate = "VHC-006-1",
+                            Name = "Primary Vehicle",
                             UserId = 6
                         },
                         new
@@ -10951,6 +10963,7 @@ namespace ParkHere.Services.Migrations
                             Id = 8,
                             IsActive = true,
                             LicensePlate = "VHC-007-1",
+                            Name = "Primary Vehicle",
                             UserId = 7
                         },
                         new
@@ -10958,6 +10971,7 @@ namespace ParkHere.Services.Migrations
                             Id = 9,
                             IsActive = true,
                             LicensePlate = "VHC-008-1",
+                            Name = "Primary Vehicle",
                             UserId = 8
                         },
                         new
@@ -10965,6 +10979,7 @@ namespace ParkHere.Services.Migrations
                             Id = 10,
                             IsActive = true,
                             LicensePlate = "VHC-009-1",
+                            Name = "Primary Vehicle",
                             UserId = 9
                         },
                         new
@@ -10972,6 +10987,7 @@ namespace ParkHere.Services.Migrations
                             Id = 11,
                             IsActive = true,
                             LicensePlate = "VHC-010-1",
+                            Name = "Primary Vehicle",
                             UserId = 10
                         },
                         new
@@ -10979,6 +10995,7 @@ namespace ParkHere.Services.Migrations
                             Id = 12,
                             IsActive = true,
                             LicensePlate = "VHC-011-1",
+                            Name = "Primary Vehicle",
                             UserId = 11
                         },
                         new
@@ -10986,6 +11003,7 @@ namespace ParkHere.Services.Migrations
                             Id = 13,
                             IsActive = true,
                             LicensePlate = "VHC-012-1",
+                            Name = "Primary Vehicle",
                             UserId = 12
                         });
                 });
