@@ -11,6 +11,9 @@ import 'package:parkhere_mobile/providers/city_provider.dart';
 import 'package:parkhere_mobile/providers/gender_provider.dart';
 import 'package:parkhere_mobile/providers/review_provider.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
+import 'package:parkhere_mobile/providers/vehicle_provider.dart';
+import 'package:parkhere_mobile/providers/parking_spot_provider.dart';
+import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/screens/register_screen.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 
@@ -33,6 +36,9 @@ void main() async {
         ChangeNotifierProvider<ReviewProvider>(create: (_) => ReviewProvider()),
         ChangeNotifierProvider<CityProvider>(create: (_) => CityProvider()),
         ChangeNotifierProvider<GenderProvider>(create: (_) => GenderProvider()),
+        ChangeNotifierProvider<VehicleProvider>(create: (_) => VehicleProvider()),
+        ChangeNotifierProvider<ParkingSpotProvider>(create: (_) => ParkingSpotProvider()),
+        ChangeNotifierProvider<ParkingReservationProvider>(create: (_) => ParkingReservationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -113,7 +119,7 @@ class _LoginPageState extends State<LoginPage>
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(gradient: AppGradients.mainBackground),
+          decoration: BoxDecoration(gradient: AppGradients.mainBackground),
           child: Stack(
             children: [
               // Floating Decorative Bubbles
@@ -383,7 +389,7 @@ class _LoginPageState extends State<LoginPage>
                   color: AppColors.error.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+                child: Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -395,7 +401,7 @@ class _LoginPageState extends State<LoginPage>
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textLight, height: 1.5),
+                style: TextStyle(color: AppColors.textLight, height: 1.5),
               ),
               const SizedBox(height: 32),
               AppButton(
@@ -429,7 +435,7 @@ class _LoginPageState extends State<LoginPage>
                   color: AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.security_rounded, color: AppColors.primary, size: 48),
+                child: Icon(Icons.security_rounded, color: AppColors.primary, size: 48),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -438,7 +444,7 @@ class _LoginPageState extends State<LoginPage>
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 "Only standard users can log in to this application. Please contact support if you believe this is an error.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textLight, height: 1.5),

@@ -14,6 +14,10 @@ namespace ParkHere.Services.Database
         [MaxLength(20)]
         public string LicensePlate { get; set; } = null!;
 
+        [Required]
+        [MaxLength(50)]
+        public string Name { get; set; } = null!;
+
         [ForeignKey(nameof(UserId))]
         public User User { get; set; } = null!;
         public int UserId { get; set; }

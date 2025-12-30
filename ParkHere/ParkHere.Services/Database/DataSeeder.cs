@@ -215,11 +215,15 @@ namespace ParkHere.Services.Database
                     }
 
                     string licensePlate = $"VHC-{user.Id:D3}-{i}";
+                    string vehicleName = i == 1 ? "Primary Vehicle" : "Secondary Car";
+                    if (user.Id == 2 && i == 1) vehicleName = "Benjamin's SUV";
+                    if (user.Id == 2 && i == 2) vehicleName = "Old Sedan";
 
                     vehicles.Add(new Vehicle
                     {
                         Id = vehicleIdCounter++,
                         LicensePlate = licensePlate,
+                        Name = vehicleName,
                         UserId = user.Id,
                         IsActive = isActive
                     });

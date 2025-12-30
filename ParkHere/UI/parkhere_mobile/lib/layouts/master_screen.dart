@@ -4,41 +4,9 @@ import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/screens/profile_screen.dart';
 import 'package:parkhere_mobile/screens/home_screen.dart';
 import 'package:parkhere_mobile/screens/review_list_screen.dart';
-
-class CustomPageViewScrollPhysics extends ScrollPhysics {
-  final int currentIndex;
-
-  const CustomPageViewScrollPhysics({
-    required this.currentIndex,
-    ScrollPhysics? parent,
-  }) : super(parent: parent);
-
-  @override
-  CustomPageViewScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return CustomPageViewScrollPhysics(
-      currentIndex: currentIndex,
-      parent: buildParent(ancestor),
-    );
-  }
-
-  @override
-  double applyBoundaryConditions(ScrollMetrics position, double value) {
-    // Prevent swiping from profile (index 2) to logout (index 3)
-    if (currentIndex == 3 && value > position.pixels) {
-      return value - position.pixels;
-    }
-    return super.applyBoundaryConditions(position, value);
-  }
-
-  @override
-  bool shouldAcceptUserOffset(ScrollMetrics position) {
-    // Prevent swiping from profile (index 2) to logout (index 3)
-    if (currentIndex == 2) {
-      return false;
-    }
-    return super.shouldAcceptUserOffset(position);
-  }
-}
+import 'package:parkhere_mobile/screens/parking_explorer_screen.dart';
+import 'package:parkhere_mobile/screens/my_reservations_screen.dart';
+import 'package:parkhere_mobile/utils/base_textfield.dart';
 
 class MasterScreen extends StatefulWidget {
   const MasterScreen({super.key, required this.child, required this.title});
@@ -53,17 +21,20 @@ class _MasterScreenState extends State<MasterScreen> {
   int _selectedIndex = 0;
   late PageController _pageController;
   final List<String> _pageTitles = [
-    'Home',
+    'Dashboard',
+    'Find Parking',
+    'My Reservations',
     'Reviews',
     'Profile',
   ];
 
   final List<IconData> _pageIcons = [
-    Icons.home_rounded,
+    Icons.dashboard_rounded,
+    Icons.local_parking_rounded,
+    Icons.event_note_rounded,
     Icons.rate_review_rounded,
     Icons.person_rounded,
   ];
-
 
   @override
   void initState() {
@@ -77,15 +48,14 @@ class _MasterScreenState extends State<MasterScreen> {
     super.dispose();
   }
 
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutQuart,
     );
   }
 
@@ -96,169 +66,143 @@ class _MasterScreenState extends State<MasterScreen> {
   }
 
   void _handleLogout() {
-    // Clear user data
     UserProvider.currentUser = null;
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.logout_rounded, color: Color(0xFF2F855A)),
-            SizedBox(width: 8),
-            Text("Logout"),
+            Icon(Icons.logout_rounded, color: AppColors.primary),
+            SizedBox(width: 12),
+            Text("Logout", style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
-        content: const Text("Are you sure you want to logout?"),
+        content: const Text("Are you sure you want to sign out?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: AppColors.textLight)),
           ),
-          TextButton(
+          AppButton(
+            text: "Logout",
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              // Navigate back to login by popping all routes
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/', (route) => false);
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF2F855A),
-            ),
-            child: const Text("Logout"),
           ),
         ],
       ),
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // Modern Header with Green Gradient
+          // Premium Header
           Container(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF163A2A),
-                  const Color(0xFF20523A),
-                  const Color(0xFF2F855A),
-                ],
-              ),
+              gradient: AppGradients.mainBackground,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2F855A).withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: AppColors.primaryDark.withOpacity(0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    // Logo/Icon - Changes based on selected tab
-                    _buildHeaderIcon(),
-                    const SizedBox(width: 12),
-                    // Title
-                    Expanded(
-                      child: Text(
-                        _pageTitles[_selectedIndex],
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  _buildHeaderIcon(),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _pageTitles[_selectedIndex],
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
+                        Text(
+                          "ParkHere Premium",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    // Logout Button
-                    Container(
+                  ),
+                  GestureDetector(
+                    onTap: _handleLogout,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withOpacity(0.1)),
                       ),
-                      child: IconButton(
-                        onPressed: _handleLogout,
-                        icon: const Icon(
-                          Icons.logout_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        tooltip: 'Logout',
-                      ),
+                      child: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Page Content
+          // Content
           Expanded(
             child: PageView(
               controller: _pageController,
-              onPageChanged: (index) {
-                _onPageChanged(index);
-              },
-              physics: const AlwaysScrollableScrollPhysics(),
+              onPageChanged: _onPageChanged,
+              physics: const NeverScrollableScrollPhysics(), // Only tap to change for premium feel
               children: [
                 HomeScreen(onTileTap: _onItemTapped),
+                const ParkingExplorerScreen(),
+                const MyReservationsScreen(),
                 const ReviewListScreen(),
                 const ProfileScreen(),
               ],
             ),
           ),
 
-          // Modern Bottom Navigation with Green Theme
+          // Premium Bottom Nav
           Container(
-            height: 85,
             decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
+                ),
+              ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              child: Row(
-                children: [
-                  // Home Tab
-                  Expanded(
-                    child: _buildNavigationItem(
-                      index: 0,
-                      icon: Icons.home_rounded,
-                      label: 'Home',
-                    ),
-                  ),
-                  // Reviews Tab
-                  Expanded(
-                    child: _buildNavigationItem(
-                      index: 1,
-                      icon: Icons.rate_review_rounded,
-                      label: 'Reviews',
-                    ),
-                  ),
-                  // Profile Tab
-                  Expanded(
-                    child: _buildNavigationItem(
-                      index: 2,
-                      icon: Icons.person_rounded,
-                      label: 'Profile',
-                    ),
-                  ),
-                ],
-              ),
+            padding: const EdgeInsets.only(bottom: 25, top: 12, left: 12, right: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_pageIcons.length, (index) {
+                return _buildNavigationItem(
+                  index: index,
+                  icon: _pageIcons[index],
+                  label: _pageTitles[index],
+                );
+              }),
             ),
           ),
         ],
@@ -268,49 +212,31 @@ class _MasterScreenState extends State<MasterScreen> {
 
   Widget _buildHeaderIcon() {
     final user = UserProvider.currentUser;
-    final isProfilePage = _selectedIndex == 2;
+    final isProfilePage = _selectedIndex == 4;
 
-    // Show user profile picture if on profile page and user has picture
     if (isProfilePage && user?.picture != null && user!.picture!.isNotEmpty) {
       ImageProvider? imageProvider = ProfileScreen.getUserImageProvider(user.picture);
-
       return Container(
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.3),
-            width: 2,
-          ),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
         ),
         child: CircleAvatar(
-          radius: 12,
-          backgroundColor: Colors.white.withOpacity(0.2),
+          radius: 18,
           backgroundImage: imageProvider,
-          child: imageProvider == null
-              ? const Icon(
-                  Icons.person_rounded,
-                  color: Colors.white,
-                  size: 20,
-                )
-              : null,
+          backgroundColor: Colors.white24,
         ),
       );
     }
 
-    // Show icon for other pages
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(
-        _pageIcons[_selectedIndex],
-        color: Colors.white,
-        size: 24,
-      ),
+      child: Icon(_pageIcons[_selectedIndex], color: Colors.white, size: 24),
     );
   }
 
@@ -320,53 +246,33 @@ class _MasterScreenState extends State<MasterScreen> {
     required String label,
   }) {
     final isSelected = _selectedIndex == index;
+    final color = isSelected ? AppColors.primary : AppColors.textLight;
 
     return GestureDetector(
       onTap: () => _onItemTapped(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF2F855A).withOpacity(0.12)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFF2F855A).withOpacity(0.15)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected
-                      ? const Color(0xFF2F855A)
-                      : Colors.grey[600],
-                  size: 22,
-                ),
-              ),
+            Icon(
+              icon,
+              color: color,
+              size: 24,
             ),
             const SizedBox(height: 4),
-            Flexible(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected
-                      ? const Color(0xFF2F855A)
-                      : Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            Text(
+              isSelected ? label : "",
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

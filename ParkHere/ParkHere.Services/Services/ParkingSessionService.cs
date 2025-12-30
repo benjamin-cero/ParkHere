@@ -125,9 +125,10 @@ namespace ParkHere.Services.Services
         // Custom action 2: Set actual end time and calculate extra charges
         public async Task<ParkingSessionResponse> SetActualEndTimeAsync(int reservationId, DateTime actualEndTime)
         {
-            // Find the session with its reservation
             var session = await _context.ParkingSessions
                 .Include(s => s.ParkingReservation)
+                    .ThenInclude(r => r.ParkingSpot)
+                        .ThenInclude(ps => ps.ParkingSpotType)
                 .FirstOrDefaultAsync(s => s.ParkingReservationId == reservationId);
 
             if (session == null)
@@ -136,31 +137,30 @@ namespace ParkHere.Services.Services
             if (session.ActualEndTime.HasValue)
                 throw new InvalidOperationException("Actual end time has already been set for this session.");
 
-            // Set actual end time
             session.ActualEndTime = actualEndTime;
 
-            // Calculate extra charges if overstayed
             var reservationEndTime = session.ParkingReservation.EndTime;
+            var parkingSpot = session.ParkingReservation.ParkingSpot;
             
             if (actualEndTime > reservationEndTime)
             {
-                // Calculate extra minutes
                 var extraMinutes = (int)(actualEndTime - reservationEndTime).TotalMinutes;
                 session.ExtraMinutes = extraMinutes;
 
-                // Calculate extra charge: 0.10 BAM per minute
-                const decimal penaltyPerMinute = 0.10m;
-                session.ExtraCharge = extraMinutes * penaltyPerMinute;
+                // Penalty Calculation: 1.5x the base rate
+                const decimal baseHourlyRate = 3.0m;
+                decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
+                decimal penaltyRatePerMinute = (baseHourlyRate * multiplier / 60.0m) * 1.5m;
+                
+                session.ExtraCharge = Math.Round(extraMinutes * penaltyRatePerMinute, 2);
             }
             else
             {
-                // Left on time or early - no penalty
                 session.ExtraMinutes = 0;
                 session.ExtraCharge = 0;
             }
 
             await _context.SaveChangesAsync();
-
             return _mapper.Map<ParkingSessionResponse>(session);
         }
 

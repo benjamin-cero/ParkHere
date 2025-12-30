@@ -6,16 +6,16 @@ part 'vehicle.g.dart';
 class Vehicle {
   final int id;
   final String licensePlate;
-  final String model;
-  final String? color;
+  final String name;
   final int userId;
+  final bool isActive;
 
   Vehicle({
     this.id = 0,
     this.licensePlate = '',
-    this.model = '',
-    this.color,
+    this.name = '',
     this.userId = 0,
+    this.isActive = true,
   });
 
   factory Vehicle.fromJson(Map<String, dynamic> json) => _$VehicleFromJson(json);

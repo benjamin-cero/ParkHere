@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'parking_reservation.dart';
+import 'user.dart';
 
 part 'review.g.dart';
 
@@ -12,6 +13,7 @@ class Review {
   final int userId;
   final int reservationId;
   final ParkingReservation? parkingReservation;
+  final User? user;
 
   const Review({
     this.id = 0,
@@ -21,6 +23,7 @@ class Review {
     this.userId = 0,
     this.reservationId = 0,
     this.parkingReservation,
+    this.user,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);

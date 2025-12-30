@@ -174,6 +174,30 @@ namespace ParkHere.Services.Services
 
         protected override async Task BeforeUpdate(ParkingReservation entity, ParkingReservationUpdateRequest request)
         {
+            var session = await _context.ParkingSessions
+                .FirstOrDefaultAsync(x => x.ParkingReservationId == entity.Id);
+
+            // 1. Vehicle Change Restriction: Cannot change vehicle if already entered
+            if (entity.VehicleId != request.VehicleId && session?.ActualStartTime != null)
+            {
+                throw new InvalidOperationException("Cannot change vehicle after entry. Please contact support if needed.");
+            }
+
+            // 2. Time Extension Rules:
+            if (request.EndTime > entity.EndTime)
+            {
+                // If reservation is already expired
+                if (DateTime.UtcNow > entity.EndTime)
+                {
+                    // Allow extension only within 30 minutes of expiry
+                    if ((DateTime.UtcNow - entity.EndTime).TotalMinutes > 30)
+                    {
+                        throw new InvalidOperationException("Too late to extend. Reservation expired more than 30 minutes ago.");
+                    }
+                }
+            }
+
+            // 3. Conflict Check
             bool conflict = await _context.ParkingReservations
                 .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
                                x.Id != entity.Id &&

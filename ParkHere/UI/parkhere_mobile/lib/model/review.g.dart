@@ -17,6 +17,9 @@ Review _$ReviewFromJson(Map<String, dynamic> json) => Review(
           ? null
           : ParkingReservation.fromJson(
               json['parkingReservation'] as Map<String, dynamic>),
+      user: json['user'] == null
+          ? null
+          : User.fromJson(json['user'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ReviewToJson(Review instance) => <String, dynamic>{
@@ -27,4 +30,5 @@ Map<String, dynamic> _$ReviewToJson(Review instance) => <String, dynamic>{
       'userId': instance.userId,
       'reservationId': instance.reservationId,
       'parkingReservation': instance.parkingReservation,
+      'user': instance.user,
     };

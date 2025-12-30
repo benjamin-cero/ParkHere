@@ -3712,6 +3712,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "vehicleId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "startTime": {
             "type": "string",
             "format": "date-time"
@@ -4507,6 +4511,10 @@
             "type": "string",
             "nullable": true
           },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
           "userId": {
             "type": "integer",
             "format": "int32"
@@ -4525,6 +4533,10 @@
             "format": "int32"
           },
           "licensePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
             "type": "string",
             "nullable": true
           },
@@ -4560,6 +4572,10 @@
         "type": "object",
         "properties": {
           "licensePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
             "type": "string",
             "nullable": true
           },
