@@ -16,7 +16,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     this.endpoint = endpoint;
     baseUrl = const String.fromEnvironment(
       "baseUrl",
-      defaultValue: "http://localhost:5130/", // mobile url
+      defaultValue: "http://10.0.2.2:5130/", // mobile url
     );
   }
 
