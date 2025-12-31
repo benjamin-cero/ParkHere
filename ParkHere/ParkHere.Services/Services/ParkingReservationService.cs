@@ -52,6 +52,11 @@ namespace ParkHere.Services.Services
                 query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).ToLower().Contains(searchLower));
             }
 
+            if (search.ExcludePassed == true)
+            {
+                query = query.Where(x => x.EndTime > DateTime.Now);
+            }
+
             return query;
         }
 
@@ -59,8 +64,7 @@ namespace ParkHere.Services.Services
         {
             bool conflict = await _context.ParkingReservations
                .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
-                            ((request.StartTime >= x.StartTime && request.StartTime < x.EndTime) ||
-                             (request.EndTime > x.StartTime && request.EndTime <= x.EndTime)));
+                            request.StartTime < x.EndTime && x.StartTime < request.EndTime);
 
             if (conflict)
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");
@@ -201,8 +205,7 @@ namespace ParkHere.Services.Services
             bool conflict = await _context.ParkingReservations
                 .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
                                x.Id != entity.Id &&
-                             ((request.StartTime >= x.StartTime && request.StartTime < x.EndTime) ||
-                              (request.EndTime > x.StartTime && request.EndTime <= x.EndTime)));
+                               request.StartTime < x.EndTime && x.StartTime < request.EndTime);
 
             if (conflict)
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");

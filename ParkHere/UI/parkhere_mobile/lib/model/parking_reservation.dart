@@ -5,7 +5,7 @@ import 'parking_spot.dart';
 
 part 'parking_reservation.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.pascal)
 class ParkingReservation {
   final int id;
   final int userId;

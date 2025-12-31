@@ -644,6 +644,13 @@
             }
           },
           {
+            "name": "ExcludePassed",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "FTS",
             "in": "query",
             "schema": {

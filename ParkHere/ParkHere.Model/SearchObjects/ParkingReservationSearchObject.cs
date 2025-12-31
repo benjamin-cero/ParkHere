@@ -14,5 +14,6 @@ namespace ParkHere.Model.SearchObjects
         public bool? IsPaid { get; set; }
         public string? LicensePlate { get; set; }
         public string? FullName { get; set; }
+        public bool? ExcludePassed { get; set; }
     }
 }

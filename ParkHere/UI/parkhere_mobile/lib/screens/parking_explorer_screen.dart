@@ -50,7 +50,10 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
       final vehiclesResult = userId != null 
           ? await vehicleProvider.get(filter: {'userId': userId})
           : null;
-      final reservationsResult = await reservationProvider.get();
+      final reservationsResult = await reservationProvider.get(filter: {
+        'excludePassed': true,
+        'retrieveAll': true,
+      });
 
       if (mounted) {
         setState(() {
@@ -106,9 +109,9 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
   bool _isSpotReserved(ParkingSpot spot) {
     if (spot.isOccupied) return false;
     final now = DateTime.now();
+    // Show as reserved if there is ANY upcoming reservation today or in the future
     return _reservations.any((r) => 
         r.parkingSpotId == spot.id && 
-        r.startTime!.isBefore(now) &&
         r.endTime!.isAfter(now)
     );
   }
@@ -120,11 +123,15 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     return AppColors.primary; // Regular - Blue
   }
 
+  int _durationHours = 2;
+  int _durationMinutes = 0;
+
   void _showReservationModal(ParkingSpot spot) {
     final now = DateTime.now();
     setState(() {
-      _startTime = now.add(const Duration(minutes: 15));
-      _endTime = _startTime.add(const Duration(hours: 2));
+      _startTime = DateTime(now.year, now.month, now.day, now.hour, now.minute).add(const Duration(minutes: 15));
+      _durationHours = 2;
+      _durationMinutes = 0;
     });
 
     showModalBottomSheet(
@@ -133,65 +140,179 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
+          final calculatedEndTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
+          
+          // Collision Detection
+          final spotReservations = _reservations.where((r) => r.parkingSpotId == spot.id && r.endTime.isAfter(now)).toList()
+            ..sort((a, b) => a.startTime.compareTo(b.startTime));
+
+          ParkingReservation? conflict;
+          for (var res in spotReservations) {
+            if (_startTime.isBefore(res.endTime) && calculatedEndTime.isAfter(res.startTime)) {
+              conflict = res;
+              break;
+            }
+          }
+
+          // Suggest max stay if conflict exists or if there's a reservation coming up
+          String? reservationConflictWarning;
+          if (conflict != null) {
+            reservationConflictWarning = "Conflict! This spot is booked from ${DateFormat('HH:mm').format(conflict.startTime)}";
+          } else {
+            // Check for next upcoming
+            final nextRes = spotReservations.where((r) => r.startTime.isAfter(_startTime)).toList();
+            if (nextRes.isNotEmpty) {
+              final next = nextRes.first;
+              final maxStayMinutes = next.startTime.difference(_startTime).inMinutes;
+              if (maxStayMinutes < (_durationHours * 60 + _durationMinutes)) {
+                reservationConflictWarning = "Max stay available: ${maxStayMinutes ~/ 60}h ${maxStayMinutes % 60}m";
+              }
+            }
+          }
+
           return Container(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: MediaQuery.of(context).size.height * 0.85,
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
             padding: const EdgeInsets.all(24),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2)
-                  ),
-                ),
-                const SizedBox(height: 20),
+                Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)))),
+                const SizedBox(height: 24),
                 
+                // Head Info
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: _getSpotColor(spot).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.local_parking, color: _getSpotColor(spot), size: 24),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: _getSpotColor(spot).withOpacity(0.1), borderRadius: BorderRadius.circular(15)),
+                      child: Icon(Icons.local_parking_rounded, color: _getSpotColor(spot), size: 28),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(spot.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(spot.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                           Text("${spot.parkingSectorName} • ${spot.parkingWingName}", 
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                            style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
+
+                // Upcoming Schedule
+                if (spotReservations.isNotEmpty) ...[
+                  const Text("Upcoming Schedule", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 60,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: spotReservations.length,
+                      itemBuilder: (context, index) {
+                        final res = spotReservations[index];
+                        return Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.grey[300]!)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(DateFormat('MMM d').format(res.startTime), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                              Text("${DateFormat('HH:mm').format(res.startTime)} - ${DateFormat('HH:mm').format(res.endTime)}", 
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
                 
-                const Text("Vehicle", style: TextStyle(fontWeight: FontWeight.w600)),
+                // Arrival Time
+                const Text("Arrive At", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                 const SizedBox(height: 8),
-                _buildVehicleDropdown(setModalState),
-                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: _startTime,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 30)),
+                    );
+                    if (pickedDate != null) {
+                      final TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_startTime));
+                      if (pickedTime != null) {
+                        setModalState(() {
+                          _startTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+                        });
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[200]!)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(DateFormat('MMM d, yyyy  •  hh:mm a').format(_startTime), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                        const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 
-                const Text("Time", style: TextStyle(fontWeight: FontWeight.w600)),
+                // Duration
+                const Text("Stay For", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(child: _buildTimeSelector("Start", _startTime, (t) => setModalState(() => _startTime = t))),
+                    Expanded(child: _buildDurationInput("Hours", _durationHours, (v) => setModalState(() => _durationHours = v))),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildTimeSelector("End", _endTime, (t) => setModalState(() => _endTime = t))),
+                    Expanded(child: _buildDurationInput("Minutes", _durationMinutes, (v) => setModalState(() => _durationMinutes = v))),
                   ],
                 ),
+                const SizedBox(height: 12),
                 
+                // Warning / Leave info
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: (reservationConflictWarning != null ? AppColors.error : Colors.blue).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(reservationConflictWarning != null ? Icons.warning_amber_rounded : Icons.info_outline_rounded, 
+                        color: reservationConflictWarning != null ? AppColors.error : Colors.blue, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          reservationConflictWarning ?? "Leaving at: ${DateFormat('hh:mm a').format(calculatedEndTime)}",
+                          style: TextStyle(
+                            color: reservationConflictWarning != null ? AppColors.error : Colors.blue, 
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 13
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                const Text("Select Vehicle", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                const SizedBox(height: 8),
+                _buildVehicleDropdown(setModalState),
+
                 const Spacer(),
                 
                 Row(
@@ -200,24 +321,51 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Total", style: TextStyle(color: Colors.grey)),
+                        const Text("Total Price", style: TextStyle(color: Colors.grey, fontSize: 13)),
                         Text("${_calculatePrice(spot).toStringAsFixed(2)} BAM",
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
                       ],
                     ),
                     SizedBox(
-                      width: 140,
+                      width: 160,
+                      height: 55,
                       child: AppButton(
-                        text: "Book",
-                        onPressed: _selectedVehicle != null ? () => _handleBooking(spot) : null,
+                        text: "Book Now",
+                        onPressed: (_selectedVehicle != null && conflict == null) ? () => _handleBooking(spot) : null,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
               ],
             ),
           );
         }
+      ),
+    );
+  }
+
+  Widget _buildDurationInput(String label, int value, Function(int) onChanged) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[200]!)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              Text("$value", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          Column(
+            children: [
+              GestureDetector(onTap: () => onChanged(value + (label == "Hours" ? 1 : 15)), child: const Icon(Icons.arrow_drop_up, size: 20)),
+              GestureDetector(onTap: () { if (value > 0) onChanged(value - (label == "Hours" ? 1 : 15)); }, child: const Icon(Icons.arrow_drop_down, size: 20)),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -227,57 +375,20 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.grey[50], border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(12)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Vehicle>(
           value: _selectedVehicle,
           isExpanded: true,
-          items: _vehicles.map((v) => DropdownMenuItem(
-            value: v,
-            child: Text("${v.name} (${v.licensePlate})"),
-          )).toList(),
+          items: _vehicles.map((v) => DropdownMenuItem(value: v, child: Text("${v.name} (${v.licensePlate})"))).toList(),
           onChanged: (v) => setModalState(() => _selectedVehicle = v),
         ),
       ),
     );
   }
 
-  Widget _buildTimeSelector(String label, DateTime time, Function(DateTime) onChanged) {
-    return GestureDetector(
-      onTap: () async {
-        final TimeOfDay? picked = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(time),
-        );
-        if (picked != null) {
-          final now = DateTime.now();
-          onChanged(DateTime(now.year, now.month, now.day, picked.hour, picked.minute));
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            const SizedBox(height: 4),
-            Text(DateFormat('HH:mm').format(time), 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
-
   double _calculatePrice(ParkingSpot spot) {
-    final durationHours = _endTime.difference(_startTime).inMinutes / 60.0;
+    final durationHours = _durationHours + (_durationMinutes / 60.0);
     double multiplier = 1.0;
     if (spot.parkingSpotTypeId == 2) multiplier = 1.5;
     if (spot.parkingSpotTypeId == 4) multiplier = 1.2;
@@ -293,26 +404,24 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
       final userId = UserProvider.currentUser?.id;
       if (userId == null) return;
 
+      final endTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
+
       await reservationProvider.insert({
         'userId': userId,
         'vehicleId': _selectedVehicle!.id,
         'parkingSpotId': spot.id,
         'startTime': _startTime.toIso8601String(),
-        'endTime': _endTime.toIso8601String(),
+        'endTime': endTime.toIso8601String(),
         'isPaid': false,
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reservation successful!'), backgroundColor: Colors.green),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reservation successful!'), backgroundColor: AppColors.primary, behavior: SnackBarBehavior.floating));
         _loadData();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Booking failed'), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking failed. Please try again.'), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating));
       }
     }
   }
@@ -507,7 +616,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     }
 
     return GestureDetector(
-      onTap: (isOccupied || isReserved) ? null : () => _showReservationModal(spot),
+      onTap: isOccupied ? null : () => _showReservationModal(spot),
       child: Container(
         width: 65,
         height: 65,

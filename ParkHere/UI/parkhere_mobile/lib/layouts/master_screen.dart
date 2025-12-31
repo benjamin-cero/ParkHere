@@ -42,13 +42,17 @@ class _MasterScreenState extends State<MasterScreen> {
   @override
   void initState() {
     super.initState();
-    _pages = [
-      HomeScreen(onTileTap: _onItemTapped),
-      const ParkingExplorerScreen(),
-      const MyReservationsScreen(),
-      const ReviewListScreen(),
-      const ProfileScreen(),
-    ];
+  }
+
+  Widget _getPage(int index) {
+    switch (index) {
+      case 0: return HomeScreen(onTileTap: _onItemTapped);
+      case 1: return const ParkingExplorerScreen();
+      case 2: return const MyReservationsScreen();
+      case 3: return const ReviewListScreen();
+      case 4: return const ProfileScreen();
+      default: return HomeScreen(onTileTap: _onItemTapped);
+    }
   }
 
   void _onItemTapped(int index) {
@@ -223,7 +227,7 @@ class _MasterScreenState extends State<MasterScreen> {
                     },
                     child: KeyedSubtree(
                       key: ValueKey(_selectedIndex),
-                      child: _pages[_selectedIndex],
+                      child: _getPage(_selectedIndex),
                     ),
                   ),
                 ),
