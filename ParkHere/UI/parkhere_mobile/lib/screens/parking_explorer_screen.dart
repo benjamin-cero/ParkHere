@@ -114,10 +114,10 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
   }
 
   Color _getSpotColor(ParkingSpot spot) {
-    if (spot.parkingSpotTypeId == 2) return Colors.amber[700]!;
-    if (spot.parkingSpotTypeId == 4) return Colors.green[600]!;
-    if (spot.parkingSpotTypeId == 3) return Colors.blue[600]!;
-    return AppColors.primary;
+    if (spot.parkingSpotTypeId == 2) return Colors.amber[700]!; // VIP
+    if (spot.parkingSpotTypeId == 4) return Colors.green[600]!; // Electric
+    if (spot.parkingSpotTypeId == 3) return AppColors.disabled; // Disabled - Indigo
+    return AppColors.primary; // Regular - Blue
   }
 
   void _showReservationModal(ParkingSpot spot) {
@@ -338,17 +338,35 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
                   const SizedBox(height: 16),
                   
-                  // Legend
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
+                  // Legend Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLegend(Colors.green[600]!, "Electric"),
-                      _buildLegend(Colors.amber[700]!, "VIP"),
-                      _buildLegend(Colors.blue[600]!, "Disabled"),
-                      _buildLegend(AppColors.primary, "Regular"),
-                      _buildLegend(Colors.lightBlue, "Reserved"),
-                      _buildLegend(Colors.grey, "Occupied"),
+                      Text('SPOT TYPES', 
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey[500], letterSpacing: 1.2)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 8,
+                        children: [
+                          _buildLegend(Colors.green[600]!, "Electric"),
+                          _buildLegend(Colors.amber[700]!, "VIP"),
+                          _buildLegend(AppColors.disabled, "Disabled"),
+                          _buildLegend(AppColors.primary, "Regular"),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text('AVAILABILITY', 
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey[500], letterSpacing: 1.2)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 8,
+                        children: [
+                          _buildLegend(AppColors.reserved, "Reserved"),
+                          _buildLegend(AppColors.occupied, "Occupied"),
+                        ],
+                      ),
                     ],
                   ),
                   
@@ -473,12 +491,12 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     IconData? icon;
     
     if (isOccupied) {
-      bgColor = Colors.grey[300]!;
-      borderColor = Colors.grey[400]!;
+      bgColor = AppColors.occupied.withOpacity(0.15);
+      borderColor = AppColors.occupied.withOpacity(0.4);
       icon = Icons.block;
     } else if (isReserved) {
-      bgColor = Colors.lightBlue[100]!;
-      borderColor = Colors.lightBlue[400]!;
+      bgColor = AppColors.reserved.withOpacity(0.15);
+      borderColor = AppColors.reserved.withOpacity(0.4);
       icon = Icons.schedule;
     } else {
       bgColor = spotColor.withOpacity(0.1);
@@ -503,14 +521,14 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
           children: [
             if (icon != null)
               Icon(icon, size: 18, 
-                color: isOccupied ? Colors.grey[600] : (isReserved ? Colors.blue[700] : spotColor)),
+                color: isOccupied ? AppColors.occupied : (isReserved ? AppColors.reserved : spotColor)),
             const SizedBox(height: 2),
             Text(
               spot.name.split('-').last.trim(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: isOccupied ? Colors.grey[600] : (isReserved ? Colors.blue[800] : spotColor),
+                color: isOccupied ? AppColors.occupied : (isReserved ? AppColors.reserved : spotColor),
               ),
             ),
           ],

@@ -12,6 +12,11 @@ class AppColors {
   static const Color error = Color(0xFFE53E3E);
   static const Color glassBackground = Color(0x33FFFFFF);
   static const Color glassBorder = Color(0x4DFFFFFF);
+
+  // Status Colors
+  static const Color disabled = Color(0xFF667EEA); // Indigo/Purple
+  static const Color reserved = Color(0xFFFFCC00); // Yellow/Gold
+  static const Color occupied = Color(0xFFE53E3E); // Red
 }
 
 class AppGradients {
