@@ -19,7 +19,8 @@ class MasterScreen extends StatefulWidget {
 
 class _MasterScreenState extends State<MasterScreen> {
   int _selectedIndex = 0;
-  late PageController _pageController;
+  int _previousIndex = 0;
+
   final List<String> _pageTitles = [
     'Dashboard',
     'Find Parking',
@@ -36,31 +37,25 @@ class _MasterScreenState extends State<MasterScreen> {
     Icons.person_rounded,
   ];
 
+  late final List<Widget> _pages;
+
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: 0);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+    _pages = [
+      HomeScreen(onTileTap: _onItemTapped),
+      const ParkingExplorerScreen(),
+      const MyReservationsScreen(),
+      const ReviewListScreen(),
+      const ProfileScreen(),
+    ];
   }
 
   void _onItemTapped(int index) {
+    if (_selectedIndex == index) return;
+    
     setState(() {
-      _selectedIndex = index;
-    });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutQuart,
-    );
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {
+      _previousIndex = _selectedIndex;
       _selectedIndex = index;
     });
   }
@@ -101,112 +96,131 @@ class _MasterScreenState extends State<MasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          // Premium Header
-          Container(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-            decoration: BoxDecoration(
-              gradient: AppGradients.mainBackground,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryDark.withOpacity(0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                children: [
-                  _buildHeaderIcon(),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _pageTitles[_selectedIndex],
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        Text(
-                          "ParkHere Premium",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.7),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: Column(
+            children: [
+              // Premium Header
+              Container(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                decoration: BoxDecoration(
+                  gradient: AppGradients.mainBackground,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryDark.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: _handleLogout,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      _buildHeaderIcon(),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _pageTitles[_selectedIndex],
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            Text(
+                              "ParkHere Premium",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.7),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
-                    ),
+                      GestureDetector(
+                        onTap: _handleLogout,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          ),
+                          child: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // Content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              physics: const NeverScrollableScrollPhysics(), // Only tap to change for premium feel
-              children: [
-                HomeScreen(onTileTap: _onItemTapped),
-                const ParkingExplorerScreen(),
-                const MyReservationsScreen(),
-                const ReviewListScreen(),
-                const ProfileScreen(),
-              ],
-            ),
-          ),
-
-          // Premium Bottom Nav
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, -5),
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.only(bottom: 25, top: 12, left: 12, right: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_pageIcons.length, (index) {
-                return _buildNavigationItem(
-                  index: index,
-                  icon: _pageIcons[index],
-                  label: _pageTitles[index],
-                );
-              }),
-            ),
+              ),
+
+              // Content with Seamless Slide Transitions
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    final bool isForward = _selectedIndex > _previousIndex;
+                    final slideIn = Tween<Offset>(
+                      begin: Offset(isForward ? 1.0 : -1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation);
+                    
+                    final slideOut = Tween<Offset>(
+                      begin: Offset(isForward ? -1.0 : 1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation);
+
+                    if (child.key == ValueKey(_selectedIndex)) {
+                      return SlideTransition(position: slideIn, child: child);
+                    } else {
+                      return SlideTransition(position: slideOut, child: child);
+                    }
+                  },
+                  child: KeyedSubtree(
+                    key: ValueKey(_selectedIndex),
+                    child: _pages[_selectedIndex],
+                  ),
+                ),
+              ),
+
+              // Premium Bottom Nav
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.only(bottom: 25, top: 12, left: 12, right: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(_pageIcons.length, (index) {
+                    return _buildNavigationItem(
+                      index: index,
+                      icon: _pageIcons[index],
+                      label: _pageTitles[index],
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -247,6 +261,7 @@ class _MasterScreenState extends State<MasterScreen> {
   }) {
     final isSelected = _selectedIndex == index;
     final color = isSelected ? AppColors.primary : AppColors.textLight;
+    final user = UserProvider.currentUser;
 
     return GestureDetector(
       onTap: () => _onItemTapped(index),
@@ -261,11 +276,27 @@ class _MasterScreenState extends State<MasterScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            index == 4 && user?.picture != null && user!.picture!.isNotEmpty
+            ? Container(
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 12,
+                  backgroundImage: ProfileScreen.getUserImageProvider(user.picture),
+                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                ),
+              )
+            : Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
             const SizedBox(height: 4),
             Text(
               isSelected ? label : "",

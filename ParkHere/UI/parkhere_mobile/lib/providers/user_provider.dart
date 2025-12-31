@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:parkhere_mobile/model/user.dart';
@@ -8,6 +7,11 @@ class UserProvider extends BaseProvider<User> {
   UserProvider() : super("Users");
 
   static User? currentUser;
+
+  void setCurrentUser(User? user) {
+    currentUser = user;
+    notifyListeners();
+  }
 
   @override
   User fromJson(dynamic json) {
@@ -27,7 +31,7 @@ class UserProvider extends BaseProvider<User> {
       final response = await http
           .post(uri, headers: headers, body: body)
           .timeout(
-            Duration(seconds: 30),
+            const Duration(seconds: 30),
             onTimeout: () {
               throw Exception(
                 "Request timed out. Please check your network connection.",

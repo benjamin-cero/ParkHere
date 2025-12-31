@@ -78,6 +78,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _removeImage() {
+    if (!_isEditing) return;
+    setState(() {
+      _pictureBase64 = null;
+    });
+  }
+
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -109,8 +116,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       await userProvider.update(currentUser.id, updateData);
       
-      // Refresh current user data
-      UserProvider.currentUser = await userProvider.getById(currentUser.id);
+      // Refresh current user data reactively
+      final updatedUser = await userProvider.getById(currentUser.id);
+      userProvider.setCurrentUser(updatedUser);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -278,7 +286,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-              if (_isEditing)
+              if (_isEditing) ...[
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -294,6 +302,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
+                if (_pictureBase64 != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _removeImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete_rounded, size: 18, color: AppColors.error),
+                      ),
+                    ),
+                  ),
+              ],
             ],
           ),
           const SizedBox(width: 24),
