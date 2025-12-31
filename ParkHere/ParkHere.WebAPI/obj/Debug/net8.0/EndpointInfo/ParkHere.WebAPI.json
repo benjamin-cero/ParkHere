@@ -1574,6 +1574,14 @@
             }
           },
           {
+            "name": "ParkingSectorId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "FTS",
             "in": "query",
             "schema": {

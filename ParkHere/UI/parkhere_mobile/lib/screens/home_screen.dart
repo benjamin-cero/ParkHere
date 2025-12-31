@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'dart:ui';
+import 'package:parkhere_mobile/model/parking_reservation.dart';
+import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 
@@ -15,10 +20,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  // Animation
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
+  
+  // State
+  bool _isLoading = true;
+  ParkingReservation? _upcomingReservation; // The nearest active reservation
+  
+  // Timer
+  String _timeRemaining = "";
+  
   @override
   void initState() {
     super.initState();
@@ -41,6 +54,75 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     ));
 
     _animController.forward();
+    _loadDashboardData();
+  }
+  
+  Future<void> _loadDashboardData() async {
+      try {
+          final userId = UserProvider.currentUser?.id;
+          if (userId == null) return;
+          
+          // Ideally: provider.get(filter: {'userId': userId, 'status': 'active/upcoming'})
+          // For now, fetch all and filter client side
+          final result = await Provider.of<ParkingReservationProvider>(context, listen: false).get(filter: {'userId': userId});
+          
+          final now = DateTime.now();
+          final reservations = result.items ?? [];
+          
+          // Find first reservation that has NOT ended
+          final upcoming = reservations.where((r) => r.endTime!.isAfter(now)).toList();
+          upcoming.sort((a,b) => a.startTime!.compareTo(b.startTime!)); // nearest first
+          
+          if (upcoming.isNotEmpty) {
+              setState(() {
+                  _upcomingReservation = upcoming.first;
+              });
+              _startTimer();
+          }
+      } catch (e) {
+          debugPrint("Failed to load dashboard data: $e");
+      } finally {
+          setState(() => _isLoading = false);
+      }
+  }
+  
+  void _startTimer() {
+      Future.doWhile(() async {
+          if (!mounted || _upcomingReservation == null) return false;
+          
+          final now = DateTime.now();
+          final start = _upcomingReservation!.startTime!;
+          
+          if (now.isBefore(start)) {
+             // Counting down to start
+             final diff = start.difference(now);
+             setState(() {
+                 _timeRemaining = "Starts in: ${_formatDuration(diff)}";
+             });
+          } else {
+             // In progress
+             final end = _upcomingReservation!.endTime!;
+             final diff = end.difference(now);
+             if (diff.isNegative) {
+                 setState(() => _upcomingReservation = null); // Ended
+                 return false;
+             }
+             setState(() {
+                 _timeRemaining = "Time left: ${_formatDuration(diff)}";
+             });
+          }
+          
+          await Future.delayed(const Duration(seconds: 1));
+          return true;
+      });
+  }
+  
+  String _formatDuration(Duration d) {
+      String twoDigits(int n) => n.toString().padLeft(2, "0");
+      final hours = twoDigits(d.inHours);
+      final minutes = twoDigits(d.inMinutes.remainder(60));
+      final seconds = twoDigits(d.inSeconds.remainder(60));
+      return "$hours:$minutes:$seconds";
   }
 
   @override
@@ -156,6 +238,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildMainStatusCard() {
+    final hasReservation = _upcomingReservation != null;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -186,8 +270,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Icon(
-                      Icons.directions_car_rounded,
+                    child: Icon(
+                      hasReservation ? Icons.timer_rounded : Icons.directions_car_rounded,
                       color: Colors.white,
                       size: 28,
                     ),
@@ -199,9 +283,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
-                    child: const Text(
-                      'NO ACTIVE BOOKING',
-                      style: TextStyle(
+                    child: Text(
+                      hasReservation ? 'UPCOMING BOOKING' : 'NO ACTIVE BOOKING',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -212,44 +296,86 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
               const SizedBox(height: 30),
-              const Text(
-                'Ready to Park?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Book the perfect spot in seconds.',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () => widget.onTileTap(1),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primaryDark,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Book Parking Now',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              
+              if (hasReservation) ...[
+                  Text(
+                    _timeRemaining,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      fontFeatures: [FontFeature.tabularFigures()],
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward_rounded, size: 20),
-                  ],
-                ),
-              ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Start: ${DateFormat('HH:mm').format(_upcomingReservation!.startTime!)} • Price: ${_upcomingReservation!.price?.toStringAsFixed(2)} BAM',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                     decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                        children: [
+                            const Icon(Icons.location_on_rounded, color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                            const Text("Spot:", style: TextStyle(color: Colors.white70)), 
+                            const SizedBox(width: 4),
+                            // We might not have spot name here easily without join
+                            // But usually reservation has generic info or we fetch included.
+                            // For now basic info.
+                            const Text("View in Reservations", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ]
+                    )
+                  )
+              ] else ...[
+                  const Text(
+                    'Ready to Park?',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Book the perfect spot in seconds.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () => widget.onTileTap(1),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.primaryDark,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Book Parking Now',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward_rounded, size: 20),
+                      ],
+                    ),
+                  ),
+              ],
             ],
           ),
         ),

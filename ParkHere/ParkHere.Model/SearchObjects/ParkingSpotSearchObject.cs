@@ -13,5 +13,6 @@ namespace ParkHere.Model.SearchObjects
         public int? ParkingSpotTypeId { get; set; }
         public bool? IsOccupied { get; set; }
         public bool? IsActive { get; set; }
+        public int? ParkingSectorId { get; set; }
     }
 } 

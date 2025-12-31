@@ -37,8 +37,17 @@ namespace ParkHere.Services.Services
             }
             if (search.IsActive.HasValue)
             {
+
                 query = query.Where(x => x.IsActive == search.IsActive.Value);
             }
+
+                if (search.ParkingSectorId.HasValue)
+            {
+                query = query.Where(x => x.ParkingWing.ParkingSectorId == search.ParkingSectorId);
+            }
+
+            query = query.Include(x => x.ParkingWing).ThenInclude(x => x.ParkingSector);
+            
             return query;
         }
 

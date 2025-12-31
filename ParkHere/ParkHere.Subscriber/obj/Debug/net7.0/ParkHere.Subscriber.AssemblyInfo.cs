@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParkHere.Subscriber")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a6e186f18a28f18b3680af74a49d78d6b0e8e345")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb9271b853a3e4f895c4e99971a2073de1f74043")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParkHere.Subscriber")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParkHere.Subscriber")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

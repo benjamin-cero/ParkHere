@@ -30,18 +30,36 @@ class ParkingSpot {
 
 
 
-  factory ParkingSpot.fromJson(Map<String, dynamic> json) => ParkingSpot(
-      id: (json['id'] as num?)?.toInt() ?? 0,
-      name: json['name'] as String? ?? '',
-      parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? 0,
-      parkingSpotTypeName: json['parkingSpotTypeName'] as String? ?? '',
-      parkingSectorId: (json['parkingSectorId'] as num?)?.toInt() ?? 0,
-      parkingSectorName: json['parkingSectorName'] as String? ?? '',
-      parkingWingId: (json['parkingWingId'] as num?)?.toInt() ?? 0,
-      parkingWingName: json['parkingWingName'] as String? ?? '',
-      isOccupied: json['isOccupied'] as bool? ?? false,
-      isActive: json['isActive'] as bool? ?? true,
-    );
+  factory ParkingSpot.fromJson(Map<String, dynamic> json) {
+      // Handle nested or flat structure
+      final wing = json['parkingWing'];
+      final sector = wing?['parkingSector']; // In case it's nested
+      
+      return ParkingSpot(
+          id: (json['id'] as num?)?.toInt() ?? 0,
+          name: json['spotCode'] as String? ?? json['name'] as String? ?? '',
+          parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? 0,
+          parkingSpotTypeName: json['parkingSpotType']?['name'] as String? ?? json['parkingSpotTypeName'] as String? ?? '',
+          
+          // Robust Sector/Wing parsing
+          parkingSectorId: (sector?['id'] as num?)?.toInt() ?? 
+                           (wing?['parkingSectorId'] as num?)?.toInt() ?? 
+                           (json['parkingSectorId'] as num?)?.toInt() ?? 0,
+                           
+          parkingSectorName: (sector?['name'] as String?) ?? 
+                             (wing?['parkingSectorName'] as String?) ?? 
+                             (json['parkingSectorName'] as String?) ?? '',
+                             
+          parkingWingId: (wing?['id'] as num?)?.toInt() ?? 
+                         (json['parkingWingId'] as num?)?.toInt() ?? 0,
+                         
+          parkingWingName: (wing?['name'] as String?) ?? 
+                           (json['parkingWingName'] as String?) ?? '',
+                           
+          isOccupied: json['isOccupied'] as bool? ?? false,
+          isActive: json['isActive'] as bool? ?? true,
+        );
+  }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
       'id': id,
