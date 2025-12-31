@@ -145,18 +145,36 @@ class _MasterScreenState extends State<MasterScreen> {
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: _handleLogout,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
+                      _selectedIndex == 4 
+                      ? GestureDetector(
+                          onTap: _handleLogout,
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            ),
+                            child: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+                          ),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
                           ),
-                          child: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Image.asset(
+                              "assets/images/3.png",
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

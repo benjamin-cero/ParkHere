@@ -129,9 +129,13 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
               : _buildVehicleList(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddEditDialog(),
-        label: const Text("Add Vehicle", style: TextStyle(fontWeight: FontWeight.bold)),
-        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          "Add Vehicle",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
         backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -181,12 +185,12 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
             leading: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: vehicle.isActive ? AppColors.primary.withOpacity(0.1) : Colors.grey[100],
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.directions_car_rounded,
-                color: vehicle.isActive ? AppColors.primary : Colors.grey,
+                color: AppColors.primary,
               ),
             ),
             title: Text(
