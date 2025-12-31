@@ -6,7 +6,6 @@ import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/utils/base_picture_cover.dart';
 import 'package:parkhere_mobile/screens/profile_screen.dart';
 import 'package:parkhere_mobile/utils/base_pagination.dart';
-import 'package:parkhere_mobile/screens/review_details_screen.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:intl/intl.dart';
 
@@ -90,15 +89,6 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
       _isLoading = true;
     });
     _loadReviews();
-  }
-
-  void _navigateToReviewDetails(Review review) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReviewDetailsScreen(review: review),
-      ),
-    ).then((_) => _loadReviews());
   }
 
   @override
