@@ -212,6 +212,59 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     );
   }
 
+  void _handleCancel(ParkingReservation res) {
+    final now = DateTime.now();
+    if (res.startTime.difference(now).inMinutes < 30) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Cannot cancel reservation less than 30 minutes before arrival."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Cancel Booking"),
+        content: const Text("Are you sure you want to cancel this reservation? This action cannot be undone."),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Keep Booking", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                final provider = Provider.of<ParkingReservationProvider>(context, listen: false);
+                await provider.delete(res.id);
+                if (mounted) {
+                  Navigator.pop(context);
+                  _loadReservations();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Reservation cancelled successfully"), backgroundColor: Colors.redAccent),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Failed to cancel reservation"), backgroundColor: Colors.redAccent),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text("Yes, Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDurationInput(String label, int value, Function(int) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -326,6 +379,12 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.primaryDark)
                           ),
                           const SizedBox(height: 4),
+                          if (spot != null)
+                             Text(
+                              "${spot.parkingSectorName} • ${spot.parkingWingName}", 
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary)
+                            ),
+                          const SizedBox(height: 4),
                           Text(
                             "${res.vehicle?.name ?? 'Vehicle'} • ${res.vehicle?.licensePlate ?? ''}", 
                             style: const TextStyle(fontSize: 14, color: AppColors.textLight)
@@ -339,15 +398,15 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                 ),
                 const Divider(height: 40),
                 
-                // Detailed Spot Info
+                // Spot Details Tag
                 if (spot != null) ...[
                    Row(
                     children: [
-                      _buildMiniInfo(Icons.map_rounded, spot.parkingSectorName, false),
-                      const SizedBox(width: 12),
-                      _buildMiniInfo(Icons.grid_view_rounded, spot.parkingWingName, false),
-                      const SizedBox(width: 12),
-                      _buildMiniInfo(Icons.category_rounded, spot.parkingSpotTypeName, false),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        child: _buildMiniInfo(Icons.category_rounded, spot.parkingSpotTypeName, false),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -362,23 +421,42 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                   ],
                 ),
                 
-                if (isPending) ...[
+                 if (isPending) ...[
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: canEdit ? () => _showEditModal(res) : null,
-                      icon: Icon(canEdit ? Icons.edit_note_rounded : Icons.lock_outline_rounded, size: 20),
-                      label: Text(canEdit ? "Edit Reservation" : "Locked (under 30m)"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.grey[200],
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        elevation: 0,
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: canEdit ? () => _showEditModal(res) : null,
+                          icon: Icon(canEdit ? Icons.edit_note_rounded : Icons.lock_outline_rounded, size: 20),
+                          label: Text(canEdit ? "Edit" : "Locked"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            elevation: 0,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: OutlinedButton.icon(
+                          onPressed: canEdit ? () => _handleCancel(res) : null,
+                          icon: const Icon(Icons.cancel_outlined, size: 20),
+                          label: const Text("Cancel"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.redAccent,
+                            side: BorderSide(color: canEdit ? Colors.redAccent : Colors.grey[200]!),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 

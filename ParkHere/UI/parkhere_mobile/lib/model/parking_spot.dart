@@ -31,33 +31,44 @@ class ParkingSpot {
 
 
   factory ParkingSpot.fromJson(Map<String, dynamic> json) {
-      // Handle nested or flat structure
-      final wing = json['parkingWing'];
-      final sector = wing?['parkingSector']; // In case it's nested
+      // Handle nested or flat structure - backend usually returns PascalCase
+      final wing = json['parkingWing'] ?? json['ParkingWing'];
+      final sector = wing?['parkingSector'] ?? wing?['ParkingSector'];
+      final spotType = json['parkingSpotType'] ?? json['ParkingSpotType'];
       
       return ParkingSpot(
-          id: (json['id'] as num?)?.toInt() ?? 0,
-          name: json['spotCode'] as String? ?? json['name'] as String? ?? '',
-          parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? 0,
-          parkingSpotTypeName: json['parkingSpotType']?['name'] as String? ?? json['parkingSpotTypeName'] as String? ?? '',
+          id: (json['id'] as num?)?.toInt() ?? (json['Id'] as num?)?.toInt() ?? 0,
+          name: json['spotCode'] as String? ?? json['SpotCode'] as String? ?? json['name'] as String? ?? json['Name'] as String? ?? '',
+          parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? (json['ParkingSpotTypeId'] as num?)?.toInt() ?? 0,
+          parkingSpotTypeName: spotType?['name'] as String? ?? spotType?['Name'] as String? ?? json['parkingSpotTypeName'] as String? ?? json['ParkingSpotTypeName'] as String? ?? '',
           
           // Robust Sector/Wing parsing
           parkingSectorId: (sector?['id'] as num?)?.toInt() ?? 
+                           (sector?['Id'] as num?)?.toInt() ??
                            (wing?['parkingSectorId'] as num?)?.toInt() ?? 
-                           (json['parkingSectorId'] as num?)?.toInt() ?? 0,
+                           (wing?['ParkingSectorId'] as num?)?.toInt() ??
+                           (json['parkingSectorId'] as num?)?.toInt() ?? 
+                           (json['ParkingSectorId'] as num?)?.toInt() ?? 0,
                            
           parkingSectorName: (sector?['name'] as String?) ?? 
+                             (sector?['Name'] as String?) ??
                              (wing?['parkingSectorName'] as String?) ?? 
-                             (json['parkingSectorName'] as String?) ?? '',
+                             (wing?['ParkingSectorName'] as String?) ??
+                             (json['parkingSectorName'] as String?) ?? 
+                             (json['ParkingSectorName'] as String?) ?? '',
                              
           parkingWingId: (wing?['id'] as num?)?.toInt() ?? 
-                         (json['parkingWingId'] as num?)?.toInt() ?? 0,
+                         (wing?['Id'] as num?)?.toInt() ??
+                         (json['parkingWingId'] as num?)?.toInt() ?? 
+                         (json['ParkingWingId'] as num?)?.toInt() ?? 0,
                          
           parkingWingName: (wing?['name'] as String?) ?? 
-                           (json['parkingWingName'] as String?) ?? '',
+                           (wing?['Name'] as String?) ??
+                           (json['parkingWingName'] as String?) ?? 
+                           (json['ParkingWingName'] as String?) ?? '',
                            
-          isOccupied: json['isOccupied'] as bool? ?? false,
-          isActive: json['isActive'] as bool? ?? true,
+          isOccupied: json['isOccupied'] as bool? ?? json['IsOccupied'] as bool? ?? false,
+          isActive: json['isActive'] as bool? ?? json['IsActive'] as bool? ?? true,
         );
   }
 

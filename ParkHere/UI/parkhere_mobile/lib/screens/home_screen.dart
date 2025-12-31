@@ -62,20 +62,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           final userId = UserProvider.currentUser?.id;
           if (userId == null) return;
           
-          // Ideally: provider.get(filter: {'userId': userId, 'status': 'active/upcoming'})
-          // For now, fetch all and filter client side
-          final result = await Provider.of<ParkingReservationProvider>(context, listen: false).get(filter: {'userId': userId});
+          final result = await Provider.of<ParkingReservationProvider>(context, listen: false).get(filter: {
+            'userId': userId,
+            'excludePassed': false,
+            'retrieveAll': true,
+          });
           
           final now = DateTime.now();
           final reservations = result.items ?? [];
           
-          // Find first reservation that has NOT ended
-          final upcoming = reservations.where((r) => r.endTime!.isAfter(now)).toList();
-          upcoming.sort((a,b) => a.startTime!.compareTo(b.startTime!)); // nearest first
+          // Find the "most urgent" reservation:
+          // 1. If someone is currently arrived (Arrived)
+          // 2. Otherwise, the nearest future one (Pending)
+          ParkingReservation? bestMatch;
           
-          if (upcoming.isNotEmpty) {
+          // Look for "Arrived" (Active session)
+          try {
+            bestMatch = reservations.firstWhere((r) => r.actualStartTime != null && r.actualEndTime == null);
+          } catch (_) {
+            // Look for nearest "Pending" (Future)
+            final futureOnes = reservations.where((r) => r.actualStartTime == null && r.endTime.isAfter(now)).toList()
+              ..sort((a,b) => a.startTime.compareTo(b.startTime));
+            
+            if (futureOnes.isNotEmpty) {
+              bestMatch = futureOnes.first;
+            }
+          }
+          
+          if (bestMatch != null) {
               setState(() {
-                  _upcomingReservation = upcoming.first;
+                  _upcomingReservation = bestMatch;
               });
               _startTimer();
           }
@@ -91,25 +107,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           if (!mounted || _upcomingReservation == null) return false;
           
           final now = DateTime.now();
-          final start = _upcomingReservation!.startTime!;
-          
-          if (now.isBefore(start)) {
-             // Counting down to start
-             final diff = start.difference(now);
-             setState(() {
-                 _timeRemaining = "Starts in: ${_formatDuration(diff)}";
-             });
+          final start = _upcomingReservation!.startTime;
+          final end = _upcomingReservation!.endTime;
+          final isArrived = _upcomingReservation!.actualStartTime != null;
+
+          if (isArrived) {
+              // Active session: Show time left until forced end
+              final diff = end.difference(now);
+              if (diff.isNegative) {
+                  setState(() => _upcomingReservation = null);
+                  return false;
+              }
+              setState(() => _timeRemaining = _formatDuration(diff));
           } else {
-             // In progress
-             final end = _upcomingReservation!.endTime!;
-             final diff = end.difference(now);
-             if (diff.isNegative) {
-                 setState(() => _upcomingReservation = null); // Ended
-                 return false;
-             }
-             setState(() {
-                 _timeRemaining = "Time left: ${_formatDuration(diff)}";
-             });
+              // Pending: Show time until start
+              final diff = start.difference(now);
+              if (diff.isNegative) {
+                  // If we reached start time, maybe refresh to see if user "Arrived"
+                  _loadDashboardData();
+                  return false;
+              }
+              setState(() => _timeRemaining = _formatCountdown(diff));
           }
           
           await Future.delayed(const Duration(seconds: 1));
@@ -123,6 +141,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       final minutes = twoDigits(d.inMinutes.remainder(60));
       final seconds = twoDigits(d.inSeconds.remainder(60));
       return "$hours:$minutes:$seconds";
+  }
+
+  String _formatCountdown(Duration d) {
+    if (d.inDays > 0) {
+      return "${d.inDays}d ${d.inHours.remainder(24)}h ${d.inMinutes.remainder(60)}m";
+    }
+    return "${d.inHours}h ${d.inMinutes.remainder(60)}m ${d.inSeconds.remainder(60)}s";
   }
 
   @override
@@ -238,7 +263,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildMainStatusCard() {
+    if (_isLoading) {
+      return Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+        child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
     final hasReservation = _upcomingReservation != null;
+    final isArrived = hasReservation && _upcomingReservation!.actualStartTime != null;
+    final isPending = hasReservation && !isArrived;
+    
+    // Status color (for icons/badges) - Yellow for Pending as requested
+    final accentColor = isPending ? AppColors.reserved : Colors.white;
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -248,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           width: double.infinity,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: AppGradients.mainBackground,
+            gradient: AppGradients.mainBackground, // Keep it blue as requested
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
@@ -271,25 +310,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Icon(
-                      hasReservation ? Icons.timer_rounded : Icons.directions_car_rounded,
-                      color: Colors.white,
+                      Icons.directions_car_rounded,
+                      color: accentColor,
                       size: 28,
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: Text(
-                      hasReservation ? 'UPCOMING BOOKING' : 'NO ACTIVE BOOKING',
+                      isArrived ? 'SESSION ACTIVE' : (isPending ? 'PENDING' : 'READY TO PARK'),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.yellow,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ),
@@ -307,34 +346,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
-                    'Start: ${DateFormat('HH:mm').format(_upcomingReservation!.startTime!)} • Price: ${_upcomingReservation!.price?.toStringAsFixed(2)} BAM',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500
-                    ),
+                    isArrived ? "Remaning time" : "Countdown to your booking",
+                    style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
+                  
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                     decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Row(
-                        children: [
-                            const Icon(Icons.location_on_rounded, color: Colors.white, size: 20),
-                            const SizedBox(width: 8),
-                            const Text("Spot:", style: TextStyle(color: Colors.white70)), 
-                            const SizedBox(width: 4),
-                            // We might not have spot name here easily without join
-                            // But usually reservation has generic info or we fetch included.
-                            // For now basic info.
-                            const Text("View in Reservations", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ]
-                    )
+                    child: Column(
+                      children: [
+                         _buildStatusRow(Icons.calendar_today_rounded, isArrived ? "Active Since" : "Booking Date", 
+                          DateFormat('EEEE, MMM d').format(_upcomingReservation!.startTime)),
+                        const SizedBox(height: 12),
+                        _buildStatusRow(Icons.access_time_rounded, "Time Window", 
+                          "${DateFormat('HH:mm').format(_upcomingReservation!.startTime)} - ${DateFormat('HH:mm').format(_upcomingReservation!.endTime)}"),
+                        const SizedBox(height: 12),
+                        if (_upcomingReservation!.parkingSpot != null) ...[
+                          _buildStatusRow(Icons.map_rounded, "Location", 
+                            "${_upcomingReservation!.parkingSpot!.parkingSectorName} • ${_upcomingReservation!.parkingSpot!.parkingWingName}"),
+                          const SizedBox(height: 12),
+                        ],
+                        _buildStatusRow(Icons.local_parking_rounded, "Parking Spot", 
+                          _upcomingReservation!.parkingSpot?.name ?? "Spot #${_upcomingReservation!.parkingSpotId}"),
+                      ],
+                    ),
                   )
               ] else ...[
                   const Text(
@@ -347,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Book the perfect spot in seconds.',
+                    'Find and book your parking spot in seconds.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 15,
@@ -380,6 +421,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white70, size: 16),
+        const SizedBox(width: 10),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        const Spacer(),
+        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+      ],
     );
   }
 
