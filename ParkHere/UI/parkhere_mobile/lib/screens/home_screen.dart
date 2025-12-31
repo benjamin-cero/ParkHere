@@ -27,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   
   // State
   bool _isLoading = true;
-  ParkingReservation? _upcomingReservation; // The nearest active reservation
-  
-  // Timer
-  String _timeRemaining = "";
+  List<ParkingReservation> _dashboardReservations = []; // All active/pending reservations
+  Map<int, String> _reservationTimers = {}; // Map of reservation ID to its countdown string
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
   
   @override
   void initState() {
@@ -69,65 +69,84 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           });
           
           final now = DateTime.now();
-          final reservations = result.items ?? [];
+          final allReservations = result.items ?? [];
           
-          // Find the "most urgent" reservation:
-          // 1. If someone is currently arrived (Arrived)
-          // 2. Otherwise, the nearest future one (Pending)
-          ParkingReservation? bestMatch;
+          // Identify all active or future reservations
+          List<ParkingReservation> activeAndPending = allReservations.where((r) {
+            bool isArrived = r.actualStartTime != null && r.actualEndTime == null;
+            bool isPending = r.actualStartTime == null && r.endTime.isAfter(now);
+            return isArrived || isPending;
+          }).toList();
+
+          // Sort: Arrived first, then nearest Pending
+          activeAndPending.sort((a, b) {
+            bool aArrived = a.actualStartTime != null;
+            bool bArrived = b.actualStartTime != null;
+            if (aArrived && !bArrived) return -1;
+            if (!aArrived && bArrived) return 1;
+            return a.startTime.compareTo(b.startTime);
+          });
           
-          // Look for "Arrived" (Active session)
-          try {
-            bestMatch = reservations.firstWhere((r) => r.actualStartTime != null && r.actualEndTime == null);
-          } catch (_) {
-            // Look for nearest "Pending" (Future)
-            final futureOnes = reservations.where((r) => r.actualStartTime == null && r.endTime.isAfter(now)).toList()
-              ..sort((a,b) => a.startTime.compareTo(b.startTime));
+          if (mounted) {
+            setState(() {
+                _dashboardReservations = activeAndPending;
+            });
             
-            if (futureOnes.isNotEmpty) {
-              bestMatch = futureOnes.first;
+            if (_dashboardReservations.isNotEmpty) {
+                _startTimer();
             }
-          }
-          
-          if (bestMatch != null) {
-              setState(() {
-                  _upcomingReservation = bestMatch;
-              });
-              _startTimer();
           }
       } catch (e) {
           debugPrint("Failed to load dashboard data: $e");
       } finally {
-          setState(() => _isLoading = false);
+          if (mounted) {
+            setState(() => _isLoading = false);
+          }
       }
   }
   
   void _startTimer() {
       Future.doWhile(() async {
-          if (!mounted || _upcomingReservation == null) return false;
+          if (!mounted || _dashboardReservations.isEmpty) return false;
           
           final now = DateTime.now();
-          final start = _upcomingReservation!.startTime;
-          final end = _upcomingReservation!.endTime;
-          final isArrived = _upcomingReservation!.actualStartTime != null;
+          Map<int, String> newTimers = {};
+          bool anyExpired = false;
 
-          if (isArrived) {
-              // Active session: Show time left until forced end
-              final diff = end.difference(now);
-              if (diff.isNegative) {
-                  setState(() => _upcomingReservation = null);
-                  return false;
-              }
-              setState(() => _timeRemaining = _formatDuration(diff));
-          } else {
-              // Pending: Show time until start
-              final diff = start.difference(now);
-              if (diff.isNegative) {
-                  // If we reached start time, maybe refresh to see if user "Arrived"
-                  _loadDashboardData();
-                  return false;
-              }
-              setState(() => _timeRemaining = _formatCountdown(diff));
+          for (var res in _dashboardReservations) {
+            final start = res.startTime;
+            final end = res.endTime;
+            final isArrived = res.actualStartTime != null;
+
+            if (isArrived) {
+                final diff = end.difference(now);
+                if (diff.isNegative) {
+                    anyExpired = true;
+                    newTimers[res.id] = "00:00:00";
+                } else {
+                    newTimers[res.id] = _formatDuration(diff);
+                }
+            } else {
+                final diff = start.difference(now);
+                if (diff.isNegative) {
+                    anyExpired = true;
+                    newTimers[res.id] = "0h 0m 0s";
+                } else {
+                    newTimers[res.id] = _formatCountdown(diff);
+                }
+            }
+          }
+
+          if (mounted) {
+            setState(() {
+              _reservationTimers = newTimers;
+            });
+          }
+
+          if (anyExpired) {
+            await Future.delayed(const Duration(seconds: 2));
+            _loadDashboardData();
+            return false;
           }
           
           await Future.delayed(const Duration(seconds: 1));
@@ -153,286 +172,317 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _animController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = UserProvider.currentUser;
-
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.background,
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Header
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome back,',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textLight,
-                          fontWeight: FontWeight.w500,
+        child: _isLoading 
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : RefreshIndicator(
+              onRefresh: _loadDashboardData,
+              color: AppColors.primary,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Welcome Header
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome back,',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textLight,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${UserProvider.currentUser?.firstName ?? "Guest"}!',
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryDark,
+                                letterSpacing: -1,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        '${user?.firstName ?? "Guest"}!',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryDark,
-                          letterSpacing: -1,
-                        ),
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    // Status Section with PageView
+                    _buildDashboardStatusSection(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Quick Actions Grid
+                    const Text(
+                      'Explore ParkHere',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryDark,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 1.1,
+                      children: [
+                        _buildActionCard(
+                          icon: Icons.local_parking_rounded,
+                          title: 'Find Spot',
+                          subtitle: 'Book near you',
+                          color: AppColors.primary,
+                          onTap: () => widget.onTileTap(1),
+                        ),
+                        _buildActionCard(
+                          icon: Icons.history_rounded,
+                          title: 'My Bookings',
+                          subtitle: 'View history',
+                          color: AppColors.primaryLight,
+                          onTap: () => widget.onTileTap(2),
+                        ),
+                        _buildActionCard(
+                          icon: Icons.directions_car_rounded,
+                          title: 'Vehicles',
+                          subtitle: 'Manage fleet',
+                          color: Colors.orange,
+                          onTap: () => widget.onTileTap(3),
+                        ),
+                        _buildActionCard(
+                          icon: Icons.person_rounded,
+                          title: 'Profile',
+                          subtitle: 'Your settings',
+                          color: Colors.blueAccent,
+                          onTap: () => widget.onTileTap(4),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
               ),
-              const SizedBox(height: 32),
-              
-              // Status Card (Main Action)
-              _buildMainStatusCard(),
-              
-              const SizedBox(height: 40),
-              
-              // Quick Actions Grid
-              const Text(
-                'Explore ParkHere',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryDark,
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.1,
-                children: [
-                  _buildActionCard(
-                    icon: Icons.local_parking_rounded,
-                    title: 'Find Spot',
-                    subtitle: 'Book parking now',
-                    onTap: () => widget.onTileTap(1),
-                    color: AppColors.primary,
-                  ),
-                  _buildActionCard(
-                    icon: Icons.history_rounded,
-                    title: 'Reservations',
-                    subtitle: 'Manage bookings',
-                    onTap: () => widget.onTileTap(2),
-                    color: const Color(0xFF4C51BF),
-                  ),
-                  _buildActionCard(
-                    icon: Icons.rate_review_rounded,
-                    title: 'Reviews',
-                    subtitle: 'Community feedback',
-                    onTap: () => widget.onTileTap(3),
-                    color: const Color(0xFF2D3748),
-                  ),
-                  _buildActionCard(
-                    icon: Icons.manage_accounts_rounded,
-                    title: 'Profile',
-                    subtitle: 'Account settings',
-                    onTap: () => widget.onTileTap(4),
-                    color: AppColors.primaryDark,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }
 
-  Widget _buildMainStatusCard() {
-    if (_isLoading) {
-      return Container(
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
-        child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      );
+  Widget _buildDashboardStatusSection() {
+    if (_dashboardReservations.isEmpty) {
+        return _buildMainStatusCard(null);
     }
 
-    final hasReservation = _upcomingReservation != null;
-    final isArrived = hasReservation && _upcomingReservation!.actualStartTime != null;
-    final isPending = hasReservation && !isArrived;
-    
-    // Status color (for icons/badges) - Yellow for Pending as requested
+    return Column(
+      children: [
+        SizedBox(
+          height: 440, 
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) => setState(() => _currentPage = index),
+            itemCount: _dashboardReservations.length,
+            itemBuilder: (context, index) => _buildMainStatusCard(_dashboardReservations[index]),
+          ),
+        ),
+        if (_dashboardReservations.length > 1) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_dashboardReservations.length, (index) {
+                bool isSelected = _currentPage == index;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 8,
+                  width: isSelected ? 24 : 8,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                );
+            }),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildMainStatusCard(ParkingReservation? res) {
+    final hasReservation = res != null;
+    final isArrived = hasReservation && res.actualStartTime != null;
+    final isPending = hasReservation && res.actualStartTime == null;
     final accentColor = isPending ? AppColors.reserved : Colors.white;
+    final timerText = hasReservation ? (_reservationTimers[res.id] ?? "--:--:--") : "";
+    final spot = res?.parkingSpot;
 
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
         child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
           width: double.infinity,
-          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: AppGradients.mainBackground, // Keep it blue as requested
-            borderRadius: BorderRadius.circular(30),
+            gradient: AppGradients.mainBackground,
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryDark.withOpacity(0.3),
+                color: AppColors.primaryDark.withOpacity(0.35),
                 blurRadius: 25,
                 offset: const Offset(0, 15),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Icon(
-                      Icons.directions_car_rounded,
-                      color: accentColor,
-                      size: 28,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: Text(
-                      isArrived ? 'SESSION ACTIVE' : (isPending ? 'PENDING' : 'READY TO PARK'),
-                      style: const TextStyle(
-                        color: Colors.yellow,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              
-              if (hasReservation) ...[
-                  Text(
-                    _timeRemaining,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      fontFeatures: [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isArrived ? "Remaning time" : "Countdown to your booking",
-                    style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                         _buildStatusRow(Icons.calendar_today_rounded, isArrived ? "Active Since" : "Booking Date", 
-                          DateFormat('EEEE, MMM d').format(_upcomingReservation!.startTime)),
-                        const SizedBox(height: 12),
-                        _buildStatusRow(Icons.access_time_rounded, "Time Window", 
-                          "${DateFormat('HH:mm').format(_upcomingReservation!.startTime)} - ${DateFormat('HH:mm').format(_upcomingReservation!.endTime)}"),
-                        const SizedBox(height: 12),
-                        if (_upcomingReservation!.parkingSpot != null) ...[
-                          _buildStatusRow(Icons.map_rounded, "Location", 
-                            "${_upcomingReservation!.parkingSpot!.parkingSectorName} • ${_upcomingReservation!.parkingSpot!.parkingWingName}"),
-                          const SizedBox(height: 12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(32),
+            child: Stack(
+              children: [
+                Positioned(top: -50, right: -50, child: CircleAvatar(radius: 100, backgroundColor: Colors.white.withOpacity(0.05))),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Icon(
+                                  Icons.directions_car_rounded,
+                                  color: accentColor,
+                                  size: 28,
+                                ),
+                              ),
+                              if (hasReservation && res.vehicle != null) ...[
+                                const SizedBox(width: 12),
+                                Text(
+                                  res.vehicle!.licensePlate,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: Text(
+                              isArrived ? 'SESSION ACTIVE' : (isPending ? 'PENDING' : 'READY TO PARK'),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
                         ],
-                        _buildStatusRow(Icons.local_parking_rounded, "Parking Spot", 
-                          _upcomingReservation!.parkingSpot?.name ?? "Spot #${_upcomingReservation!.parkingSpotId}"),
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      if (hasReservation) ...[
+                          Text(
+                            timerText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              fontFeatures: [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isArrived ? "Remaning time" : "Countdown to your booking",
+                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildStatusRow(Icons.calendar_today_rounded, isArrived ? "Active Since" : "Booking Date", 
+                                  DateFormat('EEEE, MMM d').format(res.startTime)),
+                                const SizedBox(height: 12),
+                                _buildStatusRow(Icons.access_time_rounded, "Time Window", 
+                                  "${DateFormat('HH:mm').format(res.startTime)} - ${DateFormat('HH:mm').format(res.endTime)}"),
+                                const SizedBox(height: 12),
+                                _buildStatusRow(Icons.local_parking_rounded, "Parking Spot", 
+                                  spot?.name ?? "Spot #${res.parkingSpotId}"),
+                              ],
+                            ),
+                          )
+                      ] else ...[
+                          const Text(
+                            'Ready to Park?',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Find and book your parking spot in seconds.',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 15,
+                            ),
+                          ),
+                          const Spacer(),
+                          AppButton(
+                            text: "Find Nearby Parking",
+                            onPressed: () => widget.onTileTap(1),
+                          ),
                       ],
-                    ),
-                  )
-              ] else ...[
-                  const Text(
-                    'Ready to Park?',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Find and book your parking spot in seconds.',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () => widget.onTileTap(1),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.primaryDark,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Book Parking Now',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded, size: 20),
-                      ],
-                    ),
-                  ),
+                ),
               ],
-            ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildStatusRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.white70, size: 16),
-        const SizedBox(width: 10),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-        const Spacer(),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-      ],
     );
   }
 
@@ -440,8 +490,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -450,18 +500,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(10),
@@ -471,12 +519,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
               child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(height: 14),
+            const Spacer(),
             Text(
               title,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
                 fontSize: 16,
+                fontWeight: FontWeight.bold,
                 color: AppColors.primaryDark,
               ),
             ),
@@ -484,14 +532,43 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 color: AppColors.textLight,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white70, size: 16),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
