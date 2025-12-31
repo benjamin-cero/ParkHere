@@ -164,31 +164,49 @@ class _MasterScreenState extends State<MasterScreen> {
 
               // Content with Seamless Slide Transitions
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    final bool isForward = _selectedIndex > _previousIndex;
-                    final slideIn = Tween<Offset>(
-                      begin: Offset(isForward ? 1.0 : -1.0, 0.0),
-                      end: Offset.zero,
-                    ).animate(animation);
+                child: GestureDetector(
+                  onHorizontalDragEnd: (details) {
+                    if (details.primaryVelocity == null) return;
                     
-                    final slideOut = Tween<Offset>(
-                      begin: Offset(isForward ? -1.0 : 1.0, 0.0),
-                      end: Offset.zero,
-                    ).animate(animation);
-
-                    if (child.key == ValueKey(_selectedIndex)) {
-                      return SlideTransition(position: slideIn, child: child);
-                    } else {
-                      return SlideTransition(position: slideOut, child: child);
+                    // Swipe Left (Next Page)
+                    if (details.primaryVelocity! < -500) {
+                      if (_selectedIndex < _pageIcons.length - 1) {
+                        _onItemTapped(_selectedIndex + 1);
+                      }
+                    }
+                    // Swipe Right (Previous Page)
+                    else if (details.primaryVelocity! > 500) {
+                      if (_selectedIndex > 0) {
+                        _onItemTapped(_selectedIndex - 1);
+                      }
                     }
                   },
-                  child: KeyedSubtree(
-                    key: ValueKey(_selectedIndex),
-                    child: _pages[_selectedIndex],
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (Widget child, Animation<double> animation) {
+                      final bool isForward = _selectedIndex > _previousIndex;
+                      final slideIn = Tween<Offset>(
+                        begin: Offset(isForward ? 1.0 : -1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(animation);
+                      
+                      final slideOut = Tween<Offset>(
+                        begin: Offset(isForward ? -1.0 : 1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(animation);
+
+                      if (child.key == ValueKey(_selectedIndex)) {
+                        return SlideTransition(position: slideIn, child: child);
+                      } else {
+                        return SlideTransition(position: slideOut, child: child);
+                      }
+                    },
+                    child: KeyedSubtree(
+                      key: ValueKey(_selectedIndex),
+                      child: _pages[_selectedIndex],
+                    ),
                   ),
                 ),
               ),
