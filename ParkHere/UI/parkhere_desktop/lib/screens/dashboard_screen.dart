@@ -372,6 +372,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  "Price: ${res.price.toStringAsFixed(2)} BAM",
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981), fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -400,12 +405,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               ElevatedButton.icon(
-                onPressed: () => _approveEntry(res),
-                icon: const Icon(Icons.login_rounded, size: 18),
-                label: const Text("APPROVE ENTRY", style: TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: res.arrivalTime != null ? () => _approveEntry(res) : null,
+                icon: Icon(res.arrivalTime != null ? Icons.login_rounded : Icons.lock_rounded, size: 18),
+                label: Text(
+                  res.arrivalTime != null ? "APPROVE ENTRY" : "WAITING FOR USER", 
+                  style: const TextStyle(fontWeight: FontWeight.bold)
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3B82F6),
+                  backgroundColor: res.arrivalTime != null ? const Color(0xFF10B981) : Colors.red[400], // Green vs Red
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.red[300]?.withOpacity(0.6),
+                  disabledForegroundColor: Colors.white.withOpacity(0.8),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,

@@ -78,7 +78,15 @@ namespace ParkHere.Services.Services
                 .FirstOrDefaultAsync(s => s.ParkingReservationId == reservationId);
 
             if (session == null)
-                throw new InvalidOperationException($"No session found for reservation ID {reservationId}.");
+            {
+                // Create session if it doesn't exist (for legacy/seeded data)
+                session = new ParkingSession
+                {
+                    ParkingReservationId = reservationId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ParkingSessions.Add(session);
+            }
 
             if (session.ArrivalTime.HasValue)
                 throw new InvalidOperationException("Arrival time has already been registered for this session.");
@@ -95,6 +103,8 @@ namespace ParkHere.Services.Services
             // Find the session by reservation ID with reservation details
             var session = await _context.ParkingSessions
                 .Include(s => s.ParkingReservation)
+                    .ThenInclude(r => r.ParkingSpot)
+                        .ThenInclude(ps => ps.ParkingSpotType)
                 .FirstOrDefaultAsync(s => s.ParkingReservationId == reservationId);
 
             if (session == null)
@@ -103,19 +113,27 @@ namespace ParkHere.Services.Services
             if (session.ActualStartTime.HasValue)
                 throw new InvalidOperationException("Actual start time has already been set for this session.");
 
-            // Calculate actual start time based on user requirements:
-            // If they arrive early, use ArrivalTime. 
-            // If they arrive late (or time is just right), use the Reserved Start Time.
-            // If no ArrivalTime was set (legacy or direct entry), use current time.
-            
             DateTime now = DateTime.UtcNow;
             DateTime reservedStart = session.ParkingReservation.StartTime;
-            DateTime arrival = session.ArrivalTime ?? now;
+            
+            // Set ActualStartTime to NOW (when admin approves)
+            session.ActualStartTime = now;
 
-            // Simple logic: session starts at the EARLIER of (Arrival, ReservedStart)
-            // But if they are late, we start at ReservedStart.
-            // If they are early, we start at Arrival.
-            session.ActualStartTime = arrival < reservedStart ? arrival : reservedStart;
+            // PRICE REDISTRIBUTION LOGIC:
+            // 1. If Early Arrival: Recalculate price from NOW to EndTime
+            if (now < reservedStart)
+            {
+                var parkingSpot = session.ParkingReservation.ParkingSpot;
+                var duration = (session.ParkingReservation.EndTime - now).TotalHours;
+                
+                const decimal baseHourlyRate = 3.0m;
+                decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
+                decimal newPrice = (decimal)duration * baseHourlyRate * multiplier;
+                
+                session.ParkingReservation.Price = Math.Round(newPrice, 2);
+            }
+            // 2. If Late Arrival: Price stays the same (calculated from reserved StartTime)
+            // No action needed for late arrival as the price was set during reservation creation.
 
             await _context.SaveChangesAsync();
 

@@ -294,6 +294,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         return SizedBox(height: 440, child: _buildMainStatusCard(null));
     }
 
+    final currentRes = _dashboardReservations[_currentPage];
+    final now = DateTime.now();
+    final diff = currentRes.startTime.difference(now).inMinutes;
+    // Enabled 30 minutes before start time
+    final isTimeForArrival = diff <= 30; 
+    final isSignaled = currentRes.arrivalTime != null;
+
     return Column(
       children: [
         SizedBox(
@@ -305,6 +312,53 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             itemBuilder: (context, index) => _buildMainStatusCard(_dashboardReservations[index]),
           ),
         ),
+        if (!isSignaled) ...[
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: AppButton(
+              text: isTimeForArrival ? "SIGNAL ARRIVAL" : "I'M HERE (LOCKED)",
+              onPressed: isTimeForArrival ? () async {
+                  try {
+                      await context.read<ParkingSessionProvider>().registerArrival(currentRes.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Arrival signaled! Please wait for admin to open the ramp."), backgroundColor: AppColors.primary)
+                      );
+                      _loadDashboardData();
+                  } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Failed to signal arrival."), backgroundColor: AppColors.error)
+                      );
+                  }
+              } : null,
+            ),
+          ),
+          if (!isTimeForArrival)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                "Button unlocks 30 mins before your time",
+                style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ] else ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: AppColors.primary),
+                SizedBox(width: 8),
+                Text("Arrival Signaled - Waiting for Admin", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
         if (_dashboardReservations.length > 1) ...[
           const SizedBox(height: 12),
           Row(
