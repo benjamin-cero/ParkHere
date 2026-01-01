@@ -333,14 +333,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: AppButton(
-                text: isTimeForArrival ? "SIGNAL ARRIVAL" : "I'M HERE (LOCKED)",
+                text: isTimeForArrival ? "SIGNAL ARRIVAL" : "LOCKED",
+                icon: isTimeForArrival ? Icons.campaign_rounded : Icons.lock_outline,
                 onPressed: isTimeForArrival ? () async {
                     try {
                         await context.read<ParkingSessionProvider>().registerArrival(currentRes.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Arrival signaled! Please wait for admin to open the ramp."), backgroundColor: AppColors.primary)
                         );
-                        _loadDashboardData();
+                        _loadDashboardData(silent: true);
                     } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Failed to signal arrival."), backgroundColor: AppColors.error)

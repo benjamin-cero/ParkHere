@@ -149,6 +149,7 @@ class AppButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool outline;
+  final IconData? icon;
 
   const AppButton({
     super.key,
@@ -156,6 +157,7 @@ class AppButton extends StatelessWidget {
     this.onPressed,
     this.isLoading = false,
     this.outline = false,
+    this.icon,
   });
 
   @override
@@ -166,11 +168,20 @@ class AppButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary, width: 2),
-          padding: const EdgeInsets.symmetric(vertical: 18),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        child: Text(text,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(text,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+          ],
+        ),
       );
     }
 
@@ -195,7 +206,7 @@ class AppButton extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: isLoading
@@ -204,9 +215,18 @@ class AppButton extends StatelessWidget {
                 width: 22,
                 child: CircularProgressIndicator(
                     strokeWidth: 2, color: Colors.white))
-            : Text(text,
-                style:
-                    const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 22, color: Colors.white.withOpacity(0.9)),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(text,
+                      style:
+                          const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                ],
+              ),
       ),
     );
   }

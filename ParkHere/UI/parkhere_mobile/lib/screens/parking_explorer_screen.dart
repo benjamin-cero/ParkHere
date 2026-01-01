@@ -38,8 +38,8 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadData({bool silent = false}) async {
+    if (!silent) setState(() => _isLoading = true);
     try {
       final sectorProvider = Provider.of<ParkingSectorProvider>(context, listen: false);
       final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
@@ -69,9 +69,9 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
         
         // Load spots for the initial sector
         if (_selectedSectorId != 0) {
-          await _loadSpotsForSector(_selectedSectorId);
+          await _loadSpotsForSector(_selectedSectorId, silent: silent);
         } else {
-             setState(() => _isLoading = false);
+             if (!silent) setState(() => _isLoading = false);
         }
       }
     } catch (e) {
@@ -79,8 +79,8 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     }
   }
 
-  Future<void> _loadSpotsForSector(int sectorId) async {
-    setState(() => _isLoading = true);
+  Future<void> _loadSpotsForSector(int sectorId, {bool silent = false}) async {
+    if (!silent) setState(() => _isLoading = true);
     try {
        final spotProvider = Provider.of<ParkingSpotProvider>(context, listen: false);
        // Filter by sector ID
@@ -89,7 +89,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
        if (mounted) {
          setState(() {
            _allSpots = spotsResult.items ?? [];
-           _isLoading = false;
+           if (!silent) _isLoading = false;
          });
        }
     } catch (e) {
@@ -417,7 +417,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reservation successful!'), backgroundColor: AppColors.primary, behavior: SnackBarBehavior.floating));
-        _loadData();
+        await _loadData(silent: true);
       }
     } catch (e) {
       if (mounted) {
