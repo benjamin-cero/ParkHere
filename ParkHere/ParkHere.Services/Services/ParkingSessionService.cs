@@ -91,7 +91,7 @@ namespace ParkHere.Services.Services
             if (session.ArrivalTime.HasValue)
                 throw new InvalidOperationException("Arrival time has already been registered for this session.");
 
-            session.ArrivalTime = DateTime.UtcNow;
+            session.ArrivalTime = DateTime.Now;
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ParkingSessionResponse>(session);
@@ -113,22 +113,24 @@ namespace ParkHere.Services.Services
             if (session.ActualStartTime.HasValue)
                 throw new InvalidOperationException("Actual start time has already been set for this session.");
 
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.Now;
             DateTime reservedStart = session.ParkingReservation.StartTime;
             
             // Set ActualStartTime to NOW (when admin approves)
             session.ActualStartTime = now;
 
             // PRICE REDISTRIBUTION LOGIC:
-            // 1. If Early Arrival: Recalculate price from NOW to EndTime
+            // 1. If Early Arrival: Recalculate price from ArrivalTime (now) to EndTime
             if (now < reservedStart)
             {
                 var parkingSpot = session.ParkingReservation.ParkingSpot;
-                var duration = (session.ParkingReservation.EndTime - now).TotalHours;
+                var totalDurationHours = (session.ParkingReservation.EndTime - now).TotalHours;
                 
                 const decimal baseHourlyRate = 3.0m;
                 decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
-                decimal newPrice = (decimal)duration * baseHourlyRate * multiplier;
+                
+                // New Price = Hours * Rate * Multiplier
+                decimal newPrice = (decimal)totalDurationHours * baseHourlyRate * multiplier;
                 
                 session.ParkingReservation.Price = Math.Round(newPrice, 2);
             }

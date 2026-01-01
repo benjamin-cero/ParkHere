@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Map<int, String> _reservationTimers = {}; // Map of reservation ID to its countdown string
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isTimerRunning = false;
   
   @override
   void initState() {
@@ -58,8 +59,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _loadDashboardData();
   }
   
-  Future<void> _loadDashboardData() async {
+  Future<void> _loadDashboardData({bool silent = false}) async {
       try {
+          if (!silent && mounted) setState(() => _isLoading = true);
           final userId = UserProvider.currentUser?.id;
           if (userId == null) return;
           
@@ -93,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 _dashboardReservations = activeAndPending;
             });
             
-            if (_dashboardReservations.isNotEmpty) {
+            if (_dashboardReservations.isNotEmpty && !_isTimerRunning) {
                 _startTimer();
             }
           }
@@ -107,12 +109,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
   
   void _startTimer() {
+      _isTimerRunning = true;
+      int refreshCounter = 0;
       Future.doWhile(() async {
-          if (!mounted || _dashboardReservations.isEmpty) return false;
+          if (!mounted || _dashboardReservations.isEmpty) {
+              _isTimerRunning = false;
+              return false;
+          }
           
           final now = DateTime.now();
           Map<int, String> newTimers = {};
           bool anyExpired = false;
+
+          refreshCounter++;
+          if (refreshCounter >= 10) { // Refresh data silently every 10 seconds
+              refreshCounter = 0;
+              await _loadDashboardData(silent: true);
+          }
 
           for (var res in _dashboardReservations) {
             final start = res.startTime;
@@ -147,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           if (anyExpired) {
             await Future.delayed(const Duration(seconds: 2));
             _loadDashboardData();
+            _isTimerRunning = false;
             return false;
           }
           
@@ -300,6 +314,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     // Enabled 30 minutes before start time
     final isTimeForArrival = diff <= 30; 
     final isSignaled = currentRes.arrivalTime != null;
+    final isActive = currentRes.actualStartTime != null;
 
     return Column(
       children: [
@@ -312,52 +327,54 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             itemBuilder: (context, index) => _buildMainStatusCard(_dashboardReservations[index]),
           ),
         ),
-        if (!isSignaled) ...[
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: AppButton(
-              text: isTimeForArrival ? "SIGNAL ARRIVAL" : "I'M HERE (LOCKED)",
-              onPressed: isTimeForArrival ? () async {
-                  try {
-                      await context.read<ParkingSessionProvider>().registerArrival(currentRes.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Arrival signaled! Please wait for admin to open the ramp."), backgroundColor: AppColors.primary)
-                      );
-                      _loadDashboardData();
-                  } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Failed to signal arrival."), backgroundColor: AppColors.error)
-                      );
-                  }
-              } : null,
-            ),
-          ),
-          if (!isTimeForArrival)
+        if (!isActive) ...[
+          if (!isSignaled) ...[
+            const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                "Button unlocks 30 mins before your time",
-                style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: AppButton(
+                text: isTimeForArrival ? "SIGNAL ARRIVAL" : "I'M HERE (LOCKED)",
+                onPressed: isTimeForArrival ? () async {
+                    try {
+                        await context.read<ParkingSessionProvider>().registerArrival(currentRes.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Arrival signaled! Please wait for admin to open the ramp."), backgroundColor: AppColors.primary)
+                        );
+                        _loadDashboardData();
+                    } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Failed to signal arrival."), backgroundColor: AppColors.error)
+                        );
+                    }
+                } : null,
               ),
             ),
-        ] else ...[
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+            if (!isTimeForArrival)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  "Button unlocks 30 mins before your time",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+          ] else ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: AppColors.primary),
+                  SizedBox(width: 8),
+                  Text("Arrival Signaled - Waiting for Admin", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.check_circle, color: AppColors.primary),
-                SizedBox(width: 8),
-                Text("Arrival Signaled - Waiting for Admin", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
+          ],
         ],
         if (_dashboardReservations.length > 1) ...[
           const SizedBox(height: 12),
@@ -386,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final hasReservation = res != null;
     final isArrived = hasReservation && res.actualStartTime != null;
     final isPending = hasReservation && res.actualStartTime == null;
-    final accentColor = isPending ? AppColors.reserved : Colors.white;
+    final accentColor = isArrived ? const Color(0xFF4ADE80) : (isPending ? const Color(0xFFFFEE58) : Colors.white);
     final timerText = hasReservation ? (_reservationTimers[res.id] ?? "--:--:--") : "";
     final spot = res?.parkingSpot;
 
@@ -459,8 +476,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                             child: Text(
                               isArrived ? 'SESSION ACTIVE' : (isPending ? 'PENDING' : 'READY TO PARK'),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: hasReservation ? accentColor : Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
@@ -486,6 +503,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             isArrived ? "Remaning time" : "Countdown to your booking",
                             style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
                           ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(
+                              "PRICE: ${res.price.toStringAsFixed(2)} BAM",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           
                           Container(
@@ -496,11 +530,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                             child: Column(
                               children: [
-                                _buildStatusRow(Icons.calendar_today_rounded, isArrived ? "Active Since" : "Booking Date", 
-                                  DateFormat('EEEE, MMM d').format(res.startTime)),
+                                _buildStatusRow(
+                                  Icons.calendar_today_rounded, 
+                                  isArrived ? "Actual Entry" : "Booking Date", 
+                                  isArrived 
+                                    ? DateFormat('HH:mm, MMM d').format(res.actualStartTime!)
+                                    : DateFormat('EEEE, MMM d').format(res.startTime)
+                                ),
                                 const SizedBox(height: 12),
                                 _buildStatusRow(Icons.access_time_rounded, "Time Window", 
-                                  "${DateFormat('HH:mm').format(res.startTime)} - ${DateFormat('HH:mm').format(res.endTime)}"),
+                                  "${DateFormat('HH:mm').format(isArrived ? res.actualStartTime! : res.startTime)} - ${DateFormat('HH:mm').format(res.endTime)}"),
                                 const SizedBox(height: 12),
                                 _buildStatusRow(Icons.local_parking_rounded, "Parking Spot", 
                                   spot?.name ?? "Spot #${res.parkingSpotId}"),
