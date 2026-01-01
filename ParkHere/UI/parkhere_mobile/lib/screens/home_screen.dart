@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'dart:ui';
 import 'package:parkhere_mobile/model/parking_reservation.dart';
 import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
+import 'package:parkhere_mobile/providers/parking_session_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 
@@ -290,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildDashboardStatusSection() {
     if (_dashboardReservations.isEmpty) {
-        return _buildMainStatusCard(null);
+        return SizedBox(height: 440, child: _buildMainStatusCard(null));
     }
 
     return Column(

@@ -15,6 +15,7 @@ import 'package:parkhere_mobile/providers/vehicle_provider.dart';
 import 'package:parkhere_mobile/providers/parking_spot_provider.dart';
 import 'package:parkhere_mobile/providers/parking_sector_provider.dart';
 import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
+import 'package:parkhere_mobile/providers/parking_session_provider.dart';
 import 'package:parkhere_mobile/screens/register_screen.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 
@@ -41,6 +42,7 @@ void main() async {
         ChangeNotifierProvider<ParkingSpotProvider>(create: (_) => ParkingSpotProvider()),
         ChangeNotifierProvider<ParkingSectorProvider>(create: (_) => ParkingSectorProvider()), // Added
         ChangeNotifierProvider<ParkingReservationProvider>(create: (_) => ParkingReservationProvider()), // Added
+        ChangeNotifierProvider<ParkingSessionProvider>(create: (_) => ParkingSessionProvider()),
       ],
       child: const MyApp(),
     ),

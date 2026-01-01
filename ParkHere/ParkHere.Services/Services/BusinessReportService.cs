@@ -76,53 +76,53 @@ namespace ParkHere.Services.Services
             var mostPopularSpotItem = reservations
                 .GroupBy(r => r.ParkingSpotId)
                 .OrderByDescending(g => g.Count())
-                .First();
+                .FirstOrDefault();
 
-            var mostPopularSpot = new PopularItem
+            var mostPopularSpot = mostPopularSpotItem != null ? new PopularItem
             {
                 Name = mostPopularSpotItem.First().ParkingSpot.SpotCode,
                 Count = mostPopularSpotItem.Count(),
                 Revenue = mostPopularSpotItem.Sum(r => r.Price)
-            };
+            } : null;
 
             // Popular Type
             var mostPopularTypeItem = reservations
                 .GroupBy(r => r.ParkingSpot.ParkingSpotTypeId)
                 .OrderByDescending(g => g.Count())
-                .First();
+                .FirstOrDefault();
 
-            var mostPopularType = new PopularItem
+            var mostPopularType = mostPopularTypeItem != null ? new PopularItem
             {
                 Name = mostPopularTypeItem.First().ParkingSpot.ParkingSpotType.Type,
                 Count = mostPopularTypeItem.Count(),
                 Revenue = mostPopularTypeItem.Sum(r => r.Price)
-            };
+            } : null;
 
             // Popular Wing
             var mostPopularWingItem = reservations
                 .GroupBy(r => r.ParkingSpot.ParkingWingId)
                 .OrderByDescending(g => g.Count())
-                .First();
+                .FirstOrDefault();
 
-            var mostPopularWing = new PopularItem
+            var mostPopularWing = mostPopularWingItem != null ? new PopularItem
             {
                 Name = mostPopularWingItem.First().ParkingSpot.ParkingWing.Name,
                 Count = mostPopularWingItem.Count(),
                 Revenue = mostPopularWingItem.Sum(r => r.Price)
-            };
+            } : null;
 
             // Popular Sector
             var mostPopularSectorItem = reservations
                 .GroupBy(r => r.ParkingSpot.ParkingWing.ParkingSectorId)
                 .OrderByDescending(g => g.Count())
-                .First();
+                .FirstOrDefault();
 
-            var mostPopularSector = new PopularItem
+            var mostPopularSector = mostPopularSectorItem != null ? new PopularItem
             {
                 Name = mostPopularSectorItem.First().ParkingSpot.ParkingWing.ParkingSector.Name,
                 Count = mostPopularSectorItem.Count(),
                 Revenue = mostPopularSectorItem.Sum(r => r.Price)
-            };
+            } : null;
 
             // Distribution by Type
             var typeDistribution = reservations

@@ -56,14 +56,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         "includeVehicle": true,
         "includeParkingSpot": true,
         "includeParkingSession": true,
+        "excludePassed": true,
       });
 
       if (mounted) {
         setState(() {
-          // Filter arrivals waiting for approval
+          // Filter all upcoming reservations (actualStartTime == null) and SORT BY startTime (earliest first)
+          final filteredItems = result.items?.where((r) => r.actualStartTime == null).toList() ?? [];
+          
+          filteredItems.sort((a, b) => a.startTime.compareTo(b.startTime));
+
           _arrivals = SearchResult<ParkingReservation>()
-            ..items = result.items?.where((r) => r.arrivalTime != null && r.actualStartTime == null).toList()
-            ..totalCount = result.items?.where((r) => r.arrivalTime != null && r.actualStartTime == null).length;
+            ..items = filteredItems
+            ..totalCount = filteredItems.length;
 
           // Calculate stats
           _activeCount = result.items?.where((r) => r.actualStartTime != null && r.actualEndTime == null).length ?? 0;
@@ -371,17 +376,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           
-          // Arrival Time
+          // Arrival / Expected Time
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "Arrived at",
+                res.arrivalTime != null ? "Arrived at" : "Expected at",
                 style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
               const SizedBox(height: 2),
               Text(
-                DateFormat('HH:mm:ss').format(res.arrivalTime!),
+                res.arrivalTime != null 
+                    ? DateFormat('HH:mm').format(res.arrivalTime!)
+                    : DateFormat('MMM dd, HH:mm').format(res.startTime),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF3B82F6)),
               ),
             ],
