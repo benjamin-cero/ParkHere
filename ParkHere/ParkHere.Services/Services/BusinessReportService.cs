@@ -22,7 +22,6 @@ namespace ParkHere.Services.Services
         public async Task<BusinessReportResponse> GetBusinessReport()
         {
             var today = DateTime.Now;
-            var currentYear = today.Year;
 
             // Basic stats
             var reservations = await _context.ParkingReservations
@@ -52,16 +51,25 @@ namespace ParkHere.Services.Services
             var totalReservations = reservations.Count;
             var totalUsers = await _context.Users.CountAsync();
 
-            // Monthly revenue trends for current year (In-memory)
+            // Monthly revenue trends for last 12 months (In-memory)
+            var startDate = new DateTime(today.Year, today.Month, 1).AddMonths(-11);
+
             var monthlyTrends = reservations
-                .Where(r => r.StartTime.Year == currentYear)
-                .GroupBy(r => r.StartTime.Month)
-                .Select(g => new MonthlyRevenue
+                .Where(r => r.StartTime >= startDate)
+                .GroupBy(r => new { r.StartTime.Year, r.StartTime.Month })
+                .Select(g => new
                 {
-                    Month = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key),
+                    g.Key.Year,
+                    g.Key.Month,
                     Revenue = g.Sum(r => r.Price)
                 })
-                .OrderBy(m => DateTime.ParseExact(m.Month, "MMM", CultureInfo.CurrentCulture).Month)
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .Select(x => new MonthlyRevenue
+                {
+                    Month = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(x.Month),
+                    Revenue = x.Revenue
+                })
                 .ToList();
 
             // Popular Spot
