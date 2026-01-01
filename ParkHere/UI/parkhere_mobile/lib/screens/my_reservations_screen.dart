@@ -69,7 +69,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case "Arrived": return AppColors.occupied; // Red
+      case "Arrived": return Colors.green; // Green
       case "Completed": return Colors.grey;
       case "Pending": return AppColors.reserved; // Yellow
       default: return Colors.orange;
@@ -78,7 +78,10 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
 
   void _showEditModal(ParkingReservation res) {
     final now = DateTime.now();
-    if (res.startTime.difference(now).inMinutes < 30) {
+    final isArrived = res.actualStartTime != null;
+    
+    // Allow editing if Arrived OR (Pending AND > 30 mins before)
+    if (!isArrived && res.startTime.difference(now).inMinutes < 30) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Cannot edit reservation less than 30 minutes before arrival."),
@@ -89,8 +92,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     }
 
     DateTime editStartTime = res.startTime;
-    int editDurationHours = res.endTime.difference(res.startTime).inHours;
-    int editDurationMinutes = res.endTime.difference(res.startTime).inMinutes % 60;
+    // For Arrived: Start with 0 extension. For Pending: Start with current duration.
+    int editDurationHours = isArrived ? 0 : res.endTime.difference(res.startTime).inHours;
+    int editDurationMinutes = isArrived ? 0 : res.endTime.difference(res.startTime).inMinutes % 60;
     Vehicle? editVehicle = _userVehicles.firstWhere((v) => v.id == res.vehicleId, orElse: () => _userVehicles.first);
 
     showModalBottomSheet(
@@ -99,7 +103,12 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
-          final calculatedEndTime = editStartTime.add(Duration(hours: editDurationHours, minutes: editDurationMinutes));
+          final effectiveDuration = Duration(hours: editDurationHours, minutes: editDurationMinutes);
+          // If Arrived: EndTime = OldEndTime + Extension
+          // If Pending: EndTime = NewStartTime + NewDuration
+          final calculatedEndTime = isArrived 
+              ? res.endTime.add(effectiveDuration)
+              : editStartTime.add(effectiveDuration);
           
           return Container(
             height: MediaQuery.of(context).size.height * 0.75,
@@ -113,59 +122,64 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
               children: [
                 Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)))),
                 const SizedBox(height: 24),
-                const Text("Edit Booking", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                Text(isArrived ? "Extend Session" : "Edit Booking", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
                 const SizedBox(height: 24),
                 
-                const Text("Select Vehicle", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<Vehicle>(
-                      value: _userVehicles.any((v) => v.id == editVehicle?.id) ? editVehicle : null,
-                      isExpanded: true,
-                      items: _userVehicles.map((v) => DropdownMenuItem(value: v, child: Text("${v.name} (${v.licensePlate})"))).toList(),
-                      onChanged: (v) => setModalState(() => editVehicle = v),
+                if (!isArrived) ...[
+                  const Text("Select Vehicle", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Vehicle>(
+                        value: _userVehicles.any((v) => v.id == editVehicle?.id) ? editVehicle : null,
+                        isExpanded: true,
+                        items: _userVehicles.map((v) => DropdownMenuItem(value: v, child: Text("${v.name} (${v.licensePlate})"))).toList(),
+                        onChanged: (v) => setModalState(() => editVehicle = v),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                ],
 
-                const Text("Arrival Date & Time", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () async {
-                    final DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: editStartTime,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 30)),
-                    );
-                    if (pickedDate != null) {
-                      final TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(editStartTime));
-                      if (pickedTime != null) {
-                        setModalState(() {
-                          editStartTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
-                        });
+                if (!isArrived) ...[
+                  const Text("Arrival Date & Time", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                    GestureDetector(
+                    onTap: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: editStartTime,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
+                      );
+                      if (pickedDate != null) {
+                        final TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(editStartTime));
+                        if (pickedTime != null) {
+                          setModalState(() {
+                            editStartTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+                          });
+                        }
                       }
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[200]!)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(DateFormat('MMM d, yyyy  •  hh:mm a').format(editStartTime), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                        const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
-                      ],
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.grey[200]!)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(DateFormat('MMM d, yyyy  •  hh:mm a').format(editStartTime), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black)),
+                          Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 20),
+                ],
                 const SizedBox(height: 20),
 
-                const Text("Duration", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                Text(isArrived ? "Extend by" : "Duration", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -188,8 +202,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                       try {
                         final provider = Provider.of<ParkingReservationProvider>(context, listen: false);
                         await provider.update(res.id, {
-                          'vehicleId': editVehicle!.id,
-                          'startTime': editStartTime.toIso8601String(),
+                          'vehicleId': isArrived ? res.vehicleId : editVehicle!.id,
+                          'parkingSpotId': res.parkingSpotId,
+                          'startTime': isArrived ? res.startTime.toIso8601String() : editStartTime.toIso8601String(),
                           'endTime': calculatedEndTime.toIso8601String(),
                         });
                         if (mounted) {
@@ -331,7 +346,8 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     // Only allow editing in Pending tab, and if more than 30 mins away
     final isPending = status == "Pending";
     final isArrived = status == "Arrived";
-    final canEdit = isPending && res.startTime.difference(now).inMinutes > 30;
+    // Allow edit if Pending (>30m) OR Arrived (Active)
+    final canEdit = (isPending && res.startTime.difference(now).inMinutes > 30) || isArrived;
     
     final spot = res.parkingSpot;
 
@@ -462,16 +478,35 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                 
                 if (isArrived) ...[
                   const SizedBox(height: 24),
+                   Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showEditModal(res),
+                          icon: const Icon(Icons.edit_note_rounded, size: 20),
+                          label: const Text("Extend Session"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.occupied.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.directions_car_rounded, color: AppColors.occupied, size: 18),
-                        const SizedBox(width: 8),
-                        Text("Session in progress", style: TextStyle(color: AppColors.occupied, fontWeight: FontWeight.bold, fontSize: 13)),
+                        Icon(Icons.directions_car_rounded, color: Colors.white, size: 18),
+                        SizedBox(width: 8),
+                        Text("Session in progress", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                       ],
                     ),
                   ),
@@ -517,7 +552,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                 Color activeColor;
                 switch(filter) {
                   case "Pending": activeColor = AppColors.reserved; break;
-                  case "Arrived": activeColor = AppColors.occupied; break;
+                  case "Arrived": activeColor = Colors.green; break;
                   default: activeColor = Colors.grey[600]!;
                 }
 

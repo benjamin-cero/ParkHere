@@ -62,6 +62,12 @@ namespace ParkHere.Services.Services
 
         protected override async Task BeforeInsert(ParkingReservation entity, ParkingReservationInsertRequest request)
         {
+            // Prevent booking in the past
+            if (request.StartTime < DateTime.Now)
+            {
+                throw new InvalidOperationException("Cannot create a reservation with a start time in the past.");
+            }
+
             bool conflict = await _context.ParkingReservations
                .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
                             request.StartTime < x.EndTime && x.StartTime < request.EndTime);
@@ -181,14 +187,31 @@ namespace ParkHere.Services.Services
             var session = await _context.ParkingSessions
                 .FirstOrDefaultAsync(x => x.ParkingReservationId == entity.Id);
 
+            // 0. Prevent updating pending reservations to past times
+            bool isPending = session?.ActualStartTime == null;
+            if (isPending && request.StartTime < DateTime.Now)
+            {
+                throw new InvalidOperationException("Cannot update a pending reservation with a start time in the past.");
+            }
+
             // 1. Vehicle Change Restriction: Cannot change vehicle if already entered
-            if (entity.VehicleId != request.VehicleId && session?.ActualStartTime != null)
+            // Only check if VehicleId is provided in request
+            if (request.VehicleId.HasValue && entity.VehicleId != request.VehicleId.Value && session?.ActualStartTime != null)
             {
                 throw new InvalidOperationException("Cannot change vehicle after entry. Please contact support if needed.");
             }
 
             // 2. Time Extension Rules:
-            if (request.EndTime > entity.EndTime)
+            // Allow active sessions to extend time even if original EndTime passed
+            bool isActiveSession = session?.ActualStartTime != null && session?.ActualEndTime == null;
+
+            // Prevent shortening active sessions
+            if (isActiveSession && request.EndTime < entity.EndTime)
+            {
+                throw new InvalidOperationException("Cannot shorten an active session. You can only extend the time.");
+            }
+
+            if (request.EndTime > entity.EndTime && !isActiveSession)
             {
                 // If reservation is already expired
                 if (DateTime.UtcNow > entity.EndTime)
@@ -201,9 +224,30 @@ namespace ParkHere.Services.Services
                 }
             }
 
+            // Recalculate Price
+            var duration = (request.EndTime - request.StartTime).TotalHours;
+            if (duration > 0)
+            {
+                 var parkingSpot = await _context.ParkingSpots
+                    .Include(ps => ps.ParkingSpotType)
+                    .FirstOrDefaultAsync(ps => ps.Id == entity.ParkingSpotId);
+
+                 if (parkingSpot != null)
+                 {
+                    const decimal baseHourlyRate = 3.0m;
+                    decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
+                    decimal price = (decimal)duration * baseHourlyRate * multiplier;
+                    
+                    entity.Price = Math.Round(price, 2);
+                 }
+            }
+
             // 3. Conflict Check
+            // Use entity.ParkingSpotId because request might not include it (if just extending time)
+            int spotId = request.ParkingSpotId.HasValue ? request.ParkingSpotId.Value : entity.ParkingSpotId;
+
             bool conflict = await _context.ParkingReservations
-                .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
+                .AnyAsync(x => x.ParkingSpotId == spotId &&
                                x.Id != entity.Id &&
                                request.StartTime < x.EndTime && x.StartTime < request.EndTime);
 

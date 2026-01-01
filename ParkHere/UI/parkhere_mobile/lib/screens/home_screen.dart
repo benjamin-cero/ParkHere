@@ -141,12 +141,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     newTimers[res.id] = _formatDuration(diff);
                 }
             } else {
-                final diff = start.difference(now);
-                if (diff.isNegative) {
-                    anyExpired = true;
-                    newTimers[res.id] = "0h 0m 0s";
+                final startDiff = start.difference(now);
+                if (startDiff.isNegative) {
+                    final endDiff = end.difference(now);
+                    if (endDiff.isNegative) {
+                        anyExpired = true;
+                        newTimers[res.id] = "00:00:00";
+                    } else {
+                        newTimers[res.id] = _formatDuration(endDiff);
+                    }
                 } else {
-                    newTimers[res.id] = _formatCountdown(diff);
+                    newTimers[res.id] = _formatCountdown(startDiff);
                 }
             }
           }
@@ -404,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final hasReservation = res != null;
     final isArrived = hasReservation && res.actualStartTime != null;
     final isPending = hasReservation && res.actualStartTime == null;
-    final accentColor = isArrived ? const Color(0xFF4ADE80) : (isPending ? const Color(0xFFFFEE58) : Colors.white);
+    final accentColor = isArrived ? Colors.green : (isPending ? const Color(0xFFFFEE58) : Colors.white);
     final timerText = hasReservation ? (_reservationTimers[res.id] ?? "--:--:--") : "";
     final spot = res?.parkingSpot;
 
@@ -501,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            isArrived ? "Remaning time" : "Countdown to your booking",
+                            (isArrived || DateTime.now().isAfter(res.startTime)) ? "Remaining time" : "Countdown to your booking",
                             style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 12),
