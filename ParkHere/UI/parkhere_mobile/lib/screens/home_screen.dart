@@ -529,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 ),
                                 child: Icon(
                                   Icons.directions_car_rounded,
-                                  color: accentColor,
+                                  color: isOvertime ? Colors.redAccent : accentColor,
                                   size: 28,
                                 ),
                               ),
