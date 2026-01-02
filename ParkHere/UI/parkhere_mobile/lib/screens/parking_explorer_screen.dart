@@ -11,6 +11,7 @@ import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:intl/intl.dart';
+import 'package:parkhere_mobile/utils/message_utils.dart';
 
 class ParkingExplorerScreen extends StatefulWidget {
   const ParkingExplorerScreen({super.key});
@@ -417,12 +418,12 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reservation successful!'), backgroundColor: AppColors.primary, behavior: SnackBarBehavior.floating));
+        MessageUtils.showSuccess(context, 'Reservation successful!');
         await _loadData(silent: true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking failed. Please try again.'), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating));
+        MessageUtils.showError(context, 'Booking failed. Please try again.');
       }
     }
   }
@@ -495,9 +496,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                           child: GestureDetector(
                             onTap: () {
                               if (!isActive) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Sector is not active'), backgroundColor: Colors.orange),
-                                );
+                                MessageUtils.showWarning(context, 'Sector is not active');
                                 return;
                               }
                               

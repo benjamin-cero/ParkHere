@@ -7,6 +7,7 @@ import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/providers/parking_session_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
+import 'package:parkhere_mobile/utils/message_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onTileTap;
@@ -365,14 +366,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 onPressed: isTimeForArrival ? () async {
                     try {
                         await context.read<ParkingSessionProvider>().registerArrival(currentRes.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Arrival signaled! Please wait for admin to open the ramp."), backgroundColor: AppColors.primary)
-                        );
+                        MessageUtils.showSuccess(context, "Arrival signaled! Please wait for admin to open the ramp.");
                         _loadDashboardData(silent: true);
                     } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Failed to signal arrival."), backgroundColor: AppColors.error)
-                        );
+                        MessageUtils.showError(context, "Failed to signal arrival.");
                     }
                 } : null,
               ),
@@ -428,14 +425,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               Navigator.pop(context); // Close dialog
                               try {
                                   await context.read<ParkingSessionProvider>().setActualEndTime(currentRes.id);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("You have exited the parking."), backgroundColor: Colors.green)
-                                  );
+                                  MessageUtils.showSuccess(context, "You have exited the parking.");
                                   _loadDashboardData();
                               } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Failed to exit parking."), backgroundColor: AppColors.error)
-                                  );
+                                  MessageUtils.showError(context, "Failed to exit parking.");
                               }
                             },
                             child: const Text("Yes, Exit", style: TextStyle(color: Colors.white)),

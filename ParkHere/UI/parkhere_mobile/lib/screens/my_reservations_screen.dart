@@ -7,6 +7,7 @@ import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/providers/vehicle_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:intl/intl.dart';
+import 'package:parkhere_mobile/utils/message_utils.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({super.key});
@@ -82,12 +83,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     
     // Allow editing if Arrived OR (Pending AND > 30 mins before)
     if (!isArrived && res.startTime.difference(now).inMinutes < 30) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Cannot edit reservation less than 30 minutes before arrival."),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      MessageUtils.showError(context, "Cannot edit reservation less than 30 minutes before arrival.");
       return;
     }
 
@@ -210,10 +206,10 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         if (mounted) {
                           Navigator.pop(context);
                           _loadReservations();
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reservation updated!"), backgroundColor: AppColors.primary));
+                          MessageUtils.showSuccess(context, "Reservation updated!");
                         }
                       } catch (_) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to update"), backgroundColor: AppColors.error));
+                        MessageUtils.showError(context, "Failed to update");
                       }
                     },
                   ),
@@ -230,12 +226,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
   void _handleCancel(ParkingReservation res) {
     final now = DateTime.now();
     if (res.startTime.difference(now).inMinutes < 30) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Cannot cancel reservation less than 30 minutes before arrival."),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      MessageUtils.showError(context, "Cannot cancel reservation less than 30 minutes before arrival.");
       return;
     }
 
@@ -258,14 +249,10 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                 if (mounted) {
                   Navigator.pop(context);
                   _loadReservations();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Reservation cancelled successfully"), backgroundColor: Colors.redAccent),
-                  );
+                  MessageUtils.showSuccess(context, "Reservation cancelled successfully");
                 }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Failed to cancel reservation"), backgroundColor: Colors.redAccent),
-                );
+                MessageUtils.showError(context, "Failed to cancel reservation");
               }
             },
             style: ElevatedButton.styleFrom(
