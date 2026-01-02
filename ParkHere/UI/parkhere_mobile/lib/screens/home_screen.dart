@@ -96,6 +96,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           if (mounted) {
             setState(() {
                 _dashboardReservations = activeAndPending;
+                // Clamp active page index if list shrank
+                if (_currentPage >= _dashboardReservations.length) {
+                  _currentPage = (_dashboardReservations.isNotEmpty) ? _dashboardReservations.length - 1 : 0;
+                  // If we specifically removed the item we were looking at, the PageView needs to jump or animate to the new valid index.
+                  // However, simply updating the state variable _currentPage might be enough if PageView.builder uses it?
+                  // Actually, PageView controller might be out of sync.
+                  if (_pageController.hasClients) {
+                     _pageController.jumpToPage(_currentPage);
+                  }
+                }
             });
             
             if (_dashboardReservations.isNotEmpty && !_isTimerRunning) {
