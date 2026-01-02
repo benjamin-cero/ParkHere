@@ -117,12 +117,11 @@ namespace ParkHere.Services.Services
             DateTime reservedStart = session.ParkingReservation.StartTime;
             
             // Set ActualStartTime to NOW (when admin approves)
-            session.ActualStartTime = now;
-
-            // PRICE REDISTRIBUTION LOGIC:
-            // 1. If Early Arrival: Recalculate price from ArrivalTime (now) to EndTime
+            // If Early Arrival: Set ActualStartTime to NOW and recalculate price
             if (now < reservedStart)
             {
+                session.ActualStartTime = now;
+
                 var parkingSpot = session.ParkingReservation.ParkingSpot;
                 var totalDurationHours = (session.ParkingReservation.EndTime - now).TotalHours;
                 
@@ -133,6 +132,11 @@ namespace ParkHere.Services.Services
                 decimal newPrice = (decimal)totalDurationHours * baseHourlyRate * multiplier;
                 
                 session.ParkingReservation.Price = Math.Round(newPrice, 2);
+            }
+            // If Late Arrival: Set ActualStartTime to RESERVED START TIME (backdate)
+            else
+            {
+                session.ActualStartTime = reservedStart;
             }
             // 2. If Late Arrival: Price stays the same (calculated from reserved StartTime)
             // No action needed for late arrival as the price was set during reservation creation.
