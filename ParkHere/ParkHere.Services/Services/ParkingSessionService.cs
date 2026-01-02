@@ -177,11 +177,18 @@ namespace ParkHere.Services.Services
                 decimal penaltyRatePerMinute = (baseHourlyRate * multiplier / 60.0m) * 1.5m;
                 
                 session.ExtraCharge = Math.Round(extraMinutes * penaltyRatePerMinute, 2);
+                
+                // ADD ExtraCharge to Reservation Price and Update EndTime to Actual
+                session.ParkingReservation.Price += session.ExtraCharge.Value;
+                session.ParkingReservation.EndTime = actualEndTime;
             }
             else
             {
                 session.ExtraMinutes = 0;
                 session.ExtraCharge = 0;
+                
+                // Even for early exit, update reservation end time to actual so space is freed up
+                session.ParkingReservation.EndTime = actualEndTime;
             }
 
             await _context.SaveChangesAsync();

@@ -57,6 +57,8 @@ namespace ParkHere.Services.Services
                 query = query.Where(x => x.EndTime > DateTime.Now);
             }
 
+            query = query.OrderByDescending(x => x.StartTime);
+
             return query;
         }
 
@@ -289,6 +291,7 @@ namespace ParkHere.Services.Services
                 response.ActualStartTime = session.ActualStartTime;
                 response.ArrivalTime = session.ArrivalTime;
                 response.ActualEndTime = session.ActualEndTime;
+                response.ExtraCharge = session.ExtraCharge;
             }
             
             return response;

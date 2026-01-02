@@ -298,10 +298,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     final filtered = _reservations.where((r) {
       final status = _getStatus(r);
       return status == _selectedFilter;
-    }).toList()..sort((a, b) => a.startTime.compareTo(b.startTime));
+    }).toList();
 
-    // For "Completed", we might want newest first
-    final displayList = _selectedFilter == "Completed" ? filtered.reversed.toList() : filtered;
+    final displayList = filtered;
 
     return Container(
       color: AppColors.background,
@@ -396,8 +395,18 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         ],
                       ),
                     ),
-                    Text("${res.price.toStringAsFixed(2)} BAM",
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text("${res.price.toStringAsFixed(2)} BAM",
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                        if (res.extraCharge != null && res.extraCharge! > 0)
+                          Text(
+                            "(Incl. ${res.extraCharge!.toStringAsFixed(2)} overtime)",
+                            style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
                 const Divider(height: 40),
