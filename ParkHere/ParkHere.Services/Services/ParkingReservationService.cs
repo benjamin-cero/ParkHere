@@ -68,9 +68,21 @@ namespace ParkHere.Services.Services
                 throw new InvalidOperationException("Cannot create a reservation with a start time in the past.");
             }
 
-            bool conflict = await _context.ParkingReservations
-               .AnyAsync(x => x.ParkingSpotId == request.ParkingSpotId &&
-                            request.StartTime < x.EndTime && x.StartTime < request.EndTime);
+            var effectiveReservations = _context.ParkingReservations
+               .Where(x => x.ParkingSpotId == request.ParkingSpotId)
+               .Select(x => new
+               {
+                   x.Id,
+                   x.StartTime,
+                   // If session exists and has ActualEndTime (user exited), use it. Otherwise use scheduled EndTime.
+                   EndTime = _context.ParkingSessions
+                       .Where(s => s.ParkingReservationId == x.Id)
+                       .Select(s => s.ActualEndTime)
+                       .FirstOrDefault() ?? x.EndTime
+               });
+
+            bool conflict = await effectiveReservations
+               .AnyAsync(x => request.StartTime < x.EndTime && x.StartTime < request.EndTime);
 
             if (conflict)
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");
@@ -246,10 +258,20 @@ namespace ParkHere.Services.Services
             // Use entity.ParkingSpotId because request might not include it (if just extending time)
             int spotId = request.ParkingSpotId.HasValue ? request.ParkingSpotId.Value : entity.ParkingSpotId;
 
-            bool conflict = await _context.ParkingReservations
-                .AnyAsync(x => x.ParkingSpotId == spotId &&
-                               x.Id != entity.Id &&
-                               request.StartTime < x.EndTime && x.StartTime < request.EndTime);
+            var effectiveReservations = _context.ParkingReservations
+               .Where(x => x.ParkingSpotId == spotId && x.Id != entity.Id) // Exclude current
+               .Select(x => new
+               {
+                   x.Id,
+                   x.StartTime,
+                   EndTime = _context.ParkingSessions
+                       .Where(s => s.ParkingReservationId == x.Id)
+                       .Select(s => s.ActualEndTime)
+                       .FirstOrDefault() ?? x.EndTime
+               });
+
+            bool conflict = await effectiveReservations
+               .AnyAsync(x => request.StartTime < x.EndTime && x.StartTime < request.EndTime);
 
             if (conflict)
                 throw new InvalidOperationException("Parking spot is already reserved in this time range.");
