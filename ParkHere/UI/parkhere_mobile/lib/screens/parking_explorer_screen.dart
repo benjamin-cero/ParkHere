@@ -85,7 +85,10 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     try {
        final spotProvider = Provider.of<ParkingSpotProvider>(context, listen: false);
        // Filter by sector ID
-       final spotsResult = await spotProvider.get(filter: {'parkingSectorId': sectorId});
+       final spotsResult = await spotProvider.get(filter: {
+         'parkingSectorId': sectorId,
+         'isActive': true,
+       });
        
        if (mounted) {
          setState(() {
