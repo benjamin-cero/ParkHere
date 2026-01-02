@@ -108,13 +108,31 @@ namespace ParkHere.Services.Services
             // Calculate price: 3 BAM per hour * multiplier
             const decimal baseHourlyRate = 3.0m;
             decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
-            decimal price = (decimal)duration * baseHourlyRate * multiplier;
+            decimal originalPrice = (decimal)duration * baseHourlyRate * multiplier;
+
+            // NO-SHOW DEBT LOGIC
+            var noShowReservations = await _context.ParkingReservations
+                .Where(r => r.UserId == request.UserId && r.IsPaid == false && r.EndTime < DateTime.Now)
+                .ToListAsync();
+
+            decimal totalDebt = 0;
+            foreach (var nr in noShowReservations)
+            {
+                var sessionExistsAndStarted = await _context.ParkingSessions
+                    .AnyAsync(s => s.ParkingReservationId == nr.Id && s.ActualStartTime != null);
+
+                if (!sessionExistsAndStarted)
+                {
+                    totalDebt += nr.Price;
+                    nr.IsPaid = true; // Settle the debt by marking the no-show as paid
+                }
+            }
 
             var entity = new ParkingReservation();
             MapInsertToEntity(entity, request);
             
-            // Set the calculated price
-            entity.Price = Math.Round(price, 2);
+            // Set the calculated price (Original + Debt)
+            entity.Price = Math.Round(originalPrice + totalDebt, 2);
             
             _context.ParkingReservations.Add(entity);
 
@@ -139,7 +157,31 @@ namespace ParkHere.Services.Services
             // Send notification after successful creation
             await SendReservationNotificationAsync(entity.Id);
             
-            return MapToResponse(entity);
+            var response = MapToResponse(entity);
+            response.IncludedDebt = totalDebt > 0 ? totalDebt : null;
+
+            return response;
+        }
+
+        public async Task<decimal> GetDebtAsync(int userId)
+        {
+            var noShowReservations = await _context.ParkingReservations
+                .Where(r => r.UserId == userId && r.IsPaid == false && r.EndTime < DateTime.Now)
+                .ToListAsync();
+
+            decimal totalDebt = 0;
+            foreach (var nr in noShowReservations)
+            {
+                var sessionExistsAndStarted = await _context.ParkingSessions
+                    .AnyAsync(s => s.ParkingReservationId == nr.Id && s.ActualStartTime != null);
+
+                if (!sessionExistsAndStarted)
+                {
+                    totalDebt += nr.Price;
+                }
+            }
+
+            return Math.Round(totalDebt, 2);
         }
 
         private async Task SendReservationNotificationAsync(int reservationId)

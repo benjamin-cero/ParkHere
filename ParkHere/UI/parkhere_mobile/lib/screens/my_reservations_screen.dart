@@ -63,7 +63,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
   }
 
   String _getStatus(ParkingReservation res) {
-    if (res.actualEndTime != null) return "Completed";
+    if (res.actualEndTime != null || (res.actualStartTime == null && DateTime.now().isAfter(res.endTime))) return "Completed";
     if (res.actualStartTime != null) return "Arrived";
     return "Pending";
   }

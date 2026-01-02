@@ -26,5 +26,6 @@ namespace ParkHere.Model.Responses
         public DateTime? ArrivalTime { get; set; }
         public DateTime? ActualEndTime { get; set; }
         public decimal? ExtraCharge { get; set; }
+        public decimal? IncludedDebt { get; set; }
     }
 }

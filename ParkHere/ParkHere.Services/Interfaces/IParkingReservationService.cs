@@ -6,5 +6,6 @@ namespace ParkHere.Services.Interfaces
 {
     public interface IParkingReservationService : ICRUDService<ParkingReservationResponse, ParkingReservationSearchObject, ParkingReservationInsertRequest, ParkingReservationUpdateRequest>
     {
+        Task<decimal> GetDebtAsync(int userId);
     }
 }

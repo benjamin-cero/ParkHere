@@ -546,6 +546,49 @@
         }
       }
     },
+    "/ParkingReservation/GetDebt/{userId}": {
+      "get": {
+        "tags": [
+          "ParkingReservation"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ParkingReservation": {
       "post": {
         "tags": [
@@ -3689,6 +3732,16 @@
           "actualEndTime": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "extraCharge": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "includedDebt": {
+            "type": "number",
+            "format": "double",
             "nullable": true
           }
         },

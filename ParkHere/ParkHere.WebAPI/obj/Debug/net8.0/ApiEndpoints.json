@@ -530,6 +530,32 @@
     ]
   },
   {
+    "ContainingType": "ParkHere.WebAPI.Controllers.ParkingReservationController",
+    "Method": "GetDebt",
+    "RelativePath": "ParkingReservation/GetDebt/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Decimal",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSectorResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSectorSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSectorUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Create",
     "RelativePath": "ParkingSector",

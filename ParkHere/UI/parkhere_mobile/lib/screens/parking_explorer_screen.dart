@@ -28,6 +28,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
   bool _isLoading = true;
 
   int _selectedSectorId = 0;
+  double _debt = 0;
   
   Vehicle? _selectedVehicle;
   DateTime _startTime = DateTime.now().add(const Duration(minutes: 15));
@@ -131,13 +132,24 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
   int _durationHours = 2;
   int _durationMinutes = 0;
 
-  void _showReservationModal(ParkingSpot spot) {
+  void _showReservationModal(ParkingSpot spot) async {
     final now = DateTime.now();
     setState(() {
       _startTime = DateTime(now.year, now.month, now.day, now.hour, now.minute).add(const Duration(minutes: 15));
       _durationHours = 2;
       _durationMinutes = 0;
     });
+
+    final userId = UserProvider.currentUser?.id;
+    if (userId != null) {
+      try {
+        final resProvider = Provider.of<ParkingReservationProvider>(context, listen: false);
+        final debtValue = await resProvider.getDebt(userId);
+        setState(() => _debt = debtValue);
+      } catch (_) {
+        setState(() => _debt = 0);
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -327,8 +339,21 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text("Total Price", style: TextStyle(color: Colors.grey, fontSize: 13)),
-                        Text("${_calculatePrice(spot).toStringAsFixed(2)} BAM",
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                        Row(
+                          children: [
+                             Text("${(_calculatePrice(spot) + _debt).toStringAsFixed(2)} BAM",
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                             if (_debt > 0) ...[
+                               const SizedBox(width: 8),
+                               Container(
+                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                 decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                                 child: Text("+ ${_debt.toStringAsFixed(2)} debt", 
+                                  style: const TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                               )
+                             ]
+                          ],
+                        ),
                       ],
                     ),
                     SizedBox(

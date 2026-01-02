@@ -13,6 +13,9 @@ namespace ParkHere.WebAPI.Controllers
         {
         }
 
-     
-    }
+        [HttpGet("GetDebt/{userId}")]
+        public virtual async Task<decimal> GetDebt(int userId)
+        {
+            return await ((IParkingReservationService)_service).GetDebtAsync(userId);
+        }    }
 }

@@ -25,6 +25,7 @@ class ParkingReservation {
   final DateTime? actualStartTime;
   final DateTime? actualEndTime;
   final double? extraCharge;
+  final double? includedDebt;
 
   ParkingReservation({
     this.id = 0,
@@ -43,6 +44,7 @@ class ParkingReservation {
     this.actualStartTime,
     this.actualEndTime,
     this.extraCharge,
+    this.includedDebt,
   });
 
   factory ParkingReservation.fromJson(Map<String, dynamic> json) => _$ParkingReservationFromJson(json);
