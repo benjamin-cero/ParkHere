@@ -128,10 +128,11 @@ namespace ParkHere.Services.Services
                 const decimal baseHourlyRate = 3.0m;
                 decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
                 
-                // New Price = Hours * Rate * Multiplier
-                decimal newPrice = (decimal)totalDurationHours * baseHourlyRate * multiplier;
+                // New Price = (Hours * Rate * Multiplier) + IncludedDebt
+                decimal basePrice = (decimal)totalDurationHours * baseHourlyRate * multiplier;
+                decimal debt = session.ParkingReservation.IncludedDebt ?? 0;
                 
-                session.ParkingReservation.Price = Math.Round(newPrice, 2);
+                session.ParkingReservation.Price = Math.Round(basePrice + debt, 2);
             }
             // If Late Arrival: Set ActualStartTime to RESERVED START TIME (backdate)
             else

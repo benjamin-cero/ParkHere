@@ -63,16 +63,20 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
   }
 
   String _getStatus(ParkingReservation res) {
-    if (res.actualEndTime != null || (res.actualStartTime == null && DateTime.now().isAfter(res.endTime))) return "Completed";
+    if (res.actualEndTime != null) return "Completed";
+    if (res.actualStartTime == null && DateTime.now().isAfter(res.endTime)) {
+      return res.isPaid ? "Completed" : "Missed";
+    }
     if (res.actualStartTime != null) return "Arrived";
     return "Pending";
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case "Arrived": return Colors.green; // Green
+      case "Arrived": return Colors.green;
       case "Completed": return Colors.grey;
-      case "Pending": return AppColors.reserved; // Yellow
+      case "Missed": return Colors.orange[400]!; // Yellowish for debt
+      case "Pending": return AppColors.reserved;
       default: return Colors.orange;
     }
   }
@@ -297,6 +301,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     // Filter and sort reservations
     final filtered = _reservations.where((r) {
       final status = _getStatus(r);
+      if (_selectedFilter == "Completed") {
+        return status == "Completed" || status == "Missed";
+      }
       return status == _selectedFilter;
     }).toList();
 
@@ -341,9 +348,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: status == "Missed" ? Colors.orange[50]?.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: statusColor.withOpacity(0.3), width: 1),
+        border: Border.all(color: statusColor.withOpacity(0.4), width: status == "Missed" ? 2 : 1),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Column(
@@ -357,7 +364,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.local_parking_rounded, color: statusColor, size: 20),
+                Icon(status == "Missed" ? Icons.warning_amber_rounded : Icons.local_parking_rounded, color: statusColor, size: 20),
                 const SizedBox(width: 12),
                 Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.1)),
                 const Spacer(),
@@ -405,6 +412,11 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                             "(Incl. ${res.extraCharge!.toStringAsFixed(2)} overtime)",
                             style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
                           ),
+                        if (res.includedDebt != null && res.includedDebt! > 0)
+                          Text(
+                            "(Incl. ${res.includedDebt!.toStringAsFixed(2)} missed debt - Loan Payed)",
+                            style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold),
+                          ),
                       ],
                     ),
                   ],
@@ -417,7 +429,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: (status == "Missed" ? Colors.orange : AppColors.primary).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                         child: _buildMiniInfo(Icons.category_rounded, spot.parkingSpotTypeName, false),
                       ),
                     ],
@@ -504,6 +516,23 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         Icon(Icons.directions_car_rounded, color: Colors.white, size: 18),
                         SizedBox(width: 8),
                         Text("Session in progress", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+
+                if (status == "Missed") ...[
+                   const SizedBox(height: 24),
+                   Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.orange.withOpacity(0.3))),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 18),
+                        SizedBox(width: 8),
+                        Text("Unpaid Missed Booking", style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 13)),
                       ],
                     ),
                   ),

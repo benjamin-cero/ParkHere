@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20260102173726_SeedInitialData")]
+    [Migration("20260102185304_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -142,6 +142,9 @@ namespace ParkHere.Services.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("IncludedDebt")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");

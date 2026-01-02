@@ -133,6 +133,7 @@ namespace ParkHere.Services.Services
             
             // Set the calculated price (Original + Debt)
             entity.Price = Math.Round(originalPrice + totalDebt, 2);
+            entity.IncludedDebt = totalDebt > 0 ? totalDebt : null;
             
             _context.ParkingReservations.Add(entity);
 
@@ -292,9 +293,10 @@ namespace ParkHere.Services.Services
                  {
                     const decimal baseHourlyRate = 3.0m;
                     decimal multiplier = parkingSpot.ParkingSpotType?.PriceMultiplier ?? 1.0m;
-                    decimal price = (decimal)duration * baseHourlyRate * multiplier;
-                    
-                    entity.Price = Math.Round(price, 2);
+                     decimal basePrice = (decimal)duration * baseHourlyRate * multiplier;
+                     decimal debt = entity.IncludedDebt ?? 0;
+                     
+                     entity.Price = Math.Round(basePrice + debt, 2);
                  }
             }
 

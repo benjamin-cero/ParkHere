@@ -140,6 +140,9 @@ namespace ParkHere.Services.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("IncludedDebt")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 

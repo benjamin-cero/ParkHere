@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _isTimerRunning = false;
+  double _totalDebt = 0;
   
   @override
   void initState() {
@@ -111,6 +112,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             if (_dashboardReservations.isNotEmpty && !_isTimerRunning) {
                 _startTimer();
             }
+
+            // Fetch total debt
+            final d = await Provider.of<ParkingReservationProvider>(context, listen: false).getDebt(userId);
+            setState(() {
+              _totalDebt = d;
+            });
           }
       } catch (e) {
           debugPrint("Failed to load dashboard data: $e");
@@ -252,26 +259,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       opacity: _fadeAnimation,
                       child: SlideTransition(
                         position: _slideAnimation,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Welcome back,',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textLight,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome back,',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.textLight,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '${UserProvider.currentUser?.firstName ?? "Guest"}!',
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryDark,
+                                    letterSpacing: -1,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${UserProvider.currentUser?.firstName ?? "Guest"}!',
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryDark,
-                                letterSpacing: -1,
-                              ),
-                            ),
+                            if (_totalDebt > 0)
+                              _buildDebtIndicator(),
                           ],
                         ),
                       ),
@@ -595,7 +609,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     borderRadius: BorderRadius.circular(15),
                                   ),
                                   child: Text(
-                                    "PRICE: ${res.price.toStringAsFixed(2)} BAM",
+                                    res.includedDebt != null && res.includedDebt! > 0
+                                        ? "PRICE: ${(res.price - res.includedDebt!).toStringAsFixed(2)} + ${res.includedDebt!.toStringAsFixed(2)} debt"
+                                        : "PRICE: ${res.price.toStringAsFixed(2)} BAM",
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13,
@@ -739,6 +755,42 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDebtIndicator() {
+    return PopupMenuButton(
+      offset: const Offset(0, 50),
+      color: Colors.white.withOpacity(0.9),
+      elevation: 10,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), 
+        side: BorderSide(color: Colors.orange.withOpacity(0.2))
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        ),
+        child: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          enabled: false, // Just for display
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("OUTSTANDING DEBT", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)),
+              const SizedBox(height: 8),
+              Text("${_totalDebt.toStringAsFixed(2)} BAM", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange)),
+              const SizedBox(height: 4),
+              const Text("From missed reservations.", style: TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

@@ -341,16 +341,12 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                         const Text("Total Price", style: TextStyle(color: Colors.grey, fontSize: 13)),
                         Row(
                           children: [
-                             Text("${(_calculatePrice(spot) + _debt).toStringAsFixed(2)} BAM",
+                             Text("${_calculatePrice(spot).toStringAsFixed(2)} BAM",
                               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
                              if (_debt > 0) ...[
                                const SizedBox(width: 8),
-                               Container(
-                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                 decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                                 child: Text("+ ${_debt.toStringAsFixed(2)} debt", 
-                                  style: const TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-                               )
+                               Text("+ ${_debt.toStringAsFixed(2)} BAM debt", 
+                                style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.bold)),
                              ]
                           ],
                         ),
