@@ -150,6 +150,7 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final bool outline;
   final IconData? icon;
+  final Color? backgroundColor;
 
   const AppButton({
     super.key,
@@ -158,6 +159,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.outline = false,
     this.icon,
+    this.backgroundColor,
   });
 
   @override
@@ -188,8 +190,8 @@ class AppButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: onPressed != null ? AppGradients.buttonGradient : null,
-        color: onPressed == null ? Colors.grey[300] : null,
+        gradient: onPressed != null ? (backgroundColor == null ? AppGradients.buttonGradient : null) : null,
+        color: onPressed == null ? Colors.grey[300] : backgroundColor,
         boxShadow: onPressed != null
             ? [
                 BoxShadow(

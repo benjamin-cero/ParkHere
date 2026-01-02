@@ -30,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _isLoading = true;
   List<ParkingReservation> _dashboardReservations = []; // All active/pending reservations
   Map<int, String> _reservationTimers = {}; // Map of reservation ID to its countdown string
+  Map<int, double> _extraCharges = {};
+  Map<int, bool> _isOvertime = {};
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _isTimerRunning = false;
@@ -119,6 +121,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           
           final now = DateTime.now();
           Map<int, String> newTimers = {};
+          Map<int, double> newExtraCharges = {};
+          Map<int, bool> newIsOvertime = {};
+          
           bool anyExpired = false;
 
           refreshCounter++;
@@ -135,10 +140,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             if (isArrived) {
                 final diff = end.difference(now);
                 if (diff.isNegative) {
-                    anyExpired = true;
-                    newTimers[res.id] = "00:00:00";
+                    // Overtime logic
+                    final overtime = -diff;
+                    newTimers[res.id] = "+ ${_formatDuration(overtime)}";
+                    newIsOvertime[res.id] = true;
+                    
+                    // Calculate extra charge
+                    // Formula: (BaseRate * Multiplier / 60) * 1.5 * Minutes
+                    // BaseRate = 3.0
+                    final multiplier = res.parkingSpot?.priceMultiplier ?? 1.0;
+                    final penaltyRatePerMinute = (3.0 * multiplier / 60.0) * 1.5;
+                    newExtraCharges[res.id] = overtime.inMinutes * penaltyRatePerMinute;
+                    
                 } else {
                     newTimers[res.id] = _formatDuration(diff);
+                    newIsOvertime[res.id] = false;
+                    newExtraCharges[res.id] = 0.0;
                 }
             } else {
                 final startDiff = start.difference(now);
@@ -159,14 +176,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           if (mounted) {
             setState(() {
               _reservationTimers = newTimers;
+              _extraCharges = newExtraCharges;
+              _isOvertime = newIsOvertime;
             });
           }
 
           if (anyExpired) {
             await Future.delayed(const Duration(seconds: 2));
             _loadDashboardData();
-            _isTimerRunning = false;
-            return false;
+            // Don't stop timer if there are other active reservations
+             if (_dashboardReservations.isEmpty) {
+                _isTimerRunning = false;
+                return false;
+             }
           }
           
           await Future.delayed(const Duration(seconds: 1));
@@ -381,6 +403,49 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
           ],
+        ] else ...[
+             const SizedBox(height: 16),
+             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: AppButton(
+                text: "EXIT PARKING",
+                icon: Icons.exit_to_app_rounded,
+                backgroundColor: Colors.redAccent,
+                onPressed: () async {
+                     showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Exit Parking"),
+                        content: const Text("Are you sure you want to end your parking session and exit?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                            onPressed: () async {
+                              Navigator.pop(context); // Close dialog
+                              try {
+                                  await context.read<ParkingSessionProvider>().setActualEndTime(currentRes.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("You have exited the parking."), backgroundColor: Colors.green)
+                                  );
+                                  _loadDashboardData();
+                              } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Failed to exit parking."), backgroundColor: AppColors.error)
+                                  );
+                              }
+                            },
+                            child: const Text("Yes, Exit", style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    );
+                },
+              ),
+            ),
         ],
         if (_dashboardReservations.length > 1) ...[
           const SizedBox(height: 12),
@@ -412,6 +477,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final accentColor = isArrived ? Colors.green : (isPending ? const Color(0xFFFFEE58) : Colors.white);
     final timerText = hasReservation ? (_reservationTimers[res.id] ?? "--:--:--") : "";
     final spot = res?.parkingSpot;
+    
+    final isOvertime = hasReservation ? (_isOvertime[res.id] ?? false) : false;
+    final extraCharge = hasReservation ? (_extraCharges[res.id] ?? 0.0) : 0.0;
+    
+    // For timer color: Red if overtime, otherwise existing logic
+    final timerColor = isOvertime ? Colors.redAccent : Colors.white;
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -476,14 +547,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: isOvertime ? Colors.redAccent.withOpacity(0.2) : Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withOpacity(0.2)),
+                              border: Border.all(color: isOvertime ? Colors.redAccent : Colors.white.withOpacity(0.2)),
                             ),
                             child: Text(
-                              isArrived ? 'SESSION ACTIVE' : (isPending ? 'PENDING' : 'READY TO PARK'),
+                              isArrived ? (isOvertime ? 'OVERTIME' : 'SESSION ACTIVE') : (isPending ? 'PENDING' : 'READY TO PARK'),
                               style: TextStyle(
-                                color: hasReservation ? accentColor : Colors.white,
+                                color: isOvertime ? Colors.redAccent : (hasReservation ? accentColor : Colors.white),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
@@ -497,34 +568,60 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       if (hasReservation) ...[
                           Text(
                             timerText,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: timerColor,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              fontFeatures: [FontFeature.tabularFigures()],
+                              fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            (isArrived || DateTime.now().isAfter(res.startTime)) ? "Remaining time" : "Countdown to your booking",
-                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
+                            isOvertime 
+                              ? "Overtime duration"
+                              : ((isArrived || DateTime.now().isAfter(res.startTime)) ? "Remaining time" : "Countdown to your booking"),
+                            style: TextStyle(color: isOvertime ? Colors.redAccent : Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Text(
-                              "PRICE: ${res.price.toStringAsFixed(2)} BAM",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                              ),
-                            ),
+                          Row(
+                            children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Text(
+                                    "PRICE: ${res.price.toStringAsFixed(2)} BAM",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
+                                if (isOvertime && extraCharge > 0) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.redAccent.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(color: Colors.redAccent),
+                                      ),
+                                      child: Text(
+                                        "+ ${extraCharge.toStringAsFixed(2)}",
+                                        style: const TextStyle(
+                                          color: Colors.redAccent,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                    ),
+                                ]
+                            ],
                           ),
                           const SizedBox(height: 16),
                           

@@ -346,8 +346,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
     // Only allow editing in Pending tab, and if more than 30 mins away
     final isPending = status == "Pending";
     final isArrived = status == "Arrived";
-    // Allow edit if Pending (>30m) OR Arrived (Active)
-    final canEdit = (isPending && res.startTime.difference(now).inMinutes > 30) || isArrived;
+    // Allow edit if Pending (>30m) OR Arrived (Active) AND NOT Overtime
+    final isOvertime = isArrived && now.isAfter(res.endTime);
+    final canEdit = (isPending && res.startTime.difference(now).inMinutes > 30) || (isArrived && !isOvertime);
     
     final spot = res.parkingSpot;
 
@@ -482,11 +483,11 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _showEditModal(res),
+                          onPressed: isOvertime ? null : () => _showEditModal(res),
                           icon: const Icon(Icons.edit_note_rounded, size: 20),
-                          label: const Text("Extend Session"),
+                          label: Text(isOvertime ? "Overtime - Please Exit" : "Extend Session"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: isOvertime ? Colors.grey : Colors.green,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

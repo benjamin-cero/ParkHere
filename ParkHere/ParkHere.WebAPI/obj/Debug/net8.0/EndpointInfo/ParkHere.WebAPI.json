@@ -1157,30 +1157,22 @@
         }
       }
     },
-    "/ParkingSession/set-end-time": {
+    "/ParkingSession/set-end-time/{reservationId}": {
       "post": {
         "tags": [
           "ParkingSession"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetEndTimeRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetEndTimeRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetEndTimeRequest"
-              }
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -4331,20 +4323,6 @@
           },
           "isActive": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "SetEndTimeRequest": {
-        "type": "object",
-        "properties": {
-          "reservationId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "actualEndTime": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "additionalProperties": false

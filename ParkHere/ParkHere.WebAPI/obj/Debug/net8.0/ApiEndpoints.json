@@ -904,14 +904,14 @@
   {
     "ContainingType": "ParkHere.WebAPI.Controllers.ParkingSessionController",
     "Method": "SetActualEndTime",
-    "RelativePath": "ParkingSession/set-end-time",
+    "RelativePath": "ParkingSession/set-end-time/{reservationId}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
-        "Type": "ParkHere.Model.Requests.SetEndTimeRequest",
+        "Name": "reservationId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],

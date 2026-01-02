@@ -14,6 +14,7 @@ class ParkingSpot {
   final String parkingWingName;
   final bool isOccupied;
   final bool isActive;
+  final double priceMultiplier;
 
   ParkingSpot({
     this.id = 0,
@@ -26,6 +27,7 @@ class ParkingSpot {
     this.parkingWingName = '',
     this.isOccupied = false,
     this.isActive = true,
+    this.priceMultiplier = 1.0,
   });
 
 
@@ -69,6 +71,7 @@ class ParkingSpot {
                            
           isOccupied: json['isOccupied'] as bool? ?? json['IsOccupied'] as bool? ?? false,
           isActive: json['isActive'] as bool? ?? json['IsActive'] as bool? ?? true,
+          priceMultiplier: (spotType?['priceMultiplier'] as num?)?.toDouble() ?? (spotType?['PriceMultiplier'] as num?)?.toDouble() ?? 1.0,
         );
   }
 

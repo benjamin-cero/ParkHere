@@ -47,12 +47,12 @@ namespace ParkHere.WebAPI.Controllers
             }
         }
 
-        [HttpPost("set-end-time")]
-        public async Task<IActionResult> SetActualEndTime([FromBody] SetEndTimeRequest request)
+        [HttpPost("set-end-time/{reservationId}")]
+        public async Task<IActionResult> SetActualEndTime(int reservationId)
         {
             try
             {
-                var result = await _service.SetActualEndTimeAsync(request.ReservationId, request.ActualEndTime);
+                var result = await _service.SetActualEndTimeAsync(reservationId, DateTime.Now);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
