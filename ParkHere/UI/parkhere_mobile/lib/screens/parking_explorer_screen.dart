@@ -112,7 +112,8 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     // Show as reserved if there is ANY upcoming reservation today or in the future
     return _reservations.any((r) => 
         r.parkingSpotId == spot.id && 
-        r.endTime!.isAfter(now)
+        r.endTime!.isAfter(now) &&
+        r.actualEndTime == null // Ignore completed reservations
     );
   }
 
@@ -143,7 +144,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
           final calculatedEndTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
           
           // Collision Detection
-          final spotReservations = _reservations.where((r) => r.parkingSpotId == spot.id && r.endTime.isAfter(now)).toList()
+          final spotReservations = _reservations.where((r) => r.parkingSpotId == spot.id && r.endTime.isAfter(now) && r.actualEndTime == null).toList()
             ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
           ParkingReservation? conflict;
