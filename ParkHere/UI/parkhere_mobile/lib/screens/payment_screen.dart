@@ -37,6 +37,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _isUsingMockPayment = false;
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint('--- PaymentScreen INIT ---');
+    debugPrint('Incoming Total Price: ${widget.totalPrice}');
+    debugPrint('Res Base Price: ${widget.reservation.price}');
+    debugPrint('--------------------------');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -301,9 +310,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildDetailsGlassCard() {
+    final now = DateTime.now();
+    final arrivalTime = (widget.reservation.actualStartTime != null && widget.reservation.actualStartTime!.isBefore(widget.reservation.startTime))
+        ? widget.reservation.actualStartTime!
+        : widget.reservation.startTime;
+        
+    final departureTime = now.isAfter(widget.reservation.endTime)
+        ? now
+        : widget.reservation.endTime;
+
+    final multiplier = widget.reservation.parkingSpot?.priceMultiplier ?? 1.0;
+    final hourlyRate = 3.0 * multiplier;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50], // Very light background
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.grey[100]!),
       ),
@@ -313,9 +334,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
           _buildDivider(),
           _buildCleanDetailRow("Parking Spot", widget.reservation.parkingSpot?.name ?? "N/A", icon: Icons.local_parking_rounded),
           _buildDivider(),
-          _buildCleanDetailRow("Entry Date", DateFormat('MMM dd, HH:mm').format(widget.reservation.actualStartTime ?? widget.reservation.startTime), icon: Icons.calendar_today_rounded),
+          _buildCleanDetailRow("Arrival", DateFormat('MMM dd, HH:mm').format(arrivalTime), icon: Icons.login_rounded),
           _buildDivider(),
-          _buildCleanDetailRow("Base Hourly", "3.00 BAM/hr", icon: Icons.query_builder_rounded),
+          _buildCleanDetailRow("Departure", DateFormat('MMM dd, HH:mm').format(departureTime), icon: Icons.logout_rounded),
+          _buildDivider(),
+          _buildCleanDetailRow("Base Hourly", "${hourlyRate.toStringAsFixed(2)} BAM/hr", icon: Icons.query_builder_rounded),
           if (widget.totalPrice > widget.reservation.price) ...[
             _buildDivider(),
             _buildCleanDetailRow("Overtime Fee", "${(widget.totalPrice - widget.reservation.price).toStringAsFixed(2)} BAM", isRed: true, icon: Icons.history_rounded),
@@ -417,7 +440,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Future<void> _initPaymentSheet(Map<String, dynamic> formData) async {
+  Future<bool> _initPaymentSheet(Map<String, dynamic> formData) async {
     try {
       final name = formData['name'] ?? _getUserFullName();
       final data = await _createPaymentIntent(
@@ -427,13 +450,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
       );
 
       final isMock = data['client_secret'].toString().contains('mock');
-      _isUsingMockPayment = isMock;
+      setState(() => _isUsingMockPayment = isMock);
       
       if (isMock) {
-        debugPrint('Using mock payment intent');
-        return;
+        debugPrint('Initialized in MOCK mode');
+        return true; // Is mock
       }
 
+      debugPrint('Initializing REAL Stripe sheet');
       await stripe.Stripe.instance.initPaymentSheet(
         paymentSheetParameters: stripe.SetupPaymentSheetParameters(
           customFlow: false,
@@ -444,6 +468,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: ThemeMode.light,
         ),
       );
+      return false; // Is real
     } catch (e) {
       debugPrint('Error initializing payment sheet: $e');
       rethrow;
@@ -513,9 +538,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           'id': customerId,
         };
       } else {
-        return _createMockPaymentIntent(amount, currency);
+        final errorData = jsonDecode(paymentIntentResponse.body);
+        final stripeMsg = errorData['error']?['message'] ?? 'Unknown Stripe error';
+        throw Exception("Stripe Payment Intent Failed: $stripeMsg");
       }
     } catch (e) {
+      if (dotenv.env['STRIPE_SECRET_KEY']?.isNotEmpty ?? false) {
+        rethrow; // Don't mock if we have a key but it failed
+      }
       return _createMockPaymentIntent(amount, currency);
     }
   }
@@ -529,52 +559,103 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _processStripePayment(Map<String, dynamic> formData) async {
+    // 1. Check for Stripe minimum limit (approx $0.50)
+    if (widget.totalPrice > 0 && widget.totalPrice < 0.50) {
+      debugPrint('Amount too small for Stripe, forcing simulation');
+      setState(() => _isUsingMockPayment = true);
+      _showMockPaymentConfirmation(isSmallAmount: true);
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
-      await _initPaymentSheet(formData);
+      // 2. Initialize the sheet and determine if it's mock
+      final isMock = await _initPaymentSheet(formData);
       
-      if (!_isUsingMockPayment) {
+      if (!isMock) {
+        // 3. Present real Stripe UI
+        debugPrint('Presenting Stripe Payment Sheet...');
         await stripe.Stripe.instance.presentPaymentSheet();
-      }
+        
+        // 4. Finalize after real payment success
+        await _finalizeExit();
 
-      await _finalizeExit();
-
-      if (mounted) {
-        MessageUtils.showSuccess(context, 'Payment successful! Ramp opened.');
-        setState(() {
-            _isLoading = false;
-            _paymentCompleted = true;
-        });
+        if (mounted) {
+          MessageUtils.showSuccess(context, 'Payment successful! Ramp opened.');
+          setState(() {
+              _isLoading = false;
+              _paymentCompleted = true;
+          });
+        }
+      } else {
+        // 5. Present Simulation Dialog
+        debugPrint('Showing Simulation Dialog...');
+        setState(() => _isLoading = false);
+        _showMockPaymentConfirmation();
       }
     } on stripe.StripeException catch (e) {
       setState(() => _isLoading = false);
       if (e.error.code == 'canceled') {
         MessageUtils.showWarning(context, 'Payment session closed');
       } else {
-        MessageUtils.showError(context, 'Payment failed: ${e.error.message ?? e.toString()}');
+        MessageUtils.showError(context, 'Stripe Error: ${e.error.message}');
       }
     } catch (e) {
+      debugPrint('Non-Stripe Error in payment flow: $e');
       setState(() => _isLoading = false);
-      final errorMessage = e.toString().toLowerCase();
-      if (errorMessage.contains('canceled')) {
-        MessageUtils.showWarning(context, 'Payment session closed');
+      
+      // If we failed during REAL setup but want to allow fallback IF mock was intended
+      if (_isUsingMockPayment) {
+         _showMockPaymentConfirmation();
       } else {
-        // Fallback for demo
-        try {
-           await _finalizeExit();
-           if (mounted) {
-             MessageUtils.showSuccess(context, 'Session completed successfully (Demo Mode)');
-             setState(() {
-               _isLoading = false;
-               _paymentCompleted = true;
-             });
-           }
-        } catch (exitError) {
-          MessageUtils.showError(context, 'Error finalizing exit: ${exitError.toString()}');
-        }
+         MessageUtils.showError(context, 'Payment Error: ${e.toString()}');
       }
     }
+  }
+
+  void _showMockPaymentConfirmation({bool isSmallAmount = false}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(isSmallAmount ? "Small Amount" : "Simulate Payment"),
+        content: Text(isSmallAmount 
+          ? "The amount of ${widget.totalPrice.toStringAsFixed(2)} BAM is below the minimum card transaction limit (0.50 BAM). Would you like to process this via simulation?"
+          : "Stripe keys are not configured. Would you like to simulate a successful payment of ${widget.totalPrice.toStringAsFixed(2)} BAM?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() => _isLoading = false);
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              setState(() => _isLoading = true);
+              try {
+                await _finalizeExit();
+                if (mounted) {
+                  MessageUtils.showSuccess(context, 'Simulated payment successful!');
+                  setState(() {
+                    _isLoading = false;
+                    _paymentCompleted = true;
+                  });
+                }
+              } catch (e) {
+                if (mounted) {
+                  setState(() => _isLoading = false);
+                  MessageUtils.showError(context, "Exit failed: $e");
+                }
+              }
+            },
+            child: const Text("Confirm Payment"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _finalizeExit() async {

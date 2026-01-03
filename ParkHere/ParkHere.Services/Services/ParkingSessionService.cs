@@ -188,8 +188,8 @@ namespace ParkHere.Services.Services
                 session.ExtraMinutes = 0;
                 session.ExtraCharge = 0;
                 
-                // Even for early exit, update reservation end time to actual so space is freed up
-                session.ParkingReservation.EndTime = actualEndTime;
+                // Keep the original EndTime to reflect the paid window in history.
+                // Space is freed up because conflict detection logic checks for ActualEndTime first.
             }
 
             await _context.SaveChangesAsync();

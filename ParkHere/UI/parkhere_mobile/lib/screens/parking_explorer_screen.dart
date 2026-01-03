@@ -338,6 +338,9 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text("Rate: ${(3.0 * spot.priceMultiplier).toStringAsFixed(2)} BAM/hr", 
+                          style: TextStyle(color: Colors.grey[600], fontSize: 11, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
                         const Text("Total Price", style: TextStyle(color: Colors.grey, fontSize: 13)),
                         Row(
                           children: [
@@ -415,10 +418,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
 
   double _calculatePrice(ParkingSpot spot) {
     final durationHours = _durationHours + (_durationMinutes / 60.0);
-    double multiplier = 1.0;
-    if (spot.parkingSpotTypeId == 2) multiplier = 1.5;
-    if (spot.parkingSpotTypeId == 4) multiplier = 1.2;
-    if (spot.parkingSpotTypeId == 3) multiplier = 0.75;
+    double multiplier = spot.priceMultiplier;
     return durationHours * 3.0 * multiplier;
   }
 
