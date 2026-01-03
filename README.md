@@ -45,7 +45,7 @@ Business analytics features provide insights into revenue trends, popular parkin
 
 ### Pricing Model
 
-The base parking rate is set at 3 BAM per hour. Each spot type has an associated price multiplier that adjusts the final cost: Standard spots use a 1.0x multiplier, VIP spots apply a 1.5x multiplier, Electric spots use 1.3x, and Disabled spots maintain the base 1.0x rate. The total reservation price is calculated by multiplying the hourly rate by the session duration and the appropriate spot multiplier.
+The base parking rate is set at 3 BAM per hour. Each spot type has an associated price multiplier that adjusts the final cost: Regular spots use a 1.0x multiplier, VIP spots apply a 1.5x multiplier, Electric spots use 1.2x, and Handicapped spots offer a reduced rate at 0.75x. The total reservation price is calculated by multiplying the hourly rate by the session duration and the appropriate spot multiplier.
 
 ### Reservation Lifecycle and Restrictions
 
