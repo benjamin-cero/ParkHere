@@ -358,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildDashboardStatusSection() {
     if (_dashboardReservations.isEmpty) {
-        return SizedBox(height: 440, child: _buildMainStatusCard(null));
+        return SizedBox(height: 470, child: _buildMainStatusCard(null));
     }
 
     final currentRes = _dashboardReservations[_currentPage];
@@ -372,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Column(
       children: [
         SizedBox(
-          height: 440, 
+          height: 470, 
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentPage = index),
@@ -663,6 +663,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 const SizedBox(height: 12),
                                 _buildStatusRow(Icons.local_parking_rounded, "Parking Spot", 
                                   spot?.name ?? "Spot #${res.parkingSpotId}"),
+                                const SizedBox(height: 12),
+                                _buildStatusRow(Icons.category_rounded, "Spot Type", 
+                                  (spot?.parkingSpotTypeName != null && spot!.parkingSpotTypeName.isNotEmpty) 
+                                      ? spot.parkingSpotTypeName 
+                                      : "Regular"),
                               ],
                             ),
                           )

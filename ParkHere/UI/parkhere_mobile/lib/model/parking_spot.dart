@@ -42,7 +42,7 @@ class ParkingSpot {
           id: (json['id'] as num?)?.toInt() ?? (json['Id'] as num?)?.toInt() ?? 0,
           name: json['spotCode'] as String? ?? json['SpotCode'] as String? ?? json['name'] as String? ?? json['Name'] as String? ?? '',
           parkingSpotTypeId: (json['parkingSpotTypeId'] as num?)?.toInt() ?? (json['ParkingSpotTypeId'] as num?)?.toInt() ?? 0,
-          parkingSpotTypeName: spotType?['name'] as String? ?? spotType?['Name'] as String? ?? json['parkingSpotTypeName'] as String? ?? json['ParkingSpotTypeName'] as String? ?? '',
+          parkingSpotTypeName: spotType?['type'] as String? ?? spotType?['Type'] as String? ?? spotType?['name'] as String? ?? spotType?['Name'] as String? ?? json['parkingSpotTypeName'] as String? ?? json['ParkingSpotTypeName'] as String? ?? '',
           
           // Robust Sector/Wing parsing
           parkingSectorId: (sector?['id'] as num?)?.toInt() ?? 
