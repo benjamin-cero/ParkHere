@@ -15,6 +15,7 @@ import 'package:parkhere_mobile/layouts/master_screen.dart';
 import 'package:parkhere_mobile/screens/home_screen.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart'; 
 import 'package:parkhere_mobile/utils/message_utils.dart';
+import 'package:parkhere_mobile/utils/review_dialog.dart';
 
 class PaymentScreen extends StatefulWidget {
   final ParkingReservation reservation;
@@ -587,6 +588,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               _isLoading = false;
               _paymentCompleted = true;
           });
+          _triggerReviewFlow();
         }
       } else {
         // 5. Present Simulation Dialog
@@ -643,6 +645,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     _isLoading = false;
                     _paymentCompleted = true;
                   });
+                  _triggerReviewFlow();
                 }
               } catch (e) {
                 if (mounted) {
@@ -666,5 +669,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } catch (e) {
       throw Exception('Failed to finalize exit: $e');
     }
+  }
+
+  void _triggerReviewFlow() {
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => ReviewDialog(reservationId: widget.reservation.id),
+        );
+      }
+    });
   }
 }

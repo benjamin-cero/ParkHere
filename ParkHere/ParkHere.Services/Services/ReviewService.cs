@@ -35,7 +35,7 @@ namespace ParkHere.Services.Services
                 query = query.Where(x => x.User.FirstName.Contains(search.Name) || x.User.LastName.Contains(search.Name));
             }
 
-            return query;
+            return query.OrderByDescending(x => x.CreatedAt);
         }
     }
 }
