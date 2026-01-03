@@ -287,8 +287,25 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
           ),
           Column(
             children: [
-              GestureDetector(onTap: () => onChanged(value + (label == "Hours" ? 1 : 15)), child: const Icon(Icons.arrow_drop_up, size: 20)),
-              GestureDetector(onTap: () { if (value > 0) onChanged(value - (label == "Hours" ? 1 : 15)); }, child: const Icon(Icons.arrow_drop_down, size: 20)),
+              GestureDetector(
+                onTap: () {
+                    final increment = (label == "Hours" ? 1 : 15);
+                    final max = (label == "Hours" ? 24 : 60);
+                    if (value + increment <= max) {
+                        onChanged(value + increment);
+                    }
+                }, 
+                child: const Icon(Icons.arrow_drop_up, size: 20)
+              ),
+              GestureDetector(
+                onTap: () { 
+                    final decrement = (label == "Hours" ? 1 : 15);
+                    if (value - decrement >= 0) {
+                        onChanged(value - decrement);
+                    }
+                }, 
+                child: const Icon(Icons.arrow_drop_down, size: 20)
+              ),
             ],
           ),
         ],
