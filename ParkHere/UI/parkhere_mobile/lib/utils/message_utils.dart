@@ -62,7 +62,7 @@ class MessageUtils {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text("Awesome!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: const Text("Continue", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
             ],

@@ -477,7 +477,7 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
             
             MessageUtils.showSuccessDialog(
               context, 
-              'parking spot sucsessufly booked',
+              'Parking spot sucsessufly booked',
               () async {
                 await _loadData(silent: true);
               }
