@@ -26,7 +26,7 @@ class _MasterScreenState extends State<MasterScreen> {
     'Find Parking',
     'My Reservations',
     'Reviews',
-    'Profile',
+    'My Profile',
   ];
 
   final List<IconData> _pageIcons = [

@@ -403,11 +403,11 @@ class _MasterScreenState extends State<MasterScreen>
                       const SizedBox(height: 4),
                       _buildNavTile(
                         context,
-                        icon: Icons.person_outline,
-                        activeIcon: Icons.person,
-                        label: 'Profile',
-                        screen: const ProfileScreen(),
-                        routeName: 'ProfileScreen',
+                        icon: Icons.people_outlined,
+                        activeIcon: Icons.people,
+                        label: 'Users',
+                        screen: UsersListScreen(),
+                        routeName: 'UsersListScreen',
                       ),
                       const SizedBox(height: 4),
                       _buildNavTile(
@@ -417,15 +417,6 @@ class _MasterScreenState extends State<MasterScreen>
                         label: 'Reviews',
                         screen: ReviewListScreen(),
                         routeName: 'ReviewListScreen',
-                      ),
-                      const SizedBox(height: 4),
-                      _buildNavTile(
-                        context,
-                        icon: Icons.people_outlined,
-                        activeIcon: Icons.people,
-                        label: 'Users',
-                        screen: UsersListScreen(),
-                        routeName: 'UsersListScreen',
                       ),
                       const SizedBox(height: 4),
                       _buildNavTile(
@@ -453,6 +444,15 @@ class _MasterScreenState extends State<MasterScreen>
                         label: 'Cities',
                         screen: CityListScreen(),
                         routeName: 'CityListScreen',
+                      ),
+                      const SizedBox(height: 4),
+                      _buildNavTile(
+                        context,
+                        icon: Icons.person_outline,
+                        activeIcon: Icons.person,
+                        label: 'My Profile',
+                        screen: const ProfileScreen(),
+                        routeName: 'ProfileScreen',
                       ),
                     ],
                   ),
@@ -646,7 +646,7 @@ class _MasterScreenState extends State<MasterScreen>
       return currentRoute == 'ParkingManagementScreen';
     } else if (label == 'Reservations') {
       return currentRoute == 'ReservationManagementScreen';
-    } else if (label == 'Profile') {
+    } else if (label == 'My Profile') {
       return currentRoute == 'ProfileScreen';
     }
     return false;
