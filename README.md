@@ -25,7 +25,7 @@ ParkHere is a parking management solution that enables users to reserve parking 
 
 ### Mobile Application (User)
 
-The mobile application allows users to browse available parking spots, create reservations, and manage active sessions. Users navigate through parking sectors organized by wings, with each spot displaying its type (Standard, VIP, Electric, Disabled) and availability status indicated by color coding: green for available, yellow for reserved by others, and red for inactive spots.
+The mobile application allows users to browse available parking spots, create reservations, and manage active sessions. Users navigate through parking sectors organized by wings, with each spot displaying its type (Regular, VIP, Electric, Handicapped) and availability status indicated by color coding: green for available and yellow for reserved by others.
 
 When creating a reservation, users select a parking spot, specify the desired time period, and enter personal information. The system calculates the total cost based on the hourly rate (3 BAM), session duration, and spot type multiplier. Upon confirmation, the reservation is created and the user receives a booking summary.
 

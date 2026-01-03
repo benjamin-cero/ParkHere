@@ -540,7 +540,6 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
                         runSpacing: 8,
                         children: [
                           _buildLegend(AppColors.reserved, "Reserved"),
-                          _buildLegend(AppColors.occupied, "Occupied"),
                         ],
                       ),
                     ],
@@ -664,20 +663,20 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
     Color bgColor, borderColor;
     IconData? icon;
     
+    // Determine type icon - always show based on spot type
+    if (spot.parkingSpotTypeId == 4) icon = Icons.electric_bolt;
+    else if (spot.parkingSpotTypeId == 2) icon = Icons.star;
+    else if (spot.parkingSpotTypeId == 3) icon = Icons.accessible;
+    
     if (isOccupied) {
       bgColor = AppColors.occupied.withOpacity(0.15);
       borderColor = AppColors.occupied.withOpacity(0.4);
-      icon = Icons.block;
     } else if (isReserved) {
       bgColor = AppColors.reserved.withOpacity(0.15);
       borderColor = AppColors.reserved.withOpacity(0.4);
-      icon = Icons.schedule;
     } else {
       bgColor = spotColor.withOpacity(0.1);
       borderColor = spotColor.withOpacity(0.5);
-      if (spot.parkingSpotTypeId == 4) icon = Icons.electric_bolt;
-      else if (spot.parkingSpotTypeId == 2) icon = Icons.star;
-      else if (spot.parkingSpotTypeId == 3) icon = Icons.accessible;
     }
 
     return GestureDetector(
