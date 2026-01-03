@@ -440,8 +440,24 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildInfoColumn("Arrival", DateFormat('HH:mm').format(res.startTime), false),
-                    _buildInfoColumn("Departure", DateFormat('HH:mm').format(res.endTime), false),
+                    _buildInfoColumn(
+                      "Arrival", 
+                      DateFormat('HH:mm').format(
+                        (res.actualStartTime != null && res.actualStartTime!.isBefore(res.startTime))
+                          ? res.actualStartTime!
+                          : res.startTime
+                      ), 
+                      false
+                    ),
+                    _buildInfoColumn(
+                      "Departure", 
+                      DateFormat('HH:mm').format(
+                        (res.actualEndTime != null && res.actualEndTime!.isAfter(res.endTime))
+                          ? res.actualEndTime!
+                          : res.endTime
+                      ), 
+                      false
+                    ),
                     _buildInfoColumn("Date", DateFormat('MMM dd').format(res.startTime), false),
                   ],
                 ),
