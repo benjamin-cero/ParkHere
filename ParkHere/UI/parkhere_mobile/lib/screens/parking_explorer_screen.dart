@@ -440,33 +440,57 @@ class _ParkingExplorerScreenState extends State<ParkingExplorerScreen> {
   }
 
   Future<void> _handleBooking(ParkingSpot spot) async {
-    Navigator.pop(context);
+    final endTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
     
-    try {
-      final reservationProvider = Provider.of<ParkingReservationProvider>(context, listen: false);
-      final userId = UserProvider.currentUser?.id;
-      if (userId == null) return;
+    MessageUtils.showConfirmationDialog(
+      context, 
+      "Confirm Booking", 
+      "Are you sure you want to book ${spot.name} from ${DateFormat('HH:mm').format(_startTime)} to ${DateFormat('HH:mm').format(endTime)}?",
+      () async {
+        // Show loading
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(child: CircularProgressIndicator()),
+        );
 
-      final endTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
+        try {
+          final reservationProvider = Provider.of<ParkingReservationProvider>(context, listen: false);
+          final userId = UserProvider.currentUser?.id;
+          if (userId == null) {
+            Navigator.pop(context); // Pop loading
+            return;
+          }
 
-      await reservationProvider.insert({
-        'userId': userId,
-        'vehicleId': _selectedVehicle!.id,
-        'parkingSpotId': spot.id,
-        'startTime': _startTime.toIso8601String(),
-        'endTime': endTime.toIso8601String(),
-        'isPaid': false,
-      });
+          await reservationProvider.insert({
+            'userId': userId,
+            'vehicleId': _selectedVehicle!.id,
+            'parkingSpotId': spot.id,
+            'startTime': _startTime.toIso8601String(),
+            'endTime': endTime.toIso8601String(),
+            'isPaid': false,
+          });
 
-      if (mounted) {
-        MessageUtils.showSuccess(context, 'Reservation successful!');
-        await _loadData(silent: true);
+          if (mounted) {
+            Navigator.pop(context); // Pop loading
+            Navigator.pop(context); // Pop bottom sheet
+            
+            MessageUtils.showSuccessDialog(
+              context, 
+              'parking spot sucsessufly booked',
+              () async {
+                await _loadData(silent: true);
+              }
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            Navigator.pop(context); // Pop loading
+            MessageUtils.showError(context, 'Booking failed. Please try again.');
+          }
+        }
       }
-    } catch (e) {
-      if (mounted) {
-        MessageUtils.showError(context, 'Booking failed. Please try again.');
-      }
-    }
+    );
   }
 
   @override
