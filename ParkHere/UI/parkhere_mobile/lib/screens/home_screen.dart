@@ -358,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildDashboardStatusSection() {
     if (_dashboardReservations.isEmpty) {
-        return SizedBox(height: 470, child: _buildMainStatusCard(null));
+        return SizedBox(height: 280, child: _buildMainStatusCard(null));
     }
 
     final currentRes = _dashboardReservations[_currentPage];
@@ -672,25 +672,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           )
                       ] else ...[
+                          const SizedBox(height: 10),
                           const Text(
                             'Ready to Park?',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
                             'Find and book your parking spot in seconds.',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.8),
-                              fontSize: 15,
+                              fontSize: 14,
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 32),
                           AppButton(
                             text: "Find Nearby Parking",
+                            icon: Icons.search_rounded,
                             onPressed: () => widget.onTileTap(1),
                           ),
                       ],
