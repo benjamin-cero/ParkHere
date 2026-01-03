@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
 import 'package:parkhere_mobile/model/parking_reservation.dart';
+import 'package:parkhere_mobile/model/parking_spot.dart';
+import 'package:parkhere_mobile/model/vehicle.dart';
 import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/providers/parking_session_provider.dart';
+import 'package:parkhere_mobile/providers/parking_spot_provider.dart';
+import 'package:parkhere_mobile/providers/vehicle_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/utils/message_utils.dart';
@@ -39,6 +43,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _isTimerRunning = false;
   double _totalDebt = 0;
   
+  // Recommender
+  ParkingSpot? _recommendedSpot;
+  bool _isRecLoading = false;
+  List<ParkingReservation> _allSpotReservations = [];
+  List<Vehicle> _vehicles = [];
+  Vehicle? _selectedVehicle;
+
+  // Modal State
+  DateTime _startTime = DateTime.now();
+  int _durationHours = 2;
+  int _durationMinutes = 0;
+  double _debt = 0;
+  
   @override
   void initState() {
     super.initState();
@@ -62,6 +79,40 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     _animController.forward();
     _loadDashboardData();
+    _loadRecommendation();
+  }
+  
+  Future<void> _loadRecommendation() async {
+    if (!mounted) return;
+    setState(() => _isRecLoading = true);
+    try {
+      final spot = await Provider.of<ParkingSpotProvider>(context, listen: false).recommend();
+      if (spot != null) {
+        // Fetch reservations for this spot to check conflicts
+        final resResult = await Provider.of<ParkingReservationProvider>(context, listen: false).get(filter: {
+          'parkingSpotId': spot.id,
+          'excludePassed': true,
+          'retrieveAll': true,
+        });
+
+        // Fetch vehicles for booking
+        final userId = UserProvider.currentUser?.id;
+        final vehiclesResult = await Provider.of<VehicleProvider>(context, listen: false).get(filter: {'userId': userId});
+
+        if (mounted) {
+          setState(() {
+            _recommendedSpot = spot;
+            _allSpotReservations = resResult.items ?? [];
+            _vehicles = vehiclesResult.items ?? [];
+            if (_vehicles.isNotEmpty) _selectedVehicle = _vehicles.first;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load recommendation: $e");
+    } finally {
+      if (mounted) setState(() => _isRecLoading = false);
+    }
   }
   
   Future<void> _loadDashboardData({bool silent = false}) async {
@@ -348,6 +399,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ],
                     ),
                     const SizedBox(height: 32),
+                    
+                    // Recommended Section
+                    if (_recommendedSpot != null) ...[
+                      const Text(
+                        'Recommended for You',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildRecommendedCard(),
+                      const SizedBox(height: 32),
+                    ],
                   ],
                 ),
               ),
@@ -796,6 +862,339 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRecommendedCard() {
+    final spot = _recommendedSpot!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.star_rounded, color: AppColors.primary, size: 32),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  spot.name,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+                ),
+                Text(
+                  "${spot.parkingSectorName} • ${spot.parkingWingName}",
+                  style: TextStyle(color: AppColors.textLight, fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => _showQuickBookModal(spot),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Quick Book", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        SizedBox(width: 4),
+                        Icon(Icons.chevron_right_rounded, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuickBookModal(ParkingSpot spot) async {
+    final now = DateTime.now();
+    setState(() {
+      _startTime = DateTime(now.year, now.month, now.day, now.hour, now.minute).add(const Duration(minutes: 15));
+      _durationHours = 2;
+      _durationMinutes = 0;
+    });
+
+    final userId = UserProvider.currentUser?.id;
+    if (userId != null) {
+      try {
+        final resProvider = Provider.of<ParkingReservationProvider>(context, listen: false);
+        final debtValue = await resProvider.getDebt(userId);
+        setState(() => _debt = debtValue);
+      } catch (_) {
+        setState(() => _debt = 0);
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final calculatedEndTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
+          
+          // Collision Detection
+          final spotReservations = _allSpotReservations.where((r) => r.parkingSpotId == spot.id && r.endTime.isAfter(now) && r.actualEndTime == null).toList()
+            ..sort((a, b) => a.startTime.compareTo(b.startTime));
+
+          ParkingReservation? conflict;
+          for (var res in spotReservations) {
+            if (_startTime.isBefore(res.endTime) && calculatedEndTime.isAfter(res.startTime)) {
+              conflict = res;
+              break;
+            }
+          }
+
+          String? reservationConflictWarning;
+          if (conflict != null) {
+            reservationConflictWarning = "Conflict! This spot is booked from ${DateFormat('HH:mm').format(conflict.startTime)}";
+          } else {
+            final nextRes = spotReservations.where((r) => r.startTime.isAfter(_startTime)).toList();
+            if (nextRes.isNotEmpty) {
+              final next = nextRes.first;
+              final maxStayMinutes = next.startTime.difference(_startTime).inMinutes;
+              if (maxStayMinutes < (_durationHours * 60 + _durationMinutes)) {
+                reservationConflictWarning = "Max stay available: ${maxStayMinutes ~/ 60}h ${maxStayMinutes % 60}m";
+              }
+            }
+          }
+
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)))),
+                const SizedBox(height: 24),
+                
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(15)),
+                      child: const Icon(Icons.local_parking_rounded, color: AppColors.primary, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(spot.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          Text("${spot.parkingSectorName} • ${spot.parkingWingName}", 
+                            style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                if (spotReservations.isNotEmpty) ...[
+                  const Text("Upcoming Schedule", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 60,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: spotReservations.length,
+                      itemBuilder: (context, index) {
+                        final res = spotReservations[index];
+                        return Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.grey[300]!)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("${DateFormat('HH:mm').format(res.startTime)} - ${DateFormat('HH:mm').format(res.endTime)}", 
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        );
+                      }
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Select Start Time", style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: AppButton(
+                              text: DateFormat('HH:mm').format(_startTime),
+                              onPressed: () async {
+                                final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_startTime));
+                                if (time != null) {
+                                  setModalState(() => _startTime = DateTime(_startTime.year, _startTime.month, _startTime.day, time.hour, time.minute));
+                                }
+                              },
+                            )),
+                            const SizedBox(width: 8),
+                            Expanded(child: AppButton(
+                              text: DateFormat('MMM d, yyyy').format(_startTime),
+                              onPressed: () async {
+                                final date = await showDatePicker(context: context, initialDate: _startTime, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 7)));
+                                if (date != null) {
+                                  setModalState(() => _startTime = DateTime(date.year, date.month, date.day, _startTime.hour, _startTime.minute));
+                                }
+                              },
+                            )),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        const Text("Select Duration", style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: DropdownButtonFormField<int>(
+                              value: _durationHours,
+                              decoration: const InputDecoration(labelText: "Hours"),
+                              items: List.generate(24, (i) => DropdownMenuItem(value: i, child: Text("$i h"))),
+                              onChanged: (v) => setModalState(() => _durationHours = v!),
+                            )),
+                            const SizedBox(width: 8),
+                            Expanded(child: DropdownButtonFormField<int>(
+                              value: _durationMinutes,
+                              decoration: const InputDecoration(labelText: "Minutes"),
+                              items: [0, 15, 30, 45].map((m) => DropdownMenuItem(value: m, child: Text("$m min"))).toList(),
+                              onChanged: (v) => setModalState(() => _durationMinutes = v!),
+                            )),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text("Ends at: ${DateFormat('HH:mm, MMM d').format(calculatedEndTime)}",
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                        
+                        if (reservationConflictWarning != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(reservationConflictWarning!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13)),
+                          ),
+
+                        const SizedBox(height: 24),
+                        const Text("Vehicle", style: TextStyle(fontWeight: FontWeight.bold)),
+                        DropdownButtonFormField<Vehicle>(
+                          value: _selectedVehicle,
+                          items: _vehicles.map((v) => DropdownMenuItem(value: v, child: Text("${v.name} (${v.licensePlate})"))).toList(),
+                          onChanged: (v) => setModalState(() => _selectedVehicle = v),
+                          decoration: const InputDecoration(hintText: "Select your vehicle"),
+                        ),
+
+                        if (_debt > 0) ...[
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.orange.withOpacity(0.3))),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                                const SizedBox(width: 12),
+                                Expanded(child: Text("You have ${_debt.toStringAsFixed(2)} BAM in unpaid debt from missed reservations. This will be added to your booking price.", style: const TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold))),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                AppButton(
+                  text: "BOOK NOW",
+                  onPressed: (conflict != null || _selectedVehicle == null) ? null : () => _handleQuickBooking(spot),
+                ),
+              ],
+            ),
+          );
+        }
+      ),
+    );
+  }
+
+  Future<void> _handleQuickBooking(ParkingSpot spot) async {
+    final endTime = _startTime.add(Duration(hours: _durationHours, minutes: _durationMinutes));
+    
+    MessageUtils.showConfirmationDialog(
+      context, 
+      "Confirm Booking", 
+      "Are you sure you want to book ${spot.name} from ${DateFormat('HH:mm').format(_startTime)} to ${DateFormat('HH:mm').format(endTime)}?",
+      () async {
+        showDialog(context: context, barrierDismissible: false, builder: (context) => const Center(child: CircularProgressIndicator()));
+
+        try {
+          final userId = UserProvider.currentUser?.id;
+          if (userId == null) {
+            Navigator.pop(context);
+            return;
+          }
+
+          await Provider.of<ParkingReservationProvider>(context, listen: false).insert({
+            'userId': userId,
+            'vehicleId': _selectedVehicle!.id,
+            'parkingSpotId': spot.id,
+            'startTime': _startTime.toIso8601String(),
+            'endTime': endTime.toIso8601String(),
+            'isPaid': false,
+          });
+
+          if (mounted) {
+            Navigator.pop(context); // Pop loading
+            Navigator.pop(context); // Pop modal
+            
+            MessageUtils.showSuccessDialog(
+              context, 
+              'Parking spot sucsessufly booked',
+              () {
+                _loadDashboardData();
+                _loadRecommendation();
+              }
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            Navigator.pop(context);
+            MessageUtils.showError(context, 'Booking failed. Please try again.');
+          }
+        }
+      }
     );
   }
 

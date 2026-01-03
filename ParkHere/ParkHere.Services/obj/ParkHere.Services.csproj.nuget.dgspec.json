@@ -154,7 +154,7 @@
             },
             "Microsoft.ML": {
               "target": "Package",
-              "version": "[1.5.5, )"
+              "version": "[5.0.0, )"
             },
             "Microsoft.ML.Recommender": {
               "target": "Package",

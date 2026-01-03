@@ -37,11 +37,10 @@ namespace ParkHere.Services.Services
             }
             if (search.IsActive.HasValue)
             {
-
                 query = query.Where(x => x.IsActive == search.IsActive.Value);
             }
 
-                if (search.ParkingSectorId.HasValue)
+            if (search.ParkingSectorId.HasValue)
             {
                 query = query.Where(x => x.ParkingWing.ParkingSectorId == search.ParkingSectorId);
             }
@@ -67,7 +66,61 @@ namespace ParkHere.Services.Services
             }
         }
 
+        public async Task<ParkingSpotResponse?> Recommend(int userId)
+        {
+            var allSpots = await _context.ParkingSpots
+                .Include(x => x.ParkingWing)
+                .ThenInclude(x => x.ParkingSector)
+                .Include(x => x.ParkingSpotType)
+                .Where(x => x.IsActive && !x.IsOccupied)
+                .ToListAsync();
 
+            if (!allSpots.Any()) return null;
 
+            ParkingSpot? recommendedSpot = null;
+
+            if (RecommenderService.IsModelAvailable())
+            {
+                recommendedSpot = allSpots
+                    .Select(spot => new { Spot = spot, Score = RecommenderService.Predict(userId, spot.Id) })
+                    .OrderByDescending(x => x.Score)
+                    .FirstOrDefault()?.Spot;
+            }
+
+            // Heuristic Fallback: Preferred Spot Types from History
+            if (recommendedSpot == null)
+            {
+                var userHistory = await _context.ParkingReservations
+                    .Where(r => r.UserId == userId)
+                    .OrderByDescending(r => r.StartTime)
+                    .Take(10)
+                    .Select(r => r.ParkingSpotId)
+                    .ToListAsync();
+
+                if (userHistory.Any())
+                {
+                    // Find the most frequent spot type in history
+                    var mostFrequentType = await _context.ParkingReservations
+                        .Where(r => r.UserId == userId)
+                        .GroupBy(r => r.ParkingSpot.ParkingSpotTypeId)
+                        .OrderByDescending(g => g.Count())
+                        .Select(g => g.Key)
+                        .FirstOrDefaultAsync();
+
+                    recommendedSpot = allSpots
+                        .OrderByDescending(s => s.ParkingSpotTypeId == mostFrequentType)
+                        .ThenByDescending(s => userHistory.Contains(s.Id))
+                        .FirstOrDefault();
+                }
+                else
+                {
+                    // Random spot if no history
+                    var random = new Random();
+                    recommendedSpot = allSpots[random.Next(allSpots.Count)];
+                }
+            }
+
+            return recommendedSpot != null ? _mapper.Map<ParkingSpotResponse>(recommendedSpot) : null;
+        }
     }
-} 
+}

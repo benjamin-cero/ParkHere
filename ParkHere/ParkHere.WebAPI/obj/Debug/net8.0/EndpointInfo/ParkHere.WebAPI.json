@@ -1526,6 +1526,35 @@
         }
       }
     },
+    "/ParkingSpot/Recommend": {
+      "get": {
+        "tags": [
+          "ParkingSpot"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingSpotResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingSpotResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingSpotResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ParkingSpot": {
       "post": {
         "tags": [

@@ -1145,6 +1145,26 @@
     ]
   },
   {
+    "ContainingType": "ParkHere.WebAPI.Controllers.ParkingSpotController",
+    "Method": "Recommend",
+    "RelativePath": "ParkingSpot/Recommend",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "ParkHere.Model.Responses.ParkingSpotResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "ParkHere.WebAPI.Controllers.BaseCRUDController\u00604[[ParkHere.Model.Responses.ParkingSpotTypeResponse, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.SearchObjects.ParkingSpotTypeSearchObject, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[ParkHere.Model.Requests.ParkingSpotTypeUpsertRequest, ParkHere.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
     "Method": "Create",
     "RelativePath": "ParkingSpotType",
