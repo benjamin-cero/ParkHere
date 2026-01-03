@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:parkhere_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -672,12 +673,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _triggerReviewFlow() {
+    final resId = widget.reservation.id;
+    debugPrint('Review flow scheduled for Reservation #$resId in 5 seconds...');
     Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
+      final context = MyApp.navigatorKey.currentContext;
+      if (context != null) {
+        debugPrint('Triggering ReviewDialog for Reservation #$resId using global context');
         showDialog(
           context: context,
-          builder: (context) => ReviewDialog(reservationId: widget.reservation.id),
+          builder: (context) => ReviewDialog(reservationId: resId),
         );
+      } else {
+        debugPrint('Could not trigger ReviewDialog: internal context is null');
       }
     });
   }
