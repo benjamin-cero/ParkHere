@@ -24,12 +24,12 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-  /*if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
     stripe.Stripe.publishableKey = dotenv.env["STRIPE_PUBLISHABLE_KEY"] ?? "";
     stripe.Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
     stripe.Stripe.urlScheme = 'flutterstripe';
     await stripe.Stripe.instance.applySettings();
-  }*/
+  }
 
   runApp(
     MultiProvider(

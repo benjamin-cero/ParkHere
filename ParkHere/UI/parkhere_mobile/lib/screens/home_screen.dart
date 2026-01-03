@@ -8,6 +8,7 @@ import 'package:parkhere_mobile/providers/parking_session_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/utils/message_utils.dart';
+import 'package:parkhere_mobile/screens/payment_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onTileTap;
@@ -432,32 +433,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 text: "EXIT PARKING",
                 icon: Icons.exit_to_app_rounded,
                 backgroundColor: Colors.redAccent,
-                onPressed: () async {
-                     showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text("Exit Parking"),
-                        content: const Text("Are you sure you want to end your parking session and exit?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text("Cancel"),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                            onPressed: () async {
-                              Navigator.pop(context); // Close dialog
-                              try {
-                                  await context.read<ParkingSessionProvider>().setActualEndTime(currentRes.id);
-                                  MessageUtils.showSuccess(context, "You have exited the parking.");
-                                  _loadDashboardData();
-                              } catch (e) {
-                                  MessageUtils.showError(context, "Failed to exit parking.");
-                              }
-                            },
-                            child: const Text("Yes, Exit", style: TextStyle(color: Colors.white)),
-                          ),
-                        ],
+                onPressed: () {
+                    final extraCharge = _extraCharges[currentRes.id] ?? 0.0;
+                    final totalPrice = currentRes.price + extraCharge;
+                    
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentScreen(
+                          reservation: currentRes,
+                          totalPrice: totalPrice,
+                        ),
                       ),
                     );
                 },

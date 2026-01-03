@@ -22,6 +22,15 @@ class ParkingSessionProvider extends BaseProvider<dynamic> {
     }
   }
 
+  Future<void> markAsPaid(int reservationId) async {
+    var url = "${BaseProvider.baseUrl}$endpoint/mark-paid/$reservationId";
+    var response = await http.post(Uri.parse(url), headers: createHeaders());
+    
+    if (response.statusCode != 200) {
+      throw Exception("Failed to mark reservation as paid");
+    }
+  }
+
   @override
   dynamic fromJson(data) {
     return data;
