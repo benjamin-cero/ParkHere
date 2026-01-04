@@ -6,6 +6,7 @@ import 'package:parkhere_mobile/providers/parking_reservation_provider.dart';
 import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/providers/vehicle_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
+import 'package:parkhere_mobile/utils/review_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:parkhere_mobile/utils/message_utils.dart';
 
@@ -551,6 +552,33 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         Text("Session in progress", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                       ],
                     ),
+                  ),
+                ],
+
+                if (status == "Completed") ...[
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ReviewDialog(reservationId: res.id),
+                            );
+                          },
+                          icon: const Icon(Icons.rate_review_rounded, size: 20),
+                          label: const Text("Leave a Review"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
 
