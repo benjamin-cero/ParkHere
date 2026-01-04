@@ -80,9 +80,20 @@ namespace ParkHere.Subscriber.Services
         private string GenerateReservationEmailHtml(ReservationNotificationDto reservation)
         {
             var duration = reservation.EndTime - reservation.StartTime;
-            var durationText = duration.TotalHours < 24 
-                ? $"{duration.TotalHours:F1} hours" 
-                : $"{duration.TotalDays:F1} days";
+            string durationText;
+            
+            if (duration.TotalDays >= 1)
+            {
+                durationText = $"{(int)duration.TotalDays}d {(int)duration.Hours}h";
+            }
+            else if (duration.TotalHours >= 1)
+            {
+                durationText = $"{(int)duration.TotalHours}h {(int)duration.Minutes}min";
+            }
+            else
+            {
+                durationText = $"{(int)duration.TotalMinutes}min";
+            }
 
             var paidIcon = reservation.IsPaid ? "✓" : "⏳";
             var paidColor = reservation.IsPaid ? "#059669" : "#d97706";
@@ -190,7 +201,7 @@ namespace ParkHere.Subscriber.Services
                             
                                 <p style=""margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.6; font-weight: 500;"">
                                     If you do not exit the parking spot by the scheduled end time,
-                                    <strong>the parking fee will be automatically doubled</strong>.
+                                    <strong>the parking fee will be automatically increased by 50%</strong>.
                                     Please ensure timely departure to avoid additional charges.
                                 </p>
                             </div>
@@ -201,7 +212,7 @@ namespace ParkHere.Subscriber.Services
                             <!-- Price Box -->
                             <div style=""background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 30px;"">
                                 <p style=""margin: 0 0 10px 0; color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;"">TOTAL AMOUNT</p>
-                                <p style=""margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px;"">${reservation.Price:F2}</p>
+                                <p style=""margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px;"">{reservation.Price:F2} BAM</p>
                             </div>
                             
                             <!-- Payment Status -->
