@@ -4,11 +4,33 @@ import 'package:parkhere_mobile/providers/user_provider.dart';
 import 'package:parkhere_mobile/utils/base_textfield.dart';
 import 'package:parkhere_mobile/utils/message_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReviewDialog extends StatefulWidget {
   final int reservationId;
 
   const ReviewDialog({super.key, required this.reservationId});
+
+  // Check if user has opted out of review prompts
+  static Future<bool> shouldShowReviewPrompt() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return !(prefs.getBool('never_show_review_prompt') ?? false);
+    } catch (e) {
+      debugPrint('Error getting SharedPreferences: $e');
+      return true; // Default to showing if plugin fails
+    }
+  }
+
+  // Set user preference to never show review prompts
+  static Future<void> setNeverShowReviewPrompt() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('never_show_review_prompt', true);
+    } catch (e) {
+      debugPrint('Error setting SharedPreferences: $e');
+    }
+  }
 
   @override
   State<ReviewDialog> createState() => _ReviewDialogState();
@@ -101,22 +123,53 @@ class _ReviewDialogState extends State<ReviewDialog> {
           ),
           const SizedBox(height: 32),
 
-          // Action Buttons
+          // Submit Review Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _submitReview,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              child: _isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Text("Submit Review", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          // Later and Never Ask Again Buttons
           Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitReview,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E3A8A),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                child: TextButton(
+                  onPressed: _isLoading ? null : () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
                   ),
-                  child: _isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text("Save Review", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: const Text(
+                    "Later",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextButton(
+                  onPressed: _isLoading ? null : _neverAskAgain,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    "Never ask me again",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.grey),
+                  ),
                 ),
               ),
             ],
@@ -155,6 +208,13 @@ class _ReviewDialogState extends State<ReviewDialog> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _neverAskAgain() async {
+    await ReviewDialog.setNeverShowReviewPrompt();
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 }

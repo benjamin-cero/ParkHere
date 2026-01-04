@@ -500,20 +500,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 icon: Icons.exit_to_app_rounded,
                 backgroundColor: Colors.redAccent,
                 onPressed: () {
-                    final extraCharge = _extraCharges[currentRes.id] ?? 0.0;
-                    
-                    // Logic: If not paid, charge (Price + Extra). If already paid, charge only Extra.
-                    // But in our current flow, users always pay Everything at exit.
+                    // Logic: BasePrice (which includes debt) + ExtraCharge (overtime)
                     final double basePrice = currentRes.price;
+                    final double extraCharge = _extraCharges[currentRes.id] ?? 0.0;
                     final double totalPrice = basePrice + extraCharge;
 
-                    debugPrint('--- EXIT PARKING DEBUG ---');
-                    debugPrint('ResID: ${currentRes.id}');
-                    debugPrint('BasePrice: $basePrice');
-                    debugPrint('ExtraCharge: $extraCharge');
-                    debugPrint('IsPaid: ${currentRes.isPaid}');
-                    debugPrint('TOTAL TO PASS: $totalPrice');
-                    debugPrint('--------------------------');
+                    debugPrint('--- EXIT PARKING NAV ---');
+                    debugPrint('ResID: ${currentRes.id}, Base: $basePrice, Extra: $extraCharge, Total: $totalPrice');
                     
                     Navigator.push(
                       context,

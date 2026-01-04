@@ -12,8 +12,8 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20260102185304_SeedInitialData")]
-    partial class SeedInitialData
+    [Migration("20260104135024_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

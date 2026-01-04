@@ -157,17 +157,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
               child: AppButton(
                 text: "Return to Home",
                 icon: Icons.home_rounded,
-                onPressed: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => const MasterScreen(
-                        child: SizedBox.shrink(),
-                        title: 'ParkHere',
+                onPressed: () async {
+                  try {
+                    // Check if user has opted out of review prompts
+                    final shouldShow = await ReviewDialog.shouldShowReviewPrompt();
+                    if (shouldShow && mounted) {
+                      await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => ReviewDialog(reservationId: widget.reservation.id),
+                      );
+                    }
+                  } catch (e) {
+                    debugPrint('Error showing review dialog: $e');
+                  }
+                  
+                  if (mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const MasterScreen(
+                          child: SizedBox.shrink(),
+                          title: 'ParkHere',
+                        ),
+                        settings: const RouteSettings(name: 'MasterScreen'),
                       ),
-                      settings: const RouteSettings(name: 'MasterScreen'),
-                    ),
-                    (route) => route.isFirst,
-                  );
+                      (route) => route.isFirst,
+                    );
+                  }
                 },
               ),
             ),
@@ -542,12 +558,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
       } else {
         final errorData = jsonDecode(paymentIntentResponse.body);
         final stripeMsg = errorData['error']?['message'] ?? 'Unknown Stripe error';
+        debugPrint('Stripe API Error (Status ${paymentIntentResponse.statusCode}): $stripeMsg');
         throw Exception("Stripe Payment Intent Failed: $stripeMsg");
       }
     } catch (e) {
-      if (dotenv.env['STRIPE_SECRET_KEY']?.isNotEmpty ?? false) {
-        rethrow; // Don't mock if we have a key but it failed
+      debugPrint('Error in _createPaymentIntent: $e');
+      final secretKey = dotenv.env['STRIPE_SECRET_KEY'];
+      if (secretKey != null && secretKey.isNotEmpty && !secretKey.contains('mock')) {
+        debugPrint('Secret key exists, rethrowing error to avoid mock fallback');
+        rethrow; // Don't mock if we have what looks like a real key but it failed
       }
+      debugPrint('No valid keyFound or intentional fallback, returning mock intent');
       return _createMockPaymentIntent(amount, currency);
     }
   }
@@ -561,9 +582,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _processStripePayment(Map<String, dynamic> formData) async {
-    // 1. Check for Stripe minimum limit (approx $0.50)
-    if (widget.totalPrice > 0 && widget.totalPrice < 0.50) {
-      debugPrint('Amount too small for Stripe, forcing simulation');
+    debugPrint('--- START _processStripePayment ---');
+    debugPrint('Total Price: ${widget.totalPrice}');
+    
+    // 1. Handle zero or negative price (free parking)
+    if (widget.totalPrice <= 0) {
+      debugPrint('Price is 0 or less, skipping Stripe and showing confirmation');
+      _showMockPaymentConfirmation(isFree: true);
+      return;
+    }
+
+    // 2. Check for Stripe minimum limit (approx $0.50 USD / 0.90 BAM)
+    if (widget.totalPrice < 0.90) {
+      debugPrint('Amount small (< 0.90 BAM), Stripe limit reached. Forcing simulation.');
       setState(() => _isUsingMockPayment = true);
       _showMockPaymentConfirmation(isSmallAmount: true);
       return;
@@ -572,15 +603,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 2. Initialize the sheet and determine if it's mock
+      debugPrint('Initializing payment sheet...');
+      // 3. Initialize the sheet and determine if it's mock
       final isMock = await _initPaymentSheet(formData);
+      debugPrint('Is Mock Mode: $isMock');
       
       if (!isMock) {
-        // 3. Present real Stripe UI
-        debugPrint('Presenting Stripe Payment Sheet...');
+        // 4. Present real Stripe UI
+        debugPrint('Presenting REAL Stripe Payment Sheet...');
         await stripe.Stripe.instance.presentPaymentSheet();
+        debugPrint('Stripe Payment Sheet SUCCESS');
         
-        // 4. Finalize after real payment success
+        // 5. Finalize after real payment success
         await _finalizeExit();
 
         if (mounted) {
@@ -589,15 +623,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
               _isLoading = false;
               _paymentCompleted = true;
           });
-          _triggerReviewFlow();
         }
       } else {
-        // 5. Present Simulation Dialog
-        debugPrint('Showing Simulation Dialog...');
+        // 6. Present Simulation Dialog
+        debugPrint('Showing Simulation Dialog (Mock Mode)...');
         setState(() => _isLoading = false);
-        _showMockPaymentConfirmation();
+        _showMockPaymentConfirmation(reason: "Stripe keys are not configured or the API is unavailable.");
       }
     } on stripe.StripeException catch (e) {
+      debugPrint('StripeException: ${e.error.message} (code: ${e.error.code})');
       setState(() => _isLoading = false);
       if (e.error.code == 'canceled') {
         MessageUtils.showWarning(context, 'Payment session closed');
@@ -605,27 +639,43 @@ class _PaymentScreenState extends State<PaymentScreen> {
         MessageUtils.showError(context, 'Stripe Error: ${e.error.message}');
       }
     } catch (e) {
-      debugPrint('Non-Stripe Error in payment flow: $e');
+      debugPrint('General Error in payment flow: $e');
       setState(() => _isLoading = false);
       
-      // If we failed during REAL setup but want to allow fallback IF mock was intended
+      // We only fallback to simulation if it was already marked as mock during init
       if (_isUsingMockPayment) {
-         _showMockPaymentConfirmation();
+         _showMockPaymentConfirmation(reason: e.toString());
       } else {
-         MessageUtils.showError(context, 'Payment Error: ${e.toString()}');
+         MessageUtils.showError(context, 'Payment Failed: ${e.toString()}');
       }
     }
   }
 
-  void _showMockPaymentConfirmation({bool isSmallAmount = false}) {
+  void _showMockPaymentConfirmation({bool isSmallAmount = false, bool isFree = false, String? reason}) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(isSmallAmount ? "Small Amount" : "Simulate Payment"),
-        content: Text(isSmallAmount 
-          ? "The amount of ${widget.totalPrice.toStringAsFixed(2)} BAM is below the minimum card transaction limit (0.50 BAM). Would you like to process this via simulation?"
-          : "Stripe keys are not configured. Would you like to simulate a successful payment of ${widget.totalPrice.toStringAsFixed(2)} BAM?"),
+        title: Text(isFree ? "Free Exit" : (isSmallAmount ? "Small Amount" : "Simulate Payment")),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(isFree
+              ? "This parking session is free. Ready to exit?"
+              : (isSmallAmount 
+                ? "The amount of ${widget.totalPrice.toStringAsFixed(2)} BAM is below the minimum card transaction limit (0.90 BAM)."
+                : "Real payment processing is currently unavailable.")),
+            if (reason != null && !isFree && !isSmallAmount) ...[
+              const SizedBox(height: 12),
+              Text("Reason: $reason", style: const TextStyle(fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic)),
+            ],
+            const SizedBox(height: 20),
+            Text(isSmallAmount 
+              ? "Click 'Confirm' to mark as paid and open the ramp."
+              : "Would you like to simulate a successful payment to unlock the ramp?"),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -635,18 +685,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
             child: const Text("Cancel"),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () async {
               Navigator.pop(context);
               setState(() => _isLoading = true);
               try {
                 await _finalizeExit();
                 if (mounted) {
-                  MessageUtils.showSuccess(context, 'Simulated payment successful!');
+                  MessageUtils.showSuccess(context, 'Payment successful (simulation)! Ramp opened.');
                   setState(() {
                     _isLoading = false;
                     _paymentCompleted = true;
                   });
-                  _triggerReviewFlow();
                 }
               } catch (e) {
                 if (mounted) {
@@ -655,7 +705,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 }
               }
             },
-            child: const Text("Confirm Payment"),
+            child: const Text("Confirm", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -672,20 +722,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  void _triggerReviewFlow() {
-    final resId = widget.reservation.id;
-    debugPrint('Review flow scheduled for Reservation #$resId in 5 seconds...');
-    Future.delayed(const Duration(seconds: 5), () {
-      final context = MyApp.navigatorKey.currentContext;
-      if (context != null) {
-        debugPrint('Triggering ReviewDialog for Reservation #$resId using global context');
-        showDialog(
-          context: context,
-          builder: (context) => ReviewDialog(reservationId: resId),
-        );
-      } else {
-        debugPrint('Could not trigger ReviewDialog: internal context is null');
-      }
-    });
-  }
+  // Method removed as we now trigger review dialog via "Return to Home" button
 }
