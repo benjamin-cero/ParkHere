@@ -12,7 +12,7 @@ using ParkHere.Services.Database;
 namespace ParkHere.Services.Migrations
 {
     [DbContext(typeof(ParkHereDbContext))]
-    [Migration("20260104135024_init")]
+    [Migration("20260104153513_init")]
     partial class init
     {
         /// <inheritdoc />
