@@ -167,7 +167,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       await showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (context) => ReviewDialog(reservationId: widget.reservation.id),
+                        builder: (context) => ReviewDialog(
+                          reservationId: widget.reservation.id,
+                          isAutomatedPrompt: true,
+                        ),
                       );
                     }
                   } catch (e) {

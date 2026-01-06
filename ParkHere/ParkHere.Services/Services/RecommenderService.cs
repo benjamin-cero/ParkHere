@@ -106,5 +106,25 @@ namespace ParkHere.Services.Services
         }
         
         public static bool IsModelAvailable() => _model != null;
+
+        private static DateTime _lastRetrainTime = DateTime.MinValue;
+        public static void TriggerRetraining(IServiceProvider serviceProvider)
+        {
+            // Cooldown of 30 seconds to prevent excessive retraining
+            if ((DateTime.Now - _lastRetrainTime).TotalSeconds < 30) return;
+
+            _lastRetrainTime = DateTime.Now;
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    TrainModelAtStartup(serviceProvider);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in background retraining: {ex.Message}");
+                }
+            });
+        }
     }
 }

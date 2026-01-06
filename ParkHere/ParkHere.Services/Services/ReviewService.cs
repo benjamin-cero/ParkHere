@@ -5,14 +5,18 @@ using ParkHere.Services.Database;
 using ParkHere.Services.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ParkHere.Services.Services
 {
     public class ReviewService : BaseCRUDService<ReviewResponse, ReviewSearchObject, Review, ReviewInsertRequest, ReviewUpdateRequest>, IReviewService
     {
-        public ReviewService(ParkHereDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IServiceProvider _serviceProvider;
+        public ReviewService(ParkHereDbContext context, IMapper mapper, IServiceProvider serviceProvider) : base(context, mapper)
         {
+            _serviceProvider = serviceProvider;
         }
 
         protected override IQueryable<Review> ApplyFilter(IQueryable<Review> query, ReviewSearchObject search)
@@ -36,6 +40,12 @@ namespace ParkHere.Services.Services
             }
 
             return query.OrderByDescending(x => x.CreatedAt);
+        }
+
+        protected override Task AfterInsert(Review entity, ReviewInsertRequest request)
+        {
+            RecommenderService.TriggerRetraining(_serviceProvider);
+            return base.AfterInsert(entity, request);
         }
     }
 }

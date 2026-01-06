@@ -13,8 +13,10 @@ namespace ParkHere.Services.Services
 {
     public class ParkingSessionService : BaseCRUDService<ParkingSessionResponse, ParkingSessionSearchObject, ParkingSession, ParkingSessionInsertRequest, ParkingSessionUpdateRequest>, IParkingSessionService
     {
-        public ParkingSessionService(ParkHereDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IServiceProvider _serviceProvider;
+        public ParkingSessionService(ParkHereDbContext context, IMapper mapper, IServiceProvider serviceProvider) : base(context, mapper)
         {
+            _serviceProvider = serviceProvider;
         }
 
         protected override IQueryable<ParkingSession> ApplyFilter(IQueryable<ParkingSession> query, ParkingSessionSearchObject search)
@@ -218,6 +220,9 @@ namespace ParkHere.Services.Services
 
             reservation.IsPaid = true;
             await _context.SaveChangesAsync();
+
+            // Trigger recommender retraining in background after payment
+            RecommenderService.TriggerRetraining(_serviceProvider);
         }
 
     }

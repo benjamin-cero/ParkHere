@@ -15,8 +15,10 @@ namespace ParkHere.Services.Services
 {
     public class ParkingReservationService : BaseCRUDService<ParkingReservationResponse, ParkingReservationSearchObject, ParkingReservation, ParkingReservationInsertRequest, ParkingReservationUpdateRequest>, IParkingReservationService
     {
-        public ParkingReservationService(ParkHereDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IServiceProvider _serviceProvider;
+        public ParkingReservationService(ParkHereDbContext context, IMapper mapper, IServiceProvider serviceProvider) : base(context, mapper)
         {
+            _serviceProvider = serviceProvider;
         }
 
         protected override IQueryable<ParkingReservation> ApplyFilter(IQueryable<ParkingReservation> query, ParkingReservationSearchObject search)
@@ -157,6 +159,9 @@ namespace ParkHere.Services.Services
             
             // Send notification after successful creation
             await SendReservationNotificationAsync(entity.Id);
+            
+            // Trigger recommender retraining in background
+            RecommenderService.TriggerRetraining(_serviceProvider);
             
             var response = MapToResponse(entity);
             response.IncludedDebt = totalDebt > 0 ? totalDebt : null;

@@ -8,8 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ReviewDialog extends StatefulWidget {
   final int reservationId;
+  final bool isAutomatedPrompt;
 
-  const ReviewDialog({super.key, required this.reservationId});
+  const ReviewDialog({
+    super.key, 
+    required this.reservationId, 
+    this.isAutomatedPrompt = false,
+  });
 
   // Check if user has opted out of review prompts
   static Future<bool> shouldShowReviewPrompt() async {
@@ -140,40 +145,40 @@ class _ReviewDialogState extends State<ReviewDialog> {
                 : const Text("Submit Review", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
-          const SizedBox(height: 12),
-          
-          // Later and Never Ask Again Buttons
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: _isLoading ? null : () => Navigator.pop(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text(
-                    "Later",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextButton(
-                  onPressed: _isLoading ? null : _neverAskAgain,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text(
-                    "Never ask me again",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.grey),
+          if (widget.isAutomatedPrompt) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text(
+                      "Later",
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextButton(
+                    onPressed: _isLoading ? null : _neverAskAgain,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text(
+                      "Never ask me again",
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
