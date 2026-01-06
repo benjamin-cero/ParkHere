@@ -554,16 +554,28 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.directions_car_rounded, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
-                        Text("Session in progress", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "ACTIVE SESSION", 
+                          style: TextStyle(
+                            color: Colors.green[700], 
+                            fontWeight: FontWeight.w900, 
+                            fontSize: 10,
+                            letterSpacing: 1.5
+                          )
+                        ),
                       ],
                     ),
                   ),
