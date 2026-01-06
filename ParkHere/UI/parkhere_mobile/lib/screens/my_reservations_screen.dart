@@ -423,32 +423,51 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text("${res.price.toStringAsFixed(2)} BAM",
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+                            Text(
+                              status == "Completed" ? "TOTAL PAID: ${res.price.toStringAsFixed(2)} BAM" : "${res.price.toStringAsFixed(2)} BAM",
+                              style: TextStyle(
+                                fontSize: status == "Completed" ? 18 : 16, 
+                                fontWeight: FontWeight.w900, 
+                                color: status == "Completed" ? Colors.green[800] : AppColors.primaryDark,
+                                letterSpacing: -0.5
+                              )
+                            ),
                             
-                            // Real-time calculation for active sessions in overtime
-                            if (isArrived && isOvertime) ...[
-                               Text(
-                                 "+ ${(() {
-                                     final diff = now.difference(res.endTime);
-                                     final multiplier = spot?.priceMultiplier ?? 1.0;
-                                     final penaltyRatePerMinute = (3.0 * multiplier / 60.0) * 1.5;
-                                     return (diff.inMinutes * penaltyRatePerMinute).toStringAsFixed(2);
-                                   })()} OVERTIME",
-                                 style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
-                               ),
-                            ] else if (res.extraCharge != null && res.extraCharge! > 0) ...[
-                               Text(
-                                 "(Incl. ${res.extraCharge!.toStringAsFixed(2)} overtime)",
-                                 style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
-                               ),
-                            ],
-
-                            if (res.includedDebt != null && res.includedDebt! > 0)
+                            if (status == "Completed") ...[
+                              const SizedBox(height: 4),
                               Text(
-                                "(Incl. ${res.includedDebt!.toStringAsFixed(2)} missed debt - Loan Payed)",
-                                style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold),
+                                "Base: ${(res.price - (res.extraCharge ?? 0) - (res.includedDebt ?? 0)).toStringAsFixed(2)} BAM",
+                                style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.bold),
                               ),
+                              if (res.extraCharge != null && res.extraCharge! > 0)
+                                Text(
+                                  "Overtime: +${res.extraCharge!.toStringAsFixed(2)} BAM",
+                                  style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
+                                ),
+                              if (res.includedDebt != null && res.includedDebt! > 0)
+                                Text(
+                                  "Debt: +${res.includedDebt!.toStringAsFixed(2)} BAM",
+                                  style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold),
+                                ),
+                            ] else ...[
+                               // Active session real-time overtime
+                               if (isArrived && isOvertime) ...[
+                                  Text(
+                                    "+ ${(() {
+                                        final diff = now.difference(res.endTime);
+                                        final multiplier = spot?.priceMultiplier ?? 1.0;
+                                        final penaltyRatePerMinute = (3.0 * multiplier / 60.0) * 1.5;
+                                        return (diff.inMinutes * penaltyRatePerMinute).toStringAsFixed(2);
+                                      })()} OVERTIME",
+                                    style: const TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold),
+                                  ),
+                               ],
+                               if (res.includedDebt != null && res.includedDebt! > 0)
+                                 Text(
+                                   "(Incl. ${res.includedDebt!.toStringAsFixed(2)} debt)",
+                                   style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold),
+                                 ),
+                            ],
                           ],
                         ),
                   ],

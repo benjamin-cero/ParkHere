@@ -164,7 +164,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
                       ? "Passed" 
                       : (res.arrivalTime != null ? "Arrived" : "Reserved"))),
           data: {
-            Icons.payments_outlined: "${res.price.toStringAsFixed(2)} KM",
+            Icons.payments_outlined: "${res.price.toStringAsFixed(2)} KM${(res.extraCharge != null && res.extraCharge! > 0) || (res.includedDebt != null && res.includedDebt! > 0) ? '*' : ''}",
             Icons.access_time_rounded: res.arrivalTime != null 
                 ? "Arr: ${DateFormat('HH:mm').format(res.arrivalTime!)}"
                 : "Starts: ${DateFormat('dd.MM HH:mm').format(res.startTime)}",

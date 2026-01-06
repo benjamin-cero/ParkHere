@@ -35,6 +35,8 @@ ParkingReservation _$ParkingReservationFromJson(Map<String, dynamic> json) =>
       actualEndTime: json['actualEndTime'] == null
           ? null
           : DateTime.parse(json['actualEndTime'] as String),
+      extraCharge: (json['extraCharge'] as num?)?.toDouble(),
+      includedDebt: (json['includedDebt'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$ParkingReservationToJson(ParkingReservation instance) =>
@@ -54,4 +56,6 @@ Map<String, dynamic> _$ParkingReservationToJson(ParkingReservation instance) =>
       'arrivalTime': instance.arrivalTime?.toIso8601String(),
       'actualStartTime': instance.actualStartTime?.toIso8601String(),
       'actualEndTime': instance.actualEndTime?.toIso8601String(),
+      'extraCharge': instance.extraCharge,
+      'includedDebt': instance.includedDebt,
     };

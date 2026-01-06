@@ -115,9 +115,9 @@ class ReservationDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _buildSmallStat(
                           icon: Icons.payments_outlined,
-                          label: "Total Price",
+                          label: reservation.isPaid ? "Total Paid" : "Total Price",
                           value: "${reservation.price.toStringAsFixed(2)} BAM",
-                          color: Colors.green,
+                          color: reservation.isPaid ? Colors.green : Colors.blue,
                         ),
                       ),
                     ],
@@ -176,6 +176,55 @@ class ReservationDetailsScreen extends StatelessWidget {
                     ],
                   ),
                   
+                  const SizedBox(height: 32),
+                  _buildSectionHeader("Financial Details"),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoTile(
+                          icon: Icons.payments_rounded,
+                          label: "Base Price",
+                          value: "${(reservation.price - (reservation.extraCharge ?? 0) - (reservation.includedDebt ?? 0)).toStringAsFixed(2)} BAM",
+                        ),
+                      ),
+                      if (reservation.includedDebt != null && reservation.includedDebt! > 0) ...[
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildInfoTile(
+                            icon: Icons.warning_amber_rounded,
+                            label: "Included Debt",
+                            value: "${reservation.includedDebt!.toStringAsFixed(2)} BAM",
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (reservation.extraCharge != null && reservation.extraCharge! > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildInfoTile(
+                      icon: Icons.history_rounded,
+                      label: "Overtime Penalty",
+                      value: "${reservation.extraCharge!.toStringAsFixed(2)} BAM",
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A8A).withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.1)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("FINAL STAMPED PRICE", style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1E3A8A), fontSize: 12, letterSpacing: 1)),
+                        Text("${reservation.price.toStringAsFixed(2)} BAM", style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1B3A8A), fontSize: 20)),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 32),
                   _buildSectionHeader("Parking Location"),
                   const SizedBox(height: 16),
