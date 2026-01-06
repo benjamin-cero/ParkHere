@@ -25,5 +25,6 @@ namespace ParkHere.Model.Responses
         
         // Collection of roles assigned to the user
         public List<RoleResponse> Roles { get; set; } = new List<RoleResponse>();
+        public decimal TotalDebt { get; set; }
     }
 } 

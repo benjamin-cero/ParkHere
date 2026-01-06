@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParkHere.Services")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0c8e79f473780f685d78df8bf51596e836c276f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a4229dee6908f3100005e6ea9fa29f5f4185998")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParkHere.Services")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParkHere.Services")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

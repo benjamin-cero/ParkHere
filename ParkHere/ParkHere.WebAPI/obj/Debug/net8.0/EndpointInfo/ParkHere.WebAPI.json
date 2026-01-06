@@ -4489,6 +4489,10 @@
               "$ref": "#/components/schemas/RoleResponse"
             },
             "nullable": true
+          },
+          "totalDebt": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

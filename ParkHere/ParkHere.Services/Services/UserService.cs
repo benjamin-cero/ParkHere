@@ -85,9 +85,26 @@ namespace ParkHere.Services.Services
             }
 
             var users = await query.ToListAsync();
+            var userIds = users.Select(u => u.Id).ToList();
+
+            var now = DateTime.Now;
+            var debts = await _context.ParkingReservations
+                .Where(r => userIds.Contains(r.UserId) && r.IsPaid == false && r.EndTime < now)
+                .Where(r => !_context.ParkingSessions.Any(s => s.ParkingReservationId == r.Id && s.ActualStartTime != null))
+                .GroupBy(r => r.UserId)
+                .Select(g => new { UserId = g.Key, TotalDebt = g.Sum(r => r.Price) })
+                .ToListAsync();
+
+            var debtMap = debts.ToDictionary(d => d.UserId, d => d.TotalDebt);
+
             return new PagedResult<UserResponse>
             {
-                Items = users.Select(MapToResponse).ToList(),
+                Items = users.Select(u =>
+                {
+                    var response = MapToResponse(u);
+                    response.TotalDebt = debtMap.ContainsKey(u.Id) ? Math.Round(debtMap[u.Id], 2) : 0;
+                    return response;
+                }).OrderByDescending(u => u.TotalDebt).ToList(),
                 TotalCount = totalCount
             };
         }
@@ -104,7 +121,17 @@ namespace ParkHere.Services.Services
             if (user == null)
                 return null;
 
-            return MapToResponse(user);
+            var response = MapToResponse(user);
+            
+            var now = DateTime.Now;
+            var debt = await _context.ParkingReservations
+                .Where(r => r.UserId == id && r.IsPaid == false && r.EndTime < now)
+                .Where(r => !_context.ParkingSessions.Any(s => s.ParkingReservationId == r.Id && s.ActualStartTime != null))
+                .SumAsync(r => (decimal?)r.Price) ?? 0;
+
+            response.TotalDebt = Math.Round(debt, 2);
+
+            return response;
         }
 
 

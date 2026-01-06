@@ -28,6 +28,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
           ?.map((e) => RoleResponse.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  totalDebt: (json['totalDebt'] as num?)?.toDouble() ?? 0.0,
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -46,4 +47,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'cityId': instance.cityId,
   'cityName': instance.cityName,
   'roles': instance.roles,
+  'totalDebt': instance.totalDebt,
 };

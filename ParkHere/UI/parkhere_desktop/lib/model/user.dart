@@ -10,7 +10,7 @@ class User {
   final String lastName;
   final String email;
   final String username;
-  final String? picture; // Will be base64 string from backend
+  final String? picture;
   final bool isActive;
   final String? phoneNumber;
   final DateTime createdAt;
@@ -20,6 +20,7 @@ class User {
   final int cityId;
   final String cityName;
   final List<RoleResponse> roles;
+  final double totalDebt;
 
   User({
     this.id = 0,
@@ -37,6 +38,7 @@ class User {
     this.cityId = 0,
     this.cityName = '',
     this.roles = const [],
+    this.totalDebt = 0.0,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

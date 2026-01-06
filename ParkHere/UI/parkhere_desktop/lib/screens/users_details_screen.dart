@@ -147,6 +147,12 @@ class UsersDetailsScreen extends StatelessWidget {
                         value: "City",
                         color: Colors.orange,
                       ),
+                      _buildQuickStat(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: "${user.totalDebt.toStringAsFixed(2)} BAM",
+                        value: "Total Debt",
+                        color: user.totalDebt > 0 ? Colors.red : Colors.green,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 40),
@@ -226,8 +232,8 @@ class UsersDetailsScreen extends StatelessWidget {
 
   Widget _buildQuickStat({required IconData icon, required String label, required String value, required Color color}) {
     return Container(
-      width: 150,
-      padding: const EdgeInsets.all(16),
+      width: 170,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

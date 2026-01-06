@@ -91,6 +91,13 @@ namespace ParkHere.Services.Services
             if (session.ArrivalTime.HasValue)
                 throw new InvalidOperationException("Arrival time has already been registered for this session.");
 
+            // Prevent arrival for expired reservations
+            var reservation = await _context.ParkingReservations.FindAsync(reservationId);
+            if (reservation != null && reservation.EndTime < DateTime.Now)
+            {
+                throw new InvalidOperationException("Cannot register arrival for an expired reservation.");
+            }
+
             session.ArrivalTime = DateTime.Now;
             await _context.SaveChangesAsync();
 

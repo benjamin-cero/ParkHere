@@ -160,7 +160,9 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
               ? "Finished" 
               : (res.actualStartTime != null 
                   ? "Active" 
-                  : (res.arrivalTime != null ? "Arrived" : "Reserved")),
+                  : (res.endTime.isBefore(DateTime.now()) 
+                      ? "Passed" 
+                      : (res.arrivalTime != null ? "Arrived" : "Reserved"))),
           data: {
             Icons.payments_outlined: "${res.price.toStringAsFixed(2)} KM",
             Icons.access_time_rounded: res.arrivalTime != null 
@@ -169,7 +171,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
             Icons.local_parking_rounded: res.parkingSpot?.spotCode ?? "N/A",
           },
           actions: [
-            if (res.arrivalTime == null && res.actualStartTime == null)
+            if (res.arrivalTime == null && res.actualStartTime == null && res.endTime.isAfter(DateTime.now()))
               BaseGridAction(
                 label: "Simulate Arrival",
                 icon: Icons.hail_rounded,

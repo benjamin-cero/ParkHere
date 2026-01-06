@@ -159,13 +159,18 @@ class _UsersListScreenState extends State<UsersListScreen> {
           title: "${user.firstName} ${user.lastName}",
           subtitle: "@${user.username}",
           imageUrl: user.picture,
-          isActive: user.isActive,
+          isActive: user.totalDebt > 0 ? false : user.isActive,
+          statusTitle: user.totalDebt > 0 
+              ? "DEBT: ${user.totalDebt.toStringAsFixed(2)} BAM" 
+              : (user.isActive ? "Active" : "Inactive"),
           data: {
             Icons.email_outlined: user.email,
             Icons.location_city_outlined: user.cityName.isEmpty ? "Unknown City" : user.cityName,
             Icons.admin_panel_settings_outlined: user.roles.map((r) => r.name).join(', ').isEmpty 
                 ? "No Role" 
                 : user.roles.map((r) => r.name).join(', '),
+            if (user.totalDebt > 0)
+              Icons.account_balance_wallet_outlined: "Debt: ${user.totalDebt.toStringAsFixed(2)} BAM",
           },
           actions: [
             BaseGridAction(
