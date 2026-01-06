@@ -600,32 +600,6 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                   ),
                 ],
 
-                if (status == "Completed") ...[
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => ReviewDialog(reservationId: res.id),
-                            );
-                          },
-                          icon: const Icon(Icons.rate_review_rounded, size: 20),
-                          label: const Text("Leave a Review"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                            elevation: 0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
 
                 if (status == "Missed") ...[
                    const SizedBox(height: 24),
