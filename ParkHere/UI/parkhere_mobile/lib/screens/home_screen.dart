@@ -504,9 +504,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     final double basePrice = currentRes.price;
                     final double extraCharge = _extraCharges[currentRes.id] ?? 0.0;
                     final double totalPrice = basePrice + extraCharge;
+                    final calculationTime = DateTime.now();
 
                     debugPrint('--- EXIT PARKING NAV ---');
-                    debugPrint('ResID: ${currentRes.id}, Base: $basePrice, Extra: $extraCharge, Total: $totalPrice');
+                    debugPrint('ResID: ${currentRes.id}, Base: $basePrice, Extra: $extraCharge, Total: $totalPrice, Time: $calculationTime');
                     
                     Navigator.push(
                       context,
@@ -514,6 +515,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         builder: (context) => PaymentScreen(
                           reservation: currentRes,
                           totalPrice: totalPrice,
+                          calculationTime: calculationTime,
                         ),
                       ),
                     );

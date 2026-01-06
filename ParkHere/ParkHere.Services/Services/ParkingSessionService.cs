@@ -176,7 +176,8 @@ namespace ParkHere.Services.Services
             
             if (actualEndTime > reservationEndTime)
             {
-                var extraMinutes = (int)(actualEndTime - reservationEndTime).TotalMinutes;
+                // Round down to the nearest minute to match mobile behavior (Duration.inMinutes)
+                var extraMinutes = (int)Math.Floor((actualEndTime - reservationEndTime).TotalMinutes);
                 session.ExtraMinutes = extraMinutes;
 
                 // Penalty Calculation: 1.5x the base rate

@@ -21,11 +21,13 @@ import 'package:parkhere_mobile/utils/review_dialog.dart';
 class PaymentScreen extends StatefulWidget {
   final ParkingReservation reservation;
   final double totalPrice;
+  final DateTime? calculationTime;
 
   const PaymentScreen({
     super.key,
     required this.reservation,
     required this.totalPrice,
+    this.calculationTime,
   });
 
   @override
@@ -333,9 +335,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ? widget.reservation.actualStartTime!
         : widget.reservation.startTime;
         
-    final departureTime = now.isAfter(widget.reservation.endTime)
+    final departureTime = widget.calculationTime ?? (now.isAfter(widget.reservation.endTime)
         ? now
-        : widget.reservation.endTime;
+        : widget.reservation.endTime);
 
     final multiplier = widget.reservation.parkingSpot?.priceMultiplier ?? 1.0;
     final hourlyRate = 3.0 * multiplier;
@@ -715,7 +717,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _finalizeExit() async {
     try {
       final sessionProvider = Provider.of<ParkingSessionProvider>(context, listen: false);
-      await sessionProvider.setActualEndTime(widget.reservation.id);
+      await sessionProvider.setActualEndTime(widget.reservation.id, actualEndTime: widget.calculationTime);
       await sessionProvider.markAsPaid(widget.reservation.id);
     } catch (e) {
       throw Exception('Failed to finalize exit: $e');

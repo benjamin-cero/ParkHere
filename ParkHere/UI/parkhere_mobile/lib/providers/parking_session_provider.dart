@@ -13,9 +13,18 @@ class ParkingSessionProvider extends BaseProvider<dynamic> {
     }
   }
   
-  Future<void> setActualEndTime(int reservationId) async {
+  Future<void> setActualEndTime(int reservationId, {DateTime? actualEndTime}) async {
     var url = "${BaseProvider.baseUrl}$endpoint/set-end-time/$reservationId";
-    var response = await http.post(Uri.parse(url), headers: createHeaders());
+    String body = actualEndTime != null ? '"${actualEndTime.toIso8601String()}"' : "";
+    
+    var response = await http.post(
+      Uri.parse(url), 
+      headers: {
+        ...createHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: body,
+    );
     
     if (response.statusCode != 200) {
       throw Exception("Failed to exit parking");
