@@ -1,4 +1,4 @@
-package com.example.vital_sphere_mobile
+package com.example.parkhere_mobile
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

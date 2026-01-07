@@ -1,6 +1,6 @@
 {
-    "name": "vital_sphere_mobile",
-    "short_name": "vital_sphere_mobile",
+    "name": "parkhere_mobile",
+    "short_name": "parkhere_mobile",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
