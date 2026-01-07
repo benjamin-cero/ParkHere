@@ -1,4 +1,4 @@
-package com.example.manifest_desktop
+package com.example.parkhere_desktop
 
 import io.flutter.embedding.android.FlutterActivity
 

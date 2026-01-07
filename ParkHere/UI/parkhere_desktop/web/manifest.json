@@ -1,6 +1,6 @@
 {
-    "name": "manifest_desktop",
-    "short_name": "manifest_desktop",
+    "name": "parkhere_desktop",
+    "short_name": "parkhere_desktop",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

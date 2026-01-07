@@ -290,7 +290,7 @@ class _BaseMapState extends State<BaseMap> with TickerProviderStateMixin {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.manifest_desktop',
+              userAgentPackageName: 'com.example.parkhere_desktop',
             ),
             if (_routePoints != null)
               PolylineLayer(

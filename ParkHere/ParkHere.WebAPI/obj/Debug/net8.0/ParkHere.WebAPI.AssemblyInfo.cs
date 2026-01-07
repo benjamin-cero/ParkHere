@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParkHere.WebAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43d6814b58383b2c903ab786d319a663840779b1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c9bfc50690578fe87a6214c6cd408631e5be078")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParkHere.WebAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParkHere.WebAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
